@@ -10,10 +10,10 @@
 #include <type_traits>
 #include <utility> // std::move, std::forward, std::swap, std::exchange
 
-namespace iris {
+namespace rich {
   /// squared
   template <class X>
   constexpr auto squared(const X& x) noexcept(noexcept(x* x)) -> decltype(x * x) {
     return x * x;
   }
-} // namespace iris
+} // namespace rich

@@ -39,7 +39,7 @@ if(IRIS_INSTALL)
     INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
   )
   install(
-    DIRECTORY include/iris
+    DIRECTORY include/rich
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
   )
   # Make library importable by other projects
