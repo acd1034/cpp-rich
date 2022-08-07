@@ -1,0 +1,58 @@
+# Reference:
+# https://github.com/catchorg/Catch2/blob/96790b1d2335f3ff8b941b3598f3f1028f5d09f9/.github/workflows/linux-simple-builds.yml
+name: Linux build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    name: ${{matrix.pkg_name}}, C++${{matrix.std}}, ${{matrix.build_type}} build
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      matrix:
+        pkg_name:
+          - g++-11
+          # - clang-13
+        build_type: [Debug, Release]
+        std: [20]
+        include:
+          - pkg_name: g++-11
+            compiler: g++-11
+          # - pkg_name: clang-13
+          #   compiler: clang++-13
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Prepare environment
+      run: sudo apt install -y ninja-build ${{matrix.pkg_name}}
+
+    - name: Configure build
+      working-directory: ${{runner.workspace}}
+      env:
+        CXX: ${{matrix.compiler}}
+        CXXFLAGS: ${{matrix.cxxflags}}
+      # Note: $GITHUB_WORKSPACE is distinct from ${{runner.workspace}}.
+      #       This is important
+      run: |
+        cmake -Bbuild -H$GITHUB_WORKSPACE \
+              -DCMAKE_BUILD_TYPE=${{matrix.build_type}} \
+              -DCMAKE_CXX_STANDARD=${{matrix.std}} \
+              -DCMAKE_CXX_EXTENSIONS=OFF \
+              -G Ninja
+
+    - name: Build tests + lib
+      working-directory: ${{runner.workspace}}/build
+      run: ninja
+
+    - name: Run tests
+      env:
+          CTEST_OUTPUT_ON_FAILURE: 1
+      working-directory: ${{runner.workspace}}/build
+      # Hardcode 2 cores we know are there
+      run: ctest -C ${{matrix.build_type}} -j 2

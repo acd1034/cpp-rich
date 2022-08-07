@@ -1,0 +1,48 @@
+# This is a basic workflow to help you get started with Actions
+name: macOS build
+
+# Controls when the action will run. Triggers the workflow on push or pull
+# request events but only for the master branch
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    name: ${{matrix.compiler}} ${{matrix.build_type}}
+    # The type of runner that the job will run on
+    runs-on: macos-latest
+    timeout-minutes: 30
+    # A matrix allows you to create multiple jobs by performing variable substitution
+    # in a single job definition
+    strategy:
+      matrix:
+        compiler:
+          # - /usr/bin/g++
+          - /usr/bin/clang++
+        build_type: [Debug]
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    - name: Configure build
+      working-directory: .
+      run: |
+        cmake -S . -B build \
+              -DCMAKE_BUILD_TYPE=${{matrix.build_type}} \
+              -DCMAKE_CXX_COMPILER=${{matrix.compiler}}
+
+    - name: Build
+      working-directory: .
+      run: cmake --build build -j 2
+
+    - name: Run test
+      working-directory: ./build
+      run: ctest -j 2
