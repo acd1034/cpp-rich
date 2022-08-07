@@ -32,6 +32,8 @@ add_subdirectory(include)
 # Add external (header only) libraries
 find_package(fmt CONFIG REQUIRED)
 target_link_libraries(Iris INTERFACE fmt::fmt-header-only)
+find_package(range-v3 CONFIG REQUIRED)
+target_link_libraries(Iris INTERFACE range-v3 range-v3-meta range-v3::meta range-v3-concepts)
 
 if(IRIS_INSTALL)
   install(

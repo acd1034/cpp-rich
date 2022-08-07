@@ -14,7 +14,8 @@ void fn() {
 }
 
 TEST_CASE("main", "[main][exception]") {
-  std::cout << "\n===============================================================================" << std::endl;
+  std::cout << "\n==============================================================================="
+            << std::endl;
 
   try {
     fn();
@@ -32,7 +33,22 @@ TEST_CASE("main", "[main][exception]") {
 }
 
 TEST_CASE("main", "[main][file]") {
-  std::cout << "\n===============================================================================" << std::endl;
-  auto contents = rich::get_file_contents(__FILE__);
-  std::cout << contents << std::endl;
+  {
+    std::cout << "\n==============================================================================="
+              << std::endl;
+    auto contents = rich::get_file_contents(__FILE__);
+    auto partial = rich::extract_partial_contents(contents, 21, 7);
+    std::cout << partial << std::endl;
+  }
+  {
+    std::cout << "\n==============================================================================="
+              << std::endl;
+    try {
+      fn();
+    } catch (rich::exception& e) {
+      auto contents = rich::get_file_contents(e.where().file_name());
+      auto partial = rich::extract_partial_contents(contents, e.where().line(), 7);
+      std::cout << partial << std::endl;
+    }
+  }
 }
