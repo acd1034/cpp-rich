@@ -1,8 +1,9 @@
-/// @file fundamental.hpp
+/// @file exception.hpp
 #pragma once
 #include <exception>
 #include <source_location>
 #include <string>
+#include <rich/fundamental.hpp>
 
 namespace rich {
   // https://github.com/llvm/llvm-project/blob/main/libcxx/include/exception

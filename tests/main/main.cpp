@@ -1,6 +1,7 @@
 #include <iostream>
 #include <catch2/catch_test_macros.hpp>
 #include <rich/exception.hpp>
+#include <rich/file.hpp>
 #include <rich/fundamental.hpp>
 
 TEST_CASE("main", "[main][squared]") {
@@ -13,6 +14,8 @@ void fn() {
 }
 
 TEST_CASE("main", "[main][exception]") {
+  std::cout << "\n===============================================================================" << std::endl;
+
   try {
     fn();
   } catch (rich::exception& e) {
@@ -23,9 +26,13 @@ TEST_CASE("main", "[main][exception]") {
     std::cout << e.where().function_name() << std::endl;
   }
 
-   try {
+  try {
     fn();
-  } catch (std::exception& e) {
-    std::cout << e.what() << std::endl;
-  }
+  } catch (std::exception& e) { std::cout << e.what() << std::endl; }
+}
+
+TEST_CASE("main", "[main][file]") {
+  std::cout << "\n===============================================================================" << std::endl;
+  auto contents = rich::get_file_contents(__FILE__);
+  std::cout << contents << std::endl;
 }
