@@ -1,8 +1,8 @@
 /// @file fundamental.hpp
 #pragma once
 #include <cassert>
-// #include <compare>
-// #include <concepts>
+#include <compare>
+#include <concepts>
 #include <cstddef> // std::size_t, std::ptrdiff_t, std::nullptr_t
 #include <cstdint> // std::int32_t
 #include <initializer_list>
