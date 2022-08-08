@@ -3,6 +3,7 @@
 #include <fstream>
 #include <string>
 #include <string_view>
+
 #include <rich/exception.hpp>
 
 namespace rich {

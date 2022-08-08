@@ -3,6 +3,7 @@
 #include <exception>
 #include <source_location>
 #include <string>
+
 #include <rich/fundamental.hpp>
 
 namespace rich {
