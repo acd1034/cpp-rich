@@ -4,6 +4,9 @@
 #include <rich/file.hpp>
 #include <rich/fundamental.hpp>
 
+inline constexpr std::string_view
+  hline("\n===============================================================================");
+
 TEST_CASE("main", "[main][squared]") {
   static_assert(std::is_same_v<decltype(rich::squared(0)), int>);
   CHECK(rich::squared(2) == 4);
@@ -14,8 +17,7 @@ void fn() {
 }
 
 TEST_CASE("main", "[main][exception]") {
-  std::cout << "\n==============================================================================="
-            << std::endl;
+  std::cout << hline << std::endl;
 
   try {
     fn();
@@ -34,15 +36,13 @@ TEST_CASE("main", "[main][exception]") {
 
 TEST_CASE("main", "[main][file]") {
   {
-    std::cout << "\n==============================================================================="
-              << std::endl;
+    std::cout << hline << std::endl;
     auto contents = rich::get_file_contents(__FILE__);
-    auto partial = rich::extract_partial_contents(contents, 21, 7);
+    auto partial = rich::extract_partial_contents(contents, 23, 7);
     std::cout << partial << std::endl;
   }
   {
-    std::cout << "\n==============================================================================="
-              << std::endl;
+    std::cout << hline << std::endl;
     try {
       fn();
     } catch (rich::exception& e) {
