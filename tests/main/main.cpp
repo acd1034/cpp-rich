@@ -5,16 +5,15 @@
 #include <rich/fundamental.hpp>
 
 inline constexpr std::string_view
-  hline("\n===============================================================================");
+  hline("\n===================================================================="
+        "===========");
 
 TEST_CASE("main", "[main][squared]") {
   static_assert(std::is_same_v<decltype(rich::squared(0)), int>);
   CHECK(rich::squared(2) == 4);
 }
 
-void fn() {
-  throw rich::runtime_error("Rich exception thrown!");
-}
+void fn() { throw rich::runtime_error("Rich exception thrown!"); }
 
 TEST_CASE("main", "[main][exception]") {
   std::cout << hline << std::endl;
@@ -31,14 +30,17 @@ TEST_CASE("main", "[main][exception]") {
 
   try {
     fn();
-  } catch (std::exception& e) { std::cout << e.what() << std::endl; }
+  } catch (std::exception& e) {
+    std::cout << e.what() << std::endl;
+  }
 }
 
 TEST_CASE("main", "[main][file]") {
   {
     std::cout << hline << std::endl;
     auto contents = rich::get_file_contents(__FILE__);
-    auto partial = rich::extract_partial_contents(contents, 23, 7);
+    auto partial =
+      rich::extract_partial_contents(std::string_view(contents), 23, 7);
     std::cout << partial << std::endl;
   }
   {
@@ -47,7 +49,8 @@ TEST_CASE("main", "[main][file]") {
       fn();
     } catch (rich::exception& e) {
       auto contents = rich::get_file_contents(e.where().file_name());
-      auto partial = rich::extract_partial_contents(contents, e.where().line(), 7);
+      auto partial = rich::extract_partial_contents(std::string_view(contents),
+                                                    e.where().line(), 7);
       std::cout << partial << std::endl;
     }
   }
