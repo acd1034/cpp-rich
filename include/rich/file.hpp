@@ -3,7 +3,6 @@
 #include <fstream>
 #include <string>
 #include <string_view>
-#include <range/v3/view.hpp>
 #include <rich/exception.hpp>
 
 namespace rich {
@@ -20,9 +19,6 @@ namespace rich {
   std::string get_file_contents(const std::string& fname) {
     return get_file_contents(fname.c_str());
   }
-
-  namespace _ranges = ::ranges;
-  namespace _views = ::ranges::views;
 
   std::string extract_partial_contents(std::string_view contents,
                                        std::uint_least32_t line,
