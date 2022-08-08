@@ -12,6 +12,7 @@ namespace rich {
     fmt::text_style style_{};
 
     public:
+    segment() = default;
     constexpr explicit segment(std::string_view t) : text_(t) {}
     constexpr segment(std::string_view t, const fmt::text_style& s)
       : text_(t), style_(s) {}
