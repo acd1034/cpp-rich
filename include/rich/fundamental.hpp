@@ -21,4 +21,26 @@ namespace rich {
     -> decltype(x * x) {
     return x * x;
   }
+
+  /// cast
+  template <std::integral To, std::integral From>
+  constexpr To cast(From&& from) noexcept(
+    noexcept(static_cast<To>(std::forward<From>(from)))) {
+    assert(std::in_range<To>(from));
+    return static_cast<To>(std::forward<From>(from));
+  }
+
+  /// to_unsigned
+  template <std::integral From>
+  constexpr std::make_unsigned_t<From> to_unsigned(From&& from) noexcept(
+    noexcept(cast<std::make_unsigned_t<From>>(std::forward<From>(from)))) {
+    return cast<std::make_unsigned_t<From>>(std::forward<From>(from));
+  }
+
+  /// to_signed
+  template <std::integral From>
+  constexpr std::make_signed_t<From> to_signed(From&& from) noexcept(
+    noexcept(cast<std::make_signed_t<From>>(std::forward<From>(from)))) {
+    return cast<std::make_signed_t<From>>(std::forward<From>(from));
+  }
 } // namespace rich

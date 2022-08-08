@@ -1,21 +1,23 @@
 /// @file segment.hpp
 #pragma once
-#include <string>
+#include <string_view>
 #include <fmt/color.h>
 
 #include <rich/fundamental.hpp>
 
 namespace rich {
   struct segment {
-    private:
+  private:
     std::string_view text_{};
     fmt::text_style style_{};
 
-    public:
+  public:
     segment() = default;
     constexpr explicit segment(std::string_view t) : text_(t) {}
     constexpr segment(std::string_view t, const fmt::text_style& s)
       : text_(t), style_(s) {}
+
+    // observer
     auto text() const { return text_; }
     const auto& style() const { return style_; }
   };

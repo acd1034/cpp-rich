@@ -20,13 +20,15 @@ TEST_CASE("style", "[style][segment]") {
     fmt::print("{}\n", seg);
   }
   {
-    rich::segment seg(orig.substr(3, 10), ts2);
+    auto n = orig.find('8');
+    rich::segment seg(orig.substr(0, n), ts2);
     fmt::print("{}\n", seg);
   }
   {
     std::list<rich::segment> l;
-    l.emplace_back(orig.substr(3, 10), ts);
-    l.emplace_back(orig.substr(13, 7), ts2);
+    auto n = orig.find('8');
+    l.emplace_back(orig.substr(0, n), ts);
+    l.emplace_back(orig.substr(n), ts2);
     fmt::print("{}\n", fmt::join(l, ""));
   }
 }
