@@ -20,6 +20,7 @@ namespace rich {
     // observer
     auto text() const { return text_; }
     const auto& style() const { return style_; }
+    void set_style(const fmt::text_style& s) { style_ = s; }
   };
 } // namespace rich
 

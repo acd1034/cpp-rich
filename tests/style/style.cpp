@@ -11,24 +11,31 @@ inline constexpr std::string_view
 
 TEST_CASE("style", "[style][segment]") {
   std::string_view orig("01234567890123456789");
-  auto ts = fg(fmt::terminal_color::red) | bg(fmt::terminal_color::magenta)
-            | fmt::emphasis::bold;
-  auto ts2 = fg(fmt::terminal_color::blue) | bg(fmt::terminal_color::cyan)
+  auto ts = fmt::emphasis::faint;
+  auto ts2 = fg(fmt::terminal_color::red) | bg(fmt::terminal_color::magenta)
              | fmt::emphasis::bold;
+  // auto ts3 = fg(fmt::terminal_color::blue) | bg(fmt::terminal_color::cyan) | fmt::emphasis::bold;
   {
     rich::segment seg(orig, ts);
     fmt::print("{}\n", seg);
   }
   {
     auto n = orig.find('8');
-    rich::segment seg(orig.substr(0, n), ts2);
+    auto m = orig.find('2', n);
+    rich::segment seg(orig.substr(n, m - n), ts2);
     fmt::print("{}\n", seg);
   }
   {
-    std::list<rich::segment> l;
+    rich::segments segs(orig, ts);
     auto n = orig.find('8');
-    l.emplace_back(orig.substr(0, n), ts);
-    l.emplace_back(orig.substr(n), ts2);
-    fmt::print("{}\n", fmt::join(l, ""));
+    segs.set_style(orig.substr(n), ts2);
+    fmt::print("{}\n", segs);
+  }
+  {
+    rich::segments segs(orig, ts);
+    auto n = orig.find('8');
+    auto m = orig.find('2', n);
+    segs.set_style(orig.substr(n, m - n), ts2);
+    fmt::print("{}\n", segs);
   }
 }
