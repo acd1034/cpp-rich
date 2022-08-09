@@ -18,16 +18,17 @@ namespace rich {
       : text_(t), style_(s) {}
 
     // observer
+    auto& text() { return text_; }
     auto text() const { return text_; }
+    auto& style() { return style_; }
     const auto& style() const { return style_; }
-    void set_style(const fmt::text_style& s) { style_ = s; }
   };
 } // namespace rich
 
 template <typename Char>
 struct fmt::formatter<rich::segment, Char> {
 private:
-  fmt::formatter<std::string_view, Char> fmtr;
+  fmt::formatter<std::string_view, Char> fmtr{};
 
 public:
   template <typename ParseContext>
