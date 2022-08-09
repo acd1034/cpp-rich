@@ -14,28 +14,86 @@ TEST_CASE("style", "[style][segment]") {
   auto ts = fmt::emphasis::faint;
   auto ts2 = fg(fmt::terminal_color::red) | bg(fmt::terminal_color::magenta)
              | fmt::emphasis::bold;
-  // auto ts3 = fg(fmt::terminal_color::blue) | bg(fmt::terminal_color::cyan) | fmt::emphasis::bold;
+  auto ts3 = fg(fmt::terminal_color::blue) | bg(fmt::terminal_color::cyan)
+             | fmt::emphasis::bold;
+  // segment
   {
     rich::segment seg(orig, ts);
     fmt::print("{}\n", seg);
   }
   {
-    auto n = orig.find('8');
-    auto m = orig.find('2', n);
-    rich::segment seg(orig.substr(n, m - n), ts2);
+    auto m = orig.find('8');
+    auto n = orig.find('2', m);
+    rich::segment seg(orig.substr(m, n - m), ts2);
     fmt::print("{}\n", seg);
   }
+  // segments
   {
     rich::segments segs(orig, ts);
-    auto n = orig.find('8');
-    segs.set_style(orig.substr(n), ts2);
+    segs.set_style(orig, ts2);
+    CHECK(segs.size() == 1);
     fmt::print("{}\n", segs);
   }
   {
     rich::segments segs(orig, ts);
     auto n = orig.find('8');
-    auto m = orig.find('2', n);
-    segs.set_style(orig.substr(n, m - n), ts2);
+    segs.set_style(orig.substr(0, n), ts2);
+    CHECK(segs.size() == 2);
+    fmt::print("{}\n", segs);
+  }
+  {
+    rich::segments segs(orig, ts);
+    auto n = orig.find('8');
+    segs.set_style(orig.substr(n), ts2);
+    CHECK(segs.size() == 2);
+    fmt::print("{}\n", segs);
+  }
+  {
+    rich::segments segs(orig, ts);
+    auto m = orig.find('8');
+    auto n = orig.find('2', m);
+    segs.set_style(orig.substr(m, n - m), ts2);
+    CHECK(segs.size() == 3);
+    fmt::print("{}\n", segs);
+  }
+  {
+    rich::segments segs(orig, ts);
+    auto l = orig.find('2');
+    auto m = orig.find('8', l);
+    auto n = orig.find('2', m);
+    segs.set_style(orig.substr(l, n - l), ts2);
+    segs.set_style(orig.substr(l, m - l), ts3);
+    CHECK(segs.size() == 4);
+    fmt::print("{}\n", segs);
+  }
+  {
+    rich::segments segs(orig, ts);
+    auto l = orig.find('2');
+    auto m = orig.find('8', l);
+    auto n = orig.find('2', m);
+    segs.set_style(orig.substr(l, n - l), ts2);
+    segs.set_style(orig.substr(m, n - m), ts3);
+    CHECK(segs.size() == 4);
+    fmt::print("{}\n", segs);
+  }
+  {
+    rich::segments segs(orig, ts);
+    auto l = orig.find('2');
+    auto m = orig.find('8', l);
+    auto n = orig.find('2', m);
+    segs.set_style(orig.substr(l, m - l), ts2);
+    segs.set_style(orig.substr(l, n - l), ts3);
+    CHECK(segs.size() == 4);
+    fmt::print("{}\n", segs);
+  }
+  {
+    rich::segments segs(orig, ts);
+    auto l = orig.find('2');
+    auto m = orig.find('8', l);
+    auto n = orig.find('2', m);
+    segs.set_style(orig.substr(m, n - m), ts2);
+    segs.set_style(orig.substr(l, n - l), ts3);
+    CHECK(segs.size() == 4);
     fmt::print("{}\n", segs);
   }
 }
