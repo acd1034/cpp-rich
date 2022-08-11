@@ -46,14 +46,17 @@ namespace rich {
   public:
     using regex_type = std::basic_regex<Char, Traits>;
     using string_view_type = std::basic_string_view<Char, ST>;
-    using value_type =
+
+  private:
+    using _value_type =
       std::match_results<typename string_view_type::const_pointer>;
-    using difference_type = std::ptrdiff_t;
-    // using pointer = const value_type*;
-    // using reference = const value_type&;
-    using reference =
+
+  public:
+    using value_type =
       std::pair<string_view_type,
-                std::optional<decltype(std::span(value_type()))>>;
+                decltype(std::optional(std::span(_value_type())))>;
+    using difference_type = std::ptrdiff_t;
+    using reference = value_type;
     using iterator_category = std::forward_iterator_tag;
     using iterator_concept = std::forward_iterator_tag;
 
@@ -62,7 +65,7 @@ namespace rich {
     const regex_type* pregex_ = nullptr;
     std::regex_constants::match_flag_type flags_ =
       std::regex_constants::match_default;
-    value_type match_{};
+    _value_type match_{};
     bool is_prefix_ = false;
 
     void increment_impl();
@@ -124,7 +127,7 @@ namespace rich {
     rng_ = to_string_view(match_.suffix());
     if (to_string_view(match_[0]).empty()) {
       if (rng_.empty()) {
-        match_ = value_type();
+        match_ = _value_type();
         return;
       } else if (regex_search(rng_, match_, *pregex_,
                               flags_ | std::regex_constants::match_not_null
@@ -135,7 +138,7 @@ namespace rich {
     }
     flags_ |= std::regex_constants::match_prev_avail;
     if (not regex_search(rng_, match_, *pregex_, flags_))
-      match_ = value_type();
+      match_ = _value_type();
   }
 
   template <class ST, class Char, class Traits>

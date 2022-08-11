@@ -57,11 +57,11 @@ TEST_CASE("main", "[main][file]") {
 }
 
 TEST_CASE("main", "[main][regex]") {
-  /* {
+  {
     std::regex re("a+|f+");
     std::string_view sv("aaabcdefffghij");
     static_assert(ranges::forward_range<decltype(rich::regex_range(sv, re))>);
-  } */
+  }
   {
     std::regex re("(a+)|(f+)");
     std::string_view sv("aaabcdefffghij");
