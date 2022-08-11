@@ -8,6 +8,7 @@
 #include <rich/fundamental.hpp>
 
 namespace rich {
+
   // sub_match
 
   template <class BiIter, class ST = std::char_traits<
@@ -19,7 +20,7 @@ namespace rich {
 
   template <class BiIter, class ST = std::char_traits<
                             typename std::sub_match<BiIter>::value_type>>
-  auto group(const std::optional<std::span<const std::sub_match<BiIter>*>>& mo,
+  auto group(const std::optional<std::span<const std::sub_match<BiIter>>>& mo,
              const std::size_t n) {
     assert(mo);
     return to_string_view<BiIter, ST>((*mo)[n]);

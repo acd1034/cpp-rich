@@ -63,11 +63,19 @@ TEST_CASE("main", "[main][regex]") {
     static_assert(ranges::forward_range<decltype(rich::regex_range(sv, re))>);
   } */
   {
-    std::regex re("a+|f+");
+    std::regex re("(a+)|(f+)");
     std::string_view sv("aaabcdefffghij");
     std::cout << hline << std::endl;
-    for (auto&& [pre, mo] : rich::regex_range(sv, re))
-      std::cout << (mo ? "match: " : "prefi: ") << pre << std::endl;
+    for (auto&& [pre, mo] : rich::regex_range(sv, re)) {
+      if (not mo)
+        std::cout << "prefix: " << pre << std::endl;
+      else if (not rich::group(mo, 0).empty())
+        std::cout << "match0: " << pre << std::endl;
+      else if (not rich::group(mo, 1).empty())
+        std::cout << "match1: " << pre << std::endl;
+      else
+        std::cout << pre << std::endl;
+    }
   }
   {
     std::regex re("a*|b*|c*");
