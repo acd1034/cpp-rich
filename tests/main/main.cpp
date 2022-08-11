@@ -2,7 +2,7 @@
 #include <catch2/catch_test_macros.hpp>
 #include <rich/exception.hpp>
 #include <rich/file.hpp>
-#include <rich/fundamental.hpp>
+#include <rich/regex.hpp>
 
 inline constexpr std::string_view
   hline("\n===================================================================="
@@ -55,3 +55,27 @@ TEST_CASE("main", "[main][file]") {
     }
   }
 }
+
+TEST_CASE("main", "[main][regex]") {
+  /* {
+    std::regex re("a+|f+");
+    std::string_view sv("aaabcdefffghij");
+    static_assert(ranges::forward_range<decltype(rich::regex_range(sv, re))>);
+  } */
+  {
+    std::regex re("a+|f+");
+    std::string_view sv("aaabcdefffghij");
+    std::cout << hline << std::endl;
+    for (auto&& [pre, mo] : rich::regex_range(sv, re))
+      std::cout << (mo ? "match: " : "prefi: ") << pre << std::endl;
+  }
+  {
+    std::regex re("a*|b*|c*");
+    std::string_view sv("aaabbbccc");
+    std::cout << hline << std::endl;
+    for (auto&& [pre, mo] : rich::regex_range(sv, re))
+      std::cout << (mo ? "match: " : "prefi: ") << pre << std::endl;
+  }
+}
+
+// TEST_CASE("main", "[main][squared]") {}
