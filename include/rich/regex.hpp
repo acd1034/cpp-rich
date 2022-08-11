@@ -21,7 +21,7 @@ namespace rich {
   template <class BiIter, class ST = std::char_traits<
                             typename std::sub_match<BiIter>::value_type>>
   std::optional<std::size_t>
-  match_find(std::span<const std::sub_match<BiIter>> mo, ,
+  match_find(std::span<const std::sub_match<BiIter>> mo,
              const std::size_t n = 0) {
     for (std::size_t i = n; i < mo.size(); ++i)
       if (mo[i].matched)
@@ -78,7 +78,7 @@ namespace rich {
     _value_type match_{};
     bool is_prefix_ = false;
 
-    void increment_impl();
+    void incremental_search();
 
   public:
     regex_iterator() = default;
@@ -101,7 +101,6 @@ namespace rich {
       assert(not match_.empty());
       return {to_string_view(match_[0]), std::span(match_).subspan(1)};
     }
-    // pointer operator->() const { return std::addressof(match_); }
 
     regex_iterator& operator++();
     regex_iterator operator++(int) {
@@ -132,7 +131,8 @@ namespace rich {
   }
 
   template <class ST, class Char, class Traits>
-  void regex_iterator<ST, Char, Traits>::increment_impl() {
+  void regex_iterator<ST, Char, Traits>::incremental_search() {
+    assert(pregex_ != nullptr);
     // flags_ |= std::regex_constants::no_update_pos;
     rng_ = to_string_view(match_.suffix());
     if (to_string_view(match_[0]).empty()) {
@@ -160,7 +160,7 @@ namespace rich {
     }
     assert(not match_.empty());
     is_prefix_ = true;
-    increment_impl();
+    incremental_search();
     return *this;
   }
 
