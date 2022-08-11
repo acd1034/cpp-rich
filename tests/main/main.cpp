@@ -69,12 +69,11 @@ TEST_CASE("main", "[main][regex]") {
     for (auto&& [pre, mo] : rich::regex_range(sv, re)) {
       if (not mo)
         std::cout << "prefix: " << pre << std::endl;
-      else if (not rich::group(mo, 0).empty())
-        std::cout << "match0: " << pre << std::endl;
-      else if (not rich::group(mo, 1).empty())
-        std::cout << "match1: " << pre << std::endl;
-      else
+      else if (const auto n = rich::match_find(*mo); not n) {
         std::cout << pre << std::endl;
+      } else {
+        std::cout << *n << "match: " << rich::match_group(*mo, *n) << std::endl;
+      }
     }
   }
   {

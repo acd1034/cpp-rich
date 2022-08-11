@@ -20,10 +20,20 @@ namespace rich {
 
   template <class BiIter, class ST = std::char_traits<
                             typename std::sub_match<BiIter>::value_type>>
-  auto group(const std::optional<std::span<const std::sub_match<BiIter>>>& mo,
-             const std::size_t n) {
-    assert(mo);
-    return to_string_view<BiIter, ST>((*mo)[n]);
+  std::optional<std::size_t>
+  match_find(std::span<const std::sub_match<BiIter>> mo, ,
+             const std::size_t n = 0) {
+    for (std::size_t i = n; i < mo.size(); ++i)
+      if (mo[i].matched)
+        return i;
+    return std::nullopt;
+  }
+
+  template <class BiIter, class ST = std::char_traits<
+                            typename std::sub_match<BiIter>::value_type>>
+  auto match_group(std::span<const std::sub_match<BiIter>> mo,
+                   const std::size_t n) {
+    return to_string_view<BiIter, ST>(mo[n]);
   }
 
   // regex_search
