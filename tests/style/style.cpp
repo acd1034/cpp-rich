@@ -3,6 +3,8 @@
 #include <list>
 #include <fmt/color.h>
 #include <fmt/ranges.h>
+#include <rich/file.hpp>
+#include <rich/regex.hpp>
 #include <rich/style.hpp>
 
 inline constexpr std::string_view
@@ -95,5 +97,49 @@ TEST_CASE("style", "[style][segment]") {
     segs.set_style(orig.substr(l, n - l), ts3);
     CHECK(segs.size() == 4);
     fmt::print("{}\n", segs);
+  }
+}
+
+// This is a comment. Some keywords such as `auto` is contained.
+void fn() { throw rich::runtime_error("Rich exception thrown!"); }
+
+TEST_CASE("style", "[style][file]") {
+  auto s_comment = fmt::emphasis::faint;
+  auto s_invalid = fg(fmt::color::red);
+  auto s_keyword = fg(fmt::terminal_color::red);
+  auto s_string = fg(fmt::terminal_color::cyan);
+  {
+    fmt::print("{}\n", hline);
+    try {
+      fn();
+    } catch (rich::exception& e) {
+      auto contents = rich::get_file_contents(e.where().file_name());
+      auto partial = rich::extract_partial_contents(std::string_view(contents),
+                                                    e.where().line(), 7);
+      std::regex re(R"((//.*\n)|\b(auto|throw|void)\b|(".*"))");
+      auto highlighted =
+        rich::regex_range(std::string_view(partial), re)
+        | ranges::views::transform(
+          [s_comment, s_invalid, s_keyword, s_string](const auto& x) {
+            const auto& [pre, mo] = x;
+            if (!mo) {
+              return rich::segment(pre);
+            }
+            const auto n = rich::match_find(*mo);
+            if (!n) {
+              return rich::segment(pre, s_invalid);
+            }
+            switch (*n) {
+            case 0: // comment
+              return rich::segment(pre, s_comment);
+            case 1: // keyword
+              return rich::segment(pre, s_keyword);
+            case 2: // string
+              return rich::segment(pre, s_string);
+            }
+            return rich::segment(pre, s_invalid);
+          });
+      fmt::print("{}\n", fmt::join(highlighted, ""));
+    }
   }
 }

@@ -66,10 +66,10 @@ TEST_CASE("main", "[main][regex]") {
     std::regex re("(a+)|(f+)");
     std::string_view sv("aaabcdefffghij");
     std::cout << hline << std::endl;
-    for (auto&& [pre, mo] : rich::regex_range(sv, re)) {
-      if (not mo)
+    for (const auto& [pre, mo] : rich::regex_range(sv, re)) {
+      if (!mo)
         std::cout << "prefix: " << pre << std::endl;
-      else if (const auto n = rich::match_find(*mo); not n) {
+      else if (auto n = rich::match_find(*mo); !n) {
         std::cout << pre << std::endl;
       } else {
         std::cout << *n << "match: " << rich::match_group(*mo, *n) << std::endl;
@@ -80,7 +80,7 @@ TEST_CASE("main", "[main][regex]") {
     std::regex re("a*|b*|c*");
     std::string_view sv("aaabbbccc");
     std::cout << hline << std::endl;
-    for (auto&& [pre, mo] : rich::regex_range(sv, re))
+    for (const auto& [pre, mo] : rich::regex_range(sv, re))
       std::cout << (mo ? "match: " : "prefi: ") << pre << std::endl;
   }
 }
