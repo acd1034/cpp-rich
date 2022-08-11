@@ -33,6 +33,7 @@ namespace rich {
                             typename std::sub_match<BiIter>::value_type>>
   auto match_group(std::span<const std::sub_match<BiIter>> mo,
                    const std::size_t n) {
+    assert(n < mo.size());
     return to_string_view<BiIter, ST>(mo[n]);
   }
 
@@ -135,19 +136,20 @@ namespace rich {
     assert(pregex_ != nullptr);
     // flags_ |= std::regex_constants::no_update_pos;
     rng_ = to_string_view(match_.suffix());
+    auto rng = rng_;
     if (to_string_view(match_[0]).empty()) {
-      if (rng_.empty()) {
+      if (rng.empty()) {
         match_ = _value_type();
         return;
-      } else if (regex_search(rng_, match_, *pregex_,
+      } else if (regex_search(rng, match_, *pregex_,
                               flags_ | std::regex_constants::match_not_null
                                 | std::regex_constants::match_continuous))
         return;
       else
-        rng_ = rng_.substr(1);
+        rng = rng.substr(1);
     }
     flags_ |= std::regex_constants::match_prev_avail;
-    if (not regex_search(rng_, match_, *pregex_, flags_))
+    if (not regex_search(rng, match_, *pregex_, flags_))
       match_ = _value_type();
   }
 

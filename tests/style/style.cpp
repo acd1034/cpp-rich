@@ -107,7 +107,7 @@ TEST_CASE("style", "[style][file]") {
   auto s_comment = fmt::emphasis::faint;
   auto s_invalid = fg(fmt::color::red);
   auto s_keyword = fg(fmt::terminal_color::red);
-  auto s_string = fg(fmt::terminal_color::cyan);
+  auto s_string = fg(fmt::terminal_color::blue);
   {
     fmt::print("{}\n", hline);
     try {
@@ -143,3 +143,5 @@ TEST_CASE("style", "[style][file]") {
     }
   }
 }
+
+// TEST_CASE("style", "[style][squared]") {}
