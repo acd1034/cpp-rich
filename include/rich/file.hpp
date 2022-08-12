@@ -21,15 +21,31 @@ namespace rich {
     return get_file_contents(fname.c_str());
   }
 
-  std::string extract_partial_contents(std::string_view contents,
-                                       std::uint_least32_t line,
-                                       std::uint32_t num) {
+  template <class Char, class Traits>
+  constexpr std::size_t find_nth(std::basic_string_view<Char, Traits> sv,
+                                 const Char c, std::size_t n,
+                                 std::size_t pos = 0) noexcept {
+    if (n == 0)
+      return pos;
+    while (--n > 0) {
+      pos = sv.find(c, pos);
+      if (pos == std::basic_string_view<Char, Traits>::npos)
+        return pos;
+      ++pos;
+    }
+    return sv.find(c, pos);
+  }
+
+  std::string_view extract_partial_contents(std::string_view contents,
+                                            std::uint_least32_t line,
+                                            std::uint32_t num) {
     auto l = cast<std::int32_t>(line) - 1;
     auto n = cast<std::int32_t>(num);
     auto a = std::max(l - n / 2, cast<std::int32_t>(0));
-    auto extracted = contents | _views::split('\n') | _views::drop(a)
-                     | _views::take(n) | _views::join('\n') | _views::common;
-    std::string ret(_ranges::begin(extracted), _ranges::end(extracted));
-    return ret;
+    auto first = find_nth(contents, '\n', cast<std::size_t>(a));
+    if (first != std::string_view::npos)
+      ++first;
+    auto last = find_nth(contents, '\n', cast<std::size_t>(n), first);
+    return contents.substr(first, last - first);
   }
 } // namespace rich
