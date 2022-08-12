@@ -39,15 +39,15 @@ namespace rich {
     }
 
     // NOTE: returned iterator is not const_iterator
-    auto separate(const std::size_t offset) {
+    auto split(const std::size_t offset) {
       auto [it, inner_pos] = partition_point(offset);
       if (inner_pos == 0)
         return it;
       assert(it != instance_.end());
-      const auto old_segment_text = it->text();
-      it->text() = old_segment_text.substr(inner_pos);
+      const auto old_text = it->text();
+      it->text() = old_text.substr(inner_pos);
       // 指定した要素の前に直接構築し、直接構築した要素のイテレータを返す
-      instance_.emplace(it, old_segment_text.substr(0, inner_pos), it->style());
+      instance_.emplace(it, old_text.substr(0, inner_pos), it->style());
       // 構築した2要素のうち、後ろの要素を返す
       return it;
     }
@@ -58,10 +58,10 @@ namespace rich {
       // イテレータを無効化させないため、後ろを先に分割する
       const auto offset2 = cast<std::size_t>(
         _ranges::distance(_ranges::front(instance_).text().begin(), rng.end()));
-      auto last = separate(offset2);
+      auto last = split(offset2);
       const auto offset1 = cast<std::size_t>(_ranges::distance(
         _ranges::front(instance_).text().begin(), rng.begin()));
-      auto first = separate(offset1);
+      auto first = split(offset1);
       for (; first != last; ++first)
         first->style() = style;
       return first;
@@ -73,10 +73,10 @@ namespace rich {
       // イテレータを無効化させないため、後ろを先に分割する
       const auto offset2 = cast<std::size_t>(
         _ranges::distance(_ranges::front(instance_).text().begin(), rng.end()));
-      auto last = separate(offset2);
+      auto last = split(offset2);
       const auto offset1 = cast<std::size_t>(_ranges::distance(
         _ranges::front(instance_).text().begin(), rng.begin()));
-      auto first = separate(offset1);
+      auto first = split(offset1);
       for (; first != last; ++first)
         // スタイルが重複したときに例外を投げる
         first->style() |= style;
