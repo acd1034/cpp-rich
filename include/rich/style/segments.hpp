@@ -1,11 +1,10 @@
-/// @file segmentss.hpp
+/// @file segments.hpp
 #pragma once
 #include <list>
 #include <string_view>
-#include <fmt/color.h>
-#include <fmt/ranges.h>
 
 #include <rich/exception.hpp>
+#include <rich/format.hpp>
 #include <rich/style/segment.hpp>
 
 namespace rich {
