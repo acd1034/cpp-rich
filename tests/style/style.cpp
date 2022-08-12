@@ -139,6 +139,8 @@ TEST_CASE("style", "[style][file]") {
             }
             return rich::segment(pre, s_invalid);
           });
+      fmt::print("{}:{} in {}\n", e.where().file_name(), e.where().line(),
+                 e.where().function_name());
       fmt::print("{}\n", fmt::join(highlighted, ""));
     }
   }
