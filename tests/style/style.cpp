@@ -116,7 +116,7 @@ TEST_CASE("style", "[style][file]") {
       auto contents = rich::get_file_contents(e.where().file_name());
       auto partial = rich::extract_partial_contents(std::string_view(contents),
                                                     e.where().line(), 7);
-      std::regex re(R"((//.*\n)|\b(auto|throw|void)\b|(".*"))");
+      std::regex re(R"((//.*?\n)|\b(auto|throw|void)\b|(".*?"))");
       auto highlighted =
         rich::regex_range(std::string_view(partial), re)
         | ranges::views::transform(
