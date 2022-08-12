@@ -1,5 +1,6 @@
-#include <iostream>
 #include <catch2/catch_test_macros.hpp>
+
+#include <iostream>
 #include <rich/exception.hpp>
 #include <rich/file.hpp>
 #include <rich/regex.hpp>

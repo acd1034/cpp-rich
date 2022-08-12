@@ -1,8 +1,5 @@
 #include <catch2/catch_test_macros.hpp>
 
-#include <list>
-#include <fmt/color.h>
-#include <fmt/ranges.h>
 #include <rich/file.hpp>
 #include <rich/regex.hpp>
 #include <rich/style.hpp>

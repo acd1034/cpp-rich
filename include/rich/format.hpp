@@ -1,7 +1,6 @@
 /// @file format.hpp
 #pragma once
 #include <fmt/color.h>
-#include <fmt/ranges.h>
 
 #include <rich/fundamental.hpp>
 
