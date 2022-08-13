@@ -26,29 +26,29 @@ TEST_CASE("style", "[style][span]") {
     rich::span seg(orig.substr(m, n - m), ts2);
     fmt::print("{}\n", seg);
   }
-  // segments
+  // segment
   {
-    rich::segments segs(orig, ts);
+    rich::segment segs(orig, ts);
     segs.set_style(orig, ts2);
     CHECK(segs.size() == 1);
     fmt::print("{}\n", segs);
   }
   {
-    rich::segments segs(orig, ts);
+    rich::segment segs(orig, ts);
     auto n = orig.find('8');
     segs.set_style(orig.substr(0, n), ts2);
     CHECK(segs.size() == 2);
     fmt::print("{}\n", segs);
   }
   {
-    rich::segments segs(orig, ts);
+    rich::segment segs(orig, ts);
     auto n = orig.find('8');
     segs.set_style(orig.substr(n), ts2);
     CHECK(segs.size() == 2);
     fmt::print("{}\n", segs);
   }
   {
-    rich::segments segs(orig, ts);
+    rich::segment segs(orig, ts);
     auto m = orig.find('8');
     auto n = orig.find('2', m);
     segs.set_style(orig.substr(m, n - m), ts2);
@@ -56,7 +56,7 @@ TEST_CASE("style", "[style][span]") {
     fmt::print("{}\n", segs);
   }
   {
-    rich::segments segs(orig, ts);
+    rich::segment segs(orig, ts);
     auto l = orig.find('2');
     auto m = orig.find('8', l);
     auto n = orig.find('2', m);
@@ -66,7 +66,7 @@ TEST_CASE("style", "[style][span]") {
     fmt::print("{}\n", segs);
   }
   {
-    rich::segments segs(orig, ts);
+    rich::segment segs(orig, ts);
     auto l = orig.find('2');
     auto m = orig.find('8', l);
     auto n = orig.find('2', m);
@@ -76,7 +76,7 @@ TEST_CASE("style", "[style][span]") {
     fmt::print("{}\n", segs);
   }
   {
-    rich::segments segs(orig, ts);
+    rich::segment segs(orig, ts);
     auto l = orig.find('2');
     auto m = orig.find('8', l);
     auto n = orig.find('2', m);
@@ -86,7 +86,7 @@ TEST_CASE("style", "[style][span]") {
     fmt::print("{}\n", segs);
   }
   {
-    rich::segments segs(orig, ts);
+    rich::segment segs(orig, ts);
     auto l = orig.find('2');
     auto m = orig.find('8', l);
     auto n = orig.find('2', m);

@@ -1,4 +1,4 @@
-/// @file segments.hpp
+/// @file segment.hpp
 #pragma once
 #include <list>
 #include <string_view>
@@ -8,14 +8,14 @@
 #include <rich/style/span.hpp>
 
 namespace rich {
-  struct segments {
+  struct segment {
   private:
     std::list<span> instance_{};
 
   public:
-    segments() = default;
-    explicit segments(std::string_view t) : instance_(1, span(t)) {}
-    segments(std::string_view t, const fmt::text_style& s)
+    segment() = default;
+    explicit segment(std::string_view t) : instance_(1, span(t)) {}
+    segment(std::string_view t, const fmt::text_style& s)
       : instance_(1, span(t, s)) {}
 
     // observer
@@ -54,7 +54,7 @@ namespace rich {
 
     auto set_style(std::string_view rng, const fmt::text_style& style) {
       if (instance_.empty())
-        throw runtime_error("`segments` not initialized");
+        throw runtime_error("`segment` not initialized");
       // イテレータを無効化させないため、後ろを先に分割する
       const auto offset2 = cast<std::size_t>(
         _ranges::distance(_ranges::front(instance_).text().begin(), rng.end()));
@@ -69,7 +69,7 @@ namespace rich {
 
     auto add_style(std::string_view rng, const fmt::text_style& style) {
       if (instance_.empty())
-        throw runtime_error("`segments` not initialized");
+        throw runtime_error("`segment` not initialized");
       // イテレータを無効化させないため、後ろを先に分割する
       const auto offset2 = cast<std::size_t>(
         _ranges::distance(_ranges::front(instance_).text().begin(), rng.end()));
@@ -86,17 +86,17 @@ namespace rich {
 } // namespace rich
 
 template </* typename char */>
-struct fmt::formatter<rich::segments, char>
+struct fmt::formatter<rich::segment, char>
   : fmt::formatter<
-      fmt::join_view<rich::_ranges::iterator_t<const rich::segments>,
-                     rich::_ranges::sentinel_t<const rich::segments>, char>,
+      fmt::join_view<rich::_ranges::iterator_t<const rich::segment>,
+                     rich::_ranges::sentinel_t<const rich::segment>, char>,
       char> {
   template <typename FormatContext>
-  auto format(const rich::segments& segs, FormatContext& ctx) const
+  auto format(const rich::segment& segs, FormatContext& ctx) const
     -> decltype(ctx.out()) {
     using base_type = fmt::formatter<
-      fmt::join_view<rich::_ranges::iterator_t<const rich::segments>,
-                     rich::_ranges::sentinel_t<const rich::segments>, char>,
+      fmt::join_view<rich::_ranges::iterator_t<const rich::segment>,
+                     rich::_ranges::sentinel_t<const rich::segment>, char>,
       char>;
     return base_type::format(fmt::join(segs, ""), ctx);
   }
