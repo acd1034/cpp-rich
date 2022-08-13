@@ -1,8 +1,8 @@
 /// @file segment.hpp
 #pragma once
 #include <string_view>
-#include <fmt/color.h>
 
+#include <rich/format.hpp>
 #include <rich/fundamental.hpp>
 
 namespace rich {
@@ -61,7 +61,7 @@ public:
     }
     out = fmtr.format(seg.text(), ctx);
     if (has_style)
-      out = fmt::detail::write<Char>(out, "\x1b[0m");
+      out = fmt::detail::write(out, RICH_TYPED_LITERAL(Char, "\x1b[0m"));
     return out;
   }
 };
