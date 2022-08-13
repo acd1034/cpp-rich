@@ -5,18 +5,18 @@
 
 #include <rich/exception.hpp>
 #include <rich/format.hpp>
-#include <rich/style/span.hpp>
+#include <rich/style/segment.hpp>
 
 namespace rich {
   struct segments {
   private:
-    std::list<span> instance_{};
+    std::list<segment> instance_{};
 
   public:
     segments() = default;
-    explicit segments(std::string_view t) : instance_(1, span(t)) {}
+    explicit segments(std::string_view t) : instance_(1, segment(t)) {}
     segments(std::string_view t, const fmt::text_style& s)
-      : instance_(1, span(t, s)) {}
+      : instance_(1, segment(t, s)) {}
 
     // observer
     auto begin() const { return instance_.begin(); }
