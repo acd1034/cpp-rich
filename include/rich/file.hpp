@@ -37,8 +37,8 @@ namespace rich {
   }
 
   std::string_view extract_partial_contents(std::string_view contents,
-                                            std::uint_least32_t line,
-                                            std::uint32_t num) {
+                                            const std::uint_least32_t line,
+                                            const std::size_t num) {
     auto l = cast<std::int32_t>(line) - 1;
     auto n = cast<std::int32_t>(num);
     auto a = std::max(l - n / 2, cast<std::int32_t>(0));
