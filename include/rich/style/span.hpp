@@ -1,4 +1,4 @@
-/// @file segment.hpp
+/// @file span.hpp
 #pragma once
 #include <string_view>
 
@@ -6,15 +6,15 @@
 #include <rich/fundamental.hpp>
 
 namespace rich {
-  struct segment {
+  struct span {
   private:
     std::string_view text_{};
     fmt::text_style style_{};
 
   public:
-    segment() = default;
-    constexpr explicit segment(std::string_view t) : text_(t) {}
-    constexpr segment(std::string_view t, const fmt::text_style& s)
+    span() = default;
+    constexpr explicit span(std::string_view t) : text_(t) {}
+    constexpr span(std::string_view t, const fmt::text_style& s)
       : text_(t), style_(s) {}
 
     // observer
@@ -26,7 +26,7 @@ namespace rich {
 } // namespace rich
 
 template <typename Char>
-struct fmt::formatter<rich::segment, Char> {
+struct fmt::formatter<rich::span, Char> {
 private:
   fmt::formatter<std::string_view, Char> fmtr{};
 
@@ -37,7 +37,7 @@ public:
   }
 
   template <typename FormatContext>
-  auto format(const rich::segment& seg, FormatContext& ctx) const
+  auto format(const rich::span& seg, FormatContext& ctx) const
     -> decltype(ctx.out()) {
     bool has_style = false;
     auto out = ctx.out();

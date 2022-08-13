@@ -8,22 +8,22 @@ inline constexpr std::string_view
   hline("\n===================================================================="
         "===========");
 
-TEST_CASE("style", "[style][segment]") {
+TEST_CASE("style", "[style][span]") {
   std::string_view orig("01234567890123456789");
   auto ts = fmt::emphasis::faint;
   auto ts2 = fg(fmt::terminal_color::red) | bg(fmt::terminal_color::magenta)
              | fmt::emphasis::bold;
   auto ts3 = fg(fmt::terminal_color::blue) | bg(fmt::terminal_color::cyan)
              | fmt::emphasis::bold;
-  // segment
+  // span
   {
-    rich::segment seg(orig, ts);
+    rich::span seg(orig, ts);
     fmt::print("{}\n", seg);
   }
   {
     auto m = orig.find('8');
     auto n = orig.find('2', m);
-    rich::segment seg(orig.substr(m, n - m), ts2);
+    rich::span seg(orig.substr(m, n - m), ts2);
     fmt::print("{}\n", seg);
   }
   // segments
@@ -121,11 +121,11 @@ TEST_CASE("style", "[style][file]") {
         | ranges::views::transform([&styles](const auto& x) {
             const auto& [pre, mo] = x;
             if (!mo)
-              return rich::segment(pre);
+              return rich::span(pre);
             const auto n = rich::match_find(*mo);
             if (!n or *n >= ranges::size(styles))
-              return rich::segment(pre, ranges::back(styles));
-            return rich::segment(pre, ranges::index(styles, *n));
+              return rich::span(pre, ranges::back(styles));
+            return rich::span(pre, ranges::index(styles, *n));
           });
       fmt::print("{}:{}:{} in {}\n", e.where().file_name(), e.where().line(),
                  e.where().column(), e.where().function_name());
