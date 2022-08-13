@@ -3,7 +3,6 @@
 #include <string_view>
 #include <vector>
 
-#include <rich/exception.hpp>
 #include <rich/format.hpp>
 #include <rich/style/segment.hpp>
 
@@ -16,6 +15,7 @@ namespace rich {
   }
 
   template <_ranges::range R>
+  requires std::same_as<_ranges::range_value_t<R>, segment>
   auto split_newline(R&& segs, const std::size_t size_hint = 0) {
     std::vector<segment> segments;
     if constexpr (_ranges::sized_range<R>)
@@ -89,6 +89,7 @@ namespace rich {
   public:
     lines() = default;
     template <_ranges::range R>
+    requires std::same_as<_ranges::range_value_t<R>, segment>
     constexpr explicit lines(R&& segs, const std::size_t size_hint = 0) {
       std::tie(segments_, bounds_) = split_newline(segs, size_hint);
     }
@@ -119,8 +120,7 @@ struct fmt::formatter<rich::lines, char>
     auto out = ctx.out();
     char dlm = '\0';
     for (const auto& line : lines) {
-      *out = std::exchange(dlm, '\n');
-      ++out;
+      out = fmt::detail::write(out, std::exchange(dlm, '\n'));
       out = base_type::format(fmt::join(line, ""), ctx);
     }
     return out;
