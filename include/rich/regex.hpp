@@ -176,4 +176,10 @@ namespace rich {
     return _ranges::subrange(regex_iterator(sv, re, flags),
                              decltype(regex_iterator(sv, re, flags))());
   }
+
+  template <class ST, class Char, class Traits>
+  auto regex_range(std::basic_string_view<Char, ST> sv,
+                   const std::basic_regex<Char, Traits>&& re,
+                   std::regex_constants::match_flag_type flags =
+                     std::regex_constants::match_default) = delete;
 } // namespace rich
