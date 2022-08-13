@@ -132,6 +132,21 @@ TEST_CASE("style", "[style][file]") {
       fmt::print("{}\n", fmt::join(highlighted, ""));
     }
   }
+  {
+    fmt::print("{}\n", hline);
+    try {
+      fn();
+    } catch (rich::exception& e) {
+      auto contents = rich::get_file_contents(e.where().file_name());
+      std::size_t extra = 7;
+      auto partial = rich::extract_partial_contents(std::string_view(contents),
+                                                    e.where().line(), extra);
+      rich::lines lns(rich::regex_range(partial, re) | highlight, extra);
+      fmt::print("{}:{}:{} in {}\n", e.where().file_name(), e.where().line(),
+                 e.where().column(), e.where().function_name());
+      fmt::print("{}\n", lns);
+    }
+  }
 }
 
 // TEST_CASE("style", "[style][squared]") {}
