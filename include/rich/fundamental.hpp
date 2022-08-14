@@ -22,10 +22,22 @@ namespace rich {
     return x * x;
   }
 
+  /// always_false
+  template <class>
+  inline constexpr bool always_false = false;
+
+  template <class B>
+  concept boolean_testable_impl = std::convertible_to<B, bool>;
+
+  /// boolean_testable
+  template <class B>
+  concept boolean_testable = boolean_testable_impl<B> and requires(B&& b) {
+    { !std::forward<B>(b) } -> boolean_testable_impl;
+  };
+
   /// cast
   template <std::integral To, std::integral From>
-  constexpr To cast(From from) noexcept(
-    noexcept(static_cast<To>(from))) {
+  constexpr To cast(From from) noexcept(noexcept(static_cast<To>(from))) {
     assert(std::in_range<To>(from));
     return static_cast<To>(from);
   }

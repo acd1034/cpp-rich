@@ -4,6 +4,7 @@
 #include <vector>
 
 #include <rich/format.hpp>
+#include <rich/style/line_formatter.hpp>
 #include <rich/style/segment.hpp>
 
 namespace rich {
@@ -103,26 +104,26 @@ namespace rich {
 } // namespace rich
 
 template </* typename char */>
-struct fmt::formatter<rich::lines, char>
-  : fmt::formatter<
-      fmt::join_view<rich::_ranges::iterator_t<std::span<const rich::segment>>,
-                     rich::_ranges::sentinel_t<std::span<const rich::segment>>,
-                     char>,
-      char> {
-  template <typename FormatContext>
-  auto format(const rich::lines& lines, FormatContext& ctx) const
-    -> decltype(ctx.out()) {
-    using base_type = fmt::formatter<
-      fmt::join_view<rich::_ranges::iterator_t<std::span<const rich::segment>>,
-                     rich::_ranges::sentinel_t<std::span<const rich::segment>>,
-                     char>,
-      char>;
-    auto out = ctx.out();
-    char dlm = '\0';
-    for (const auto& line : lines) {
-      out = fmt::detail::write(out, std::exchange(dlm, '\n'));
-      out = base_type::format(fmt::join(line, ""), ctx);
-    }
-    return out;
+struct rich::line_formatter<rich::lines, char> {
+private:
+  const lines* ptr_ = nullptr;
+  _ranges::iterator_t<lines> current_{};
+
+public:
+  explicit line_formatter(const lines& l)
+    : ptr_(std::addressof(l)), current_(_ranges::begin(l)) {}
+
+  operator bool() const {
+    return ptr_ != nullptr and current_ != _ranges::end(*ptr_);
+  }
+  bool operator!() const { return !bool(*this); }
+
+  template <_ranges::output_iterator<const char&> Out>
+  Out format_to(Out out) {
+    return fmt::format_to(out, "{}", fmt::join(*current_++, ""));
   }
 };
+
+template <typename Char>
+struct fmt::formatter<rich::lines, Char>
+  : rich::line_formattable_default_formatter<rich::lines, Char> {};
