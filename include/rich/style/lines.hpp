@@ -103,8 +103,8 @@ namespace rich {
   }; // struct lines
 } // namespace rich
 
-template </* typename char */>
-struct rich::line_formatter<rich::lines, char> {
+template <typename Char>
+struct rich::line_formatter<rich::lines, Char> {
 private:
   const lines* ptr_ = nullptr;
   _ranges::iterator_t<lines> current_{};
@@ -118,8 +118,9 @@ public:
   }
   bool operator!() const { return !bool(*this); }
 
-  template <_ranges::output_iterator<const char&> Out>
+  template <_ranges::output_iterator<const Char&> Out>
   Out format_to(Out out) {
+    assert(ptr_ != nullptr);
     return fmt::format_to(out, "{}", fmt::join(*current_++, ""));
   }
 };

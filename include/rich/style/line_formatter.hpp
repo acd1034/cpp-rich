@@ -30,8 +30,8 @@ namespace rich {
   // clang-format on
 
   // default formatter for line-formattables
-  template <typename T, typename Char>
-  requires line_formattable<T, Char>
+  template <typename L, typename Char>
+  requires line_formattable<L, Char>
   struct line_formattable_default_formatter {
   private:
     // fmt::formatter<std::string_view, Char> fmtr{};
@@ -44,10 +44,10 @@ namespace rich {
     }
 
     template <typename FormatContext>
-    auto format(const T& t, FormatContext& ctx) const -> decltype(ctx.out()) {
+    auto format(const L& l, FormatContext& ctx) const -> decltype(ctx.out()) {
       auto out = ctx.out();
       char dlm = '\0';
-      for (line_formatter<T, Char> line_fmtr(t); bool(line_fmtr);) {
+      for (line_formatter<L, Char> line_fmtr(l); bool(line_fmtr);) {
         out = fmt::detail::write(out, std::exchange(dlm, '\n'));
         out = line_fmtr.format_to(out);
       }
