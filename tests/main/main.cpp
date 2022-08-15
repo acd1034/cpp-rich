@@ -9,11 +9,6 @@ inline constexpr std::string_view
   hline("\n===================================================================="
         "===========");
 
-TEST_CASE("main", "[main][squared]") {
-  static_assert(std::is_same_v<decltype(rich::squared(0)), int>);
-  CHECK(rich::squared(2) == 4);
-}
-
 void fn() { throw rich::runtime_error("Rich exception thrown!"); }
 
 TEST_CASE("main", "[main][exception]") {

@@ -173,7 +173,7 @@ namespace rich {
                    const std::basic_regex<Char, Traits>& re,
                    std::regex_constants::match_flag_type flags =
                      std::regex_constants::match_default) {
-    return _ranges::subrange(regex_iterator(sv, re, flags),
+    return ranges::subrange(regex_iterator(sv, re, flags),
                              decltype(regex_iterator(sv, re, flags))());
   }
 

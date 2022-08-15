@@ -12,16 +12,6 @@
 #include <range/v3/view.hpp>
 
 namespace rich {
-  namespace _ranges = ::ranges;
-  namespace _views = ::ranges::views;
-
-  /// squared
-  template <class X>
-  constexpr auto squared(const X& x) noexcept(noexcept(x* x))
-    -> decltype(x * x) {
-    return x * x;
-  }
-
 // RICH_UNREACHABLE
 #define RICH_UNREACHABLE() (assert(false))
 

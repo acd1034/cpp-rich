@@ -11,7 +11,7 @@
 namespace rich {
   template <class R>
   concept line_range =
-    _ranges::range<R> and is_segment_v<_ranges::range_value_t<R>>;
+    ranges::range<R> and is_segment_v<ranges::range_value_t<R>>;
 
   template <class T>
   auto reserved_vector(const std::size_t n) {
@@ -20,9 +20,9 @@ namespace rich {
     return ret;
   }
 
-  template <class Out1, _ranges::output_iterator<std::ptrdiff_t> Out2,
+  template <class Out1, ranges::output_iterator<std::ptrdiff_t> Out2,
             line_range R>
-  requires _ranges::output_iterator<Out1, _ranges::range_value_t<R>>
+  requires ranges::output_iterator<Out1, ranges::range_value_t<R>>
   auto split_newline(Out1 out1, Out2 out2, R&& segs) {
     *out2++ = 0;
     std::ptrdiff_t out1_count = 0;
@@ -73,9 +73,9 @@ namespace rich {
 
       reference operator*() const {
         assert(parent_ != nullptr);
-        auto fst = _ranges::begin(parent_->segments_);
-        return std::span(fst + _ranges::index(parent_->bounds_, current_),
-                         fst + _ranges::index(parent_->bounds_, current_ + 1));
+        auto fst = ranges::begin(parent_->segments_);
+        return std::span(fst + ranges::index(parent_->bounds_, current_),
+                         fst + ranges::index(parent_->bounds_, current_ + 1));
       }
 
       iterator& operator++() {
@@ -99,8 +99,8 @@ namespace rich {
     template <line_range R>
     constexpr lines(R&& segs, const std::size_t size_hint = 0)
       : bounds_(reserved_vector<std::ptrdiff_t>(size_hint + 1)) {
-      if constexpr (_ranges::sized_range<R>)
-        segments_.reserve(_ranges::size(segs) + size_hint);
+      if constexpr (ranges::sized_range<R>)
+        segments_.reserve(ranges::size(segs) + size_hint);
       else
         segments_.reserve(size_hint + 1);
 
@@ -113,16 +113,16 @@ namespace rich {
     // observer
     iterator begin() const { return {*this, 0}; }
     iterator end() const { return {*this, std::ssize(bounds_) - 1}; }
-    auto empty() const { return _ranges::size(bounds_) == 1; }
-    auto size() const { return _ranges::size(bounds_) - 1; }
+    auto empty() const { return ranges::size(bounds_) == 1; }
+    auto size() const { return ranges::size(bounds_) - 1; }
   };
 
   template <line_range R>
   lines(R&&, const std::size_t = 0)
-    -> lines<typename _ranges::range_value_t<R>::char_type>;
+    -> lines<typename ranges::range_value_t<R>::char_type>;
 
   template <class Out, line_range R>
-  requires _ranges::output_iterator<Out, _ranges::range_value_t<R>>
+  requires ranges::output_iterator<Out, ranges::range_value_t<R>>
   auto crop_line(Out out, R&& line, const std::size_t n) {
     std::size_t current = 0;
     for (const auto& seg : line) {
@@ -142,23 +142,23 @@ template <typename Char>
 struct rich::line_formatter<rich::lines<Char>, Char> {
 private:
   const lines<Char>* ptr_ = nullptr;
-  _ranges::iterator_t<lines<Char>> current_{};
+  ranges::iterator_t<lines<Char>> current_{};
 
 public:
   explicit line_formatter(const lines<Char>& l)
-    : ptr_(std::addressof(l)), current_(_ranges::begin(l)) {}
+    : ptr_(std::addressof(l)), current_(ranges::begin(l)) {}
 
   operator bool() const {
-    return ptr_ != nullptr and current_ != _ranges::end(*ptr_);
+    return ptr_ != nullptr and current_ != ranges::end(*ptr_);
   }
   bool operator!() const { return !bool(*this); }
 
-  template <_ranges::output_iterator<const Char&> Out>
+  template <ranges::output_iterator<const Char&> Out>
   auto format_to(Out out, const std::size_t n = line_formatter_npos)
     -> fmt::format_to_n_result<Out> {
     assert(ptr_ != nullptr);
     auto line = *current_++;
-    auto segments = reserved_vector<segment<Char>>(_ranges::size(line));
+    auto segments = reserved_vector<segment<Char>>(ranges::size(line));
     auto size = crop_line(std::back_inserter(segments), line, n);
     segments.shrink_to_fit();
     return {fmt::format_to(out, "{}", fmt::join(segments, "")), size};

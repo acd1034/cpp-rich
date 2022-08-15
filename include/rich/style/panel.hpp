@@ -25,7 +25,7 @@ namespace rich {
 
   template <line_range R>
   panel(R&&, fmt::text_style = {})
-    -> panel<lines<typename _ranges::range_value_t<R>::char_type>>;
+    -> panel<lines<typename ranges::range_value_t<R>::char_type>>;
 } // namespace rich
 
 template <typename L, typename Char>
@@ -43,7 +43,7 @@ public:
   operator bool() const { return ptr_ != nullptr and phase_ != 2; }
   bool operator!() const { return !bool(*this); }
 
-  template <_ranges::output_iterator<const Char&> Out>
+  template <ranges::output_iterator<const Char&> Out>
   auto format_to(Out out, const std::size_t n = line_formatter_npos)
     -> fmt::format_to_n_result<Out> {
     assert(ptr_ != nullptr);
