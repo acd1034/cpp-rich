@@ -39,6 +39,8 @@ namespace rich {
     }
 
     bounds.push_back(std::ssize(segments));
+    segments.shrink_to_fit();
+    bounds.shrink_to_fit();
     return std::make_pair(std::move(segments), std::move(bounds));
   }
 
@@ -101,6 +103,22 @@ namespace rich {
     auto empty() const { return _ranges::size(bounds_) == 1; }
     auto size() const { return _ranges::size(bounds_) - 1; }
   }; // struct lines
+
+  template <_ranges::output_iterator<segment> Out, _ranges::range R>
+  requires std::same_as<_ranges::range_value_t<R>, segment>
+  auto crop_line(Out out, R&& line, const std::size_t n) {
+    std::size_t current = 0;
+    for (const auto& seg : line) {
+      auto next = current + seg.text().size();
+      if (next > n) {
+        *out++ = {seg.text().substr(0, n - current), seg.style()};
+        return n;
+      }
+      *out++ = {seg.text(), seg.style()};
+      current = next;
+    }
+    return current;
+  }
 } // namespace rich
 
 template <typename Char>
@@ -119,9 +137,14 @@ public:
   bool operator!() const { return !bool(*this); }
 
   template <_ranges::output_iterator<const Char&> Out>
-  Out format_to(Out out) {
+  auto format_to(Out out, const std::size_t n = line_formatter_npos)
+    -> fmt::format_to_n_result<Out> {
     assert(ptr_ != nullptr);
-    return fmt::format_to(out, "{}", fmt::join(*current_++, ""));
+    auto line = *current_++;
+    auto segments = reserved_vector<segment>(_ranges::size(line));
+    auto size = crop_line(std::back_inserter(segments), line, n);
+    segments.shrink_to_fit();
+    return {fmt::format_to(out, "{}", fmt::join(segments, "")), size};
   }
 };
 

@@ -34,13 +34,8 @@ namespace rich {
   template <typename L, typename Char>
   requires line_formattable<L, Char>
   struct line_formattable_default_formatter {
-  private:
-    // fmt::formatter<std::string_view, Char> fmtr{};
-
-  public:
     template <typename ParseContext>
     constexpr auto parse(ParseContext& ctx) -> decltype(ctx.begin()) {
-      // return fmtr.parse(ctx);
       return ctx.begin();
     }
 
@@ -55,4 +50,6 @@ namespace rich {
       return out;
     }
   };
+
+  inline constexpr auto line_formatter_npos = std::size_t(-1);
 } // namespace rich
