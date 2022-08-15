@@ -63,8 +63,6 @@ public:
       out = result.out;
       if (result.size < w - 4)
         fmt::format_to(out, "{0: <{1}}", "", w - 4 - result.size);
-      // const auto str = line_format(line_fmtr_);
-      // out = fmt::format_to(out, "{0: <{1}.{1}}", str, w - 4);
       return {fmt::format_to(out, ptr_->style, " │"), w};
     }
     default:
