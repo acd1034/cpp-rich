@@ -38,10 +38,17 @@ namespace rich {
 
   template <class Out, typename Char>
   requires ranges::output_iterator<Out, const Char&>
-    Out _format_to(Out out, const format_spec<Char>& fs, const Char* s) {
+    Out _format_to(Out out, const format_spec<Char>& fs,
+                   std::basic_string_view<Char> sv) {
     const auto fmtstr =
       fmt::format("{{:{0}{1}{2}}}", fs.fill, fs.align, fs.width);
     return fmt::vformat_to(out, fs.style, fmt::detail::to_string_view(fmtstr),
-                           fmt::make_format_args(s));
+                           fmt::make_format_args(sv));
+  }
+
+  template <class Out, typename Char>
+  requires ranges::output_iterator<Out, const Char&>
+    Out _format_to(Out out, const format_spec<Char>& fs, const Char* s) {
+    return _format_to(out, fs, std::basic_string_view<Char>(s));
   }
 } // namespace rich
