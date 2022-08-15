@@ -15,6 +15,9 @@ namespace rich {
     std::list<segment<Char>> instance_{};
 
   public:
+    using char_type = Char;
+
+    // ctor
     segments() = default;
     explicit segments(string_view_type t) : instance_(1, segment(t)) {}
     segments(string_view_type t, const fmt::text_style& s)

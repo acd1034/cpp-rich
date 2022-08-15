@@ -13,6 +13,9 @@ namespace rich {
     fmt::text_style style_{};
 
   public:
+    using char_type = Char;
+
+    // ctor
     segment() = default;
     constexpr explicit segment(string_view_type t) : text_(t) {}
     constexpr segment(string_view_type t, const fmt::text_style& s)
@@ -24,6 +27,15 @@ namespace rich {
     auto& style() { return style_; }
     const auto& style() const { return style_; }
   };
+
+  template <class T>
+  struct is_segment : std::false_type {};
+
+  template <typename Char>
+  struct is_segment<segment<Char>> : std::true_type {};
+
+  template <class T>
+  inline constexpr bool is_segment_v = is_segment<T>::value;
 } // namespace rich
 
 template <typename Char>
