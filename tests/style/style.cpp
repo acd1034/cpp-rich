@@ -117,7 +117,7 @@ TEST_CASE("style", "[style][file]") {
       return rich::segment(pre, ranges::back(styles));
     return rich::segment(pre, ranges::index(styles, *n));
   });
-  {
+  { // regex_range
     fmt::print("{}\n", hline);
     try {
       fn();
@@ -131,7 +131,7 @@ TEST_CASE("style", "[style][file]") {
       fmt::print("{}\n", fmt::join(highlighted, ""));
     }
   }
-  {
+  { // lines
     fmt::print("{}\n", hline);
     try {
       fn();
@@ -144,6 +144,23 @@ TEST_CASE("style", "[style][file]") {
       fmt::print("{}:{}:{} in {}\n", e.where().file_name(), e.where().line(),
                  e.where().column(), e.where().function_name());
       fmt::print("{}\n", lns);
+    }
+  }
+  { // panel
+    fmt::print("{}\n", hline);
+    try {
+      fn();
+    } catch (rich::exception& e) {
+      auto contents = rich::get_file_contents(e.where().file_name());
+      std::size_t extra = 7;
+      auto partial = rich::extract_partial_contents(std::string_view(contents),
+                                                    e.where().line(), extra);
+      rich::panel pnl(rich::regex_range(partial, re) | highlight, fg(fmt::terminal_color::red));
+      rich::panel pnl2(pnl, fg(fmt::terminal_color::yellow));
+      // pnl2.width = 80;
+      fmt::print("{}:{}:{} in {}\n", e.where().file_name(), e.where().line(),
+                 e.where().column(), e.where().function_name());
+      fmt::print("{}\n", pnl2);
     }
   }
 }
