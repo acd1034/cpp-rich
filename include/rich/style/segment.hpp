@@ -3,7 +3,6 @@
 #include <string_view>
 
 #include <rich/format.hpp>
-#include <rich/fundamental.hpp>
 
 namespace rich {
   struct segment {

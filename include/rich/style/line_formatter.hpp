@@ -1,7 +1,6 @@
 /// @file line_formatter.hpp
 #pragma once
 #include <rich/format.hpp>
-#include <rich/style/segment.hpp>
 
 namespace rich {
   // https://github.com/llvm/llvm-project/blob/ba79c2a25069f09728625982c424920452fa6b83/libcxx/include/format/formatter.h#L35-L40
