@@ -11,15 +11,6 @@ namespace rich {
     fmt::text_style style{};
   };
 
-  /* template <typename Char>
-  auto fill(format_spec<Char>, const Char*);
-
-  template <>
-  auto fill(format_spec<char> fs, const char* newfill) {
-    fs.fill = std::string_view(newfill);
-    return fs;
-  } */
-
   template <typename Char>
   auto invert(format_spec<Char>);
 
