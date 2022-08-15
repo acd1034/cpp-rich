@@ -10,7 +10,7 @@
 
 namespace rich {
   // https://github.com/Textualize/rich/blob/5d3f600f43796393a2c3e4cb20d807c5cf147f44/rich/panel.py#L38-L53
-  template <line_formattable L>
+  template <class L>
   struct panel {
     L lines{};
     fmt::text_style style{};
@@ -21,15 +21,15 @@ namespace rich {
       : lines(l), style(s) {}
     constexpr explicit panel(L&& l, fmt::text_style s = {})
       : lines(std::move(l)), style(s) {}
-  }; // struct panel
+  };
 
-  template <_ranges::range R>
-  requires std::same_as<_ranges::range_value_t<R>, segment>
+  template <line_range R>
   panel(R&&, fmt::text_style = {})
-  ->panel<lines>;
+    -> panel<lines<typename _ranges::range_value_t<R>::char_type>>;
 } // namespace rich
 
 template <typename L, typename Char>
+requires rich::line_formattable<L, Char>
 struct rich::line_formatter<rich::panel<L>, Char> {
 private:
   const rich::panel<L>* ptr_ = nullptr;
