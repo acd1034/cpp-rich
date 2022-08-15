@@ -71,7 +71,7 @@ public:
       if (!line_fmtr_) {
         ++phase_;
         out = fmt::format_to(out, bs.style, "{:─<{}}", "╰", bs.width);
-        out = fmt::format_to(out, bs.style, "{:─^{}}", "", w - bs.width * 2);
+        out = fmt::format_to(out, bs.style, "{:─<{}}", "", w - bs.width * 2);
         out = fmt::format_to(out, bs.style, "{:─>{}}", "╯", bs.width);
         return {out, w};
       }
@@ -80,8 +80,7 @@ public:
       const auto w2 = w - bs.width * 2;
       auto result = line_fmtr_.format_to(out, w2);
       out = result.out;
-      if (result.size < w2)
-        fmt::format_to(out, "{: <{}}", "", w2 - result.size);
+      out = fmt::format_to(out, "{: <{}}", "", w2 - result.size);
       out = fmt::format_to(out, bs.style, "{: >{}}", "│", bs.width);
       return {out, w};
     }
