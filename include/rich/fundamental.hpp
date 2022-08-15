@@ -22,6 +22,9 @@ namespace rich {
     return x * x;
   }
 
+// RICH_UNREACHABLE
+#define RICH_UNREACHABLE() (assert(false))
+
   /// always_false
   template <class>
   inline constexpr bool always_false = false;
