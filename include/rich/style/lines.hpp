@@ -1,5 +1,6 @@
 /// @file lines.hpp
 #pragma once
+#include <iterator> // std::back_inserter, std::ssize
 #include <string_view>
 #include <vector>
 
@@ -15,39 +16,33 @@ namespace rich {
     return ret;
   }
 
-  template <_ranges::range R>
+  template <_ranges::output_iterator<segment> Out1,
+            _ranges::output_iterator<std::ptrdiff_t> Out2, _ranges::range R>
   requires std::same_as<_ranges::range_value_t<R>, segment>
-  auto split_newline(R&& segs, const std::size_t size_hint = 0) {
-    std::vector<segment> segments;
-    if constexpr (_ranges::sized_range<R>)
-      segments.reserve(_ranges::size(segs) + size_hint);
-    else
-      segments.reserve(size_hint + 1);
-    auto bounds = reserved_vector<std::ptrdiff_t>(size_hint + 1);
-    bounds.push_back(0);
+  auto split_newline(Out1 out1, Out2 out2, R&& segs) {
+    *out2++ = 0;
+    std::ptrdiff_t out1_count = 0;
 
     for (const auto& seg : segs) {
       for (std::size_t current = 0; current < seg.text().size();) {
         auto next = seg.text().find('\n', current);
-        segments.emplace_back(seg.text().substr(current, next - current),
-                              seg.style());
+        *out1++ = {seg.text().substr(current, next - current), seg.style()};
+        ++out1_count;
         if (next == std::string_view::npos)
           break;
-        bounds.push_back(std::ssize(segments));
+        *out2++ = out1_count;
         current = next + 1;
       }
     }
 
-    bounds.push_back(std::ssize(segments));
-    segments.shrink_to_fit();
-    bounds.shrink_to_fit();
-    return std::make_pair(std::move(segments), std::move(bounds));
+    *out2++ = out1_count;
+    return out1_count;
   }
 
   struct lines {
   private:
     std::vector<segment> segments_{};
-    // initialized with vecotor of size 1, value 0
+    // default constructed with vecotor of size 1, value 0
     std::vector<std::ptrdiff_t> bounds_{0};
 
     struct iterator {
@@ -95,8 +90,17 @@ namespace rich {
     // NOTE: implicit conversion is allowed
     template <_ranges::range R>
     requires std::same_as<_ranges::range_value_t<R>, segment>
-    constexpr lines(R&& segs, const std::size_t size_hint = 0) {
-      std::tie(segments_, bounds_) = split_newline(segs, size_hint);
+    constexpr lines(R&& segs, const std::size_t size_hint = 0)
+      : bounds_(reserved_vector<std::ptrdiff_t>(size_hint + 1)) {
+      if constexpr (_ranges::sized_range<R>)
+        segments_.reserve(_ranges::size(segs) + size_hint);
+      else
+        segments_.reserve(size_hint + 1);
+
+      split_newline(std::back_inserter(segments_), std::back_inserter(bounds_),
+                    segs);
+      segments_.shrink_to_fit();
+      bounds_.shrink_to_fit();
     }
 
     // observer
