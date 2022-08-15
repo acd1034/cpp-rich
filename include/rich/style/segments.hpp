@@ -8,14 +8,16 @@
 #include <rich/style/segment.hpp>
 
 namespace rich {
+  template <typename Char>
   struct segments {
   private:
-    std::list<segment> instance_{};
+    using string_view_type = std::basic_string_view<Char>;
+    std::list<segment<Char>> instance_{};
 
   public:
     segments() = default;
-    explicit segments(std::string_view t) : instance_(1, segment(t)) {}
-    segments(std::string_view t, const fmt::text_style& s)
+    explicit segments(string_view_type t) : instance_(1, segment(t)) {}
+    segments(string_view_type t, const fmt::text_style& s)
       : instance_(1, segment(t, s)) {}
 
     // observer
@@ -52,7 +54,7 @@ namespace rich {
       return it;
     }
 
-    auto set_style(std::string_view rng, const fmt::text_style& style) {
+    auto set_style(string_view_type rng, const fmt::text_style& style) {
       if (instance_.empty())
         throw runtime_error("`segments` not initialized");
       // イテレータを無効化させないため、後ろを先に分割する
@@ -67,7 +69,7 @@ namespace rich {
       return first;
     }
 
-    auto add_style(std::string_view rng, const fmt::text_style& style) {
+    auto add_style(string_view_type rng, const fmt::text_style& style) {
       if (instance_.empty())
         throw runtime_error("`segments` not initialized");
       // イテレータを無効化させないため、後ろを先に分割する
@@ -85,19 +87,19 @@ namespace rich {
   };
 } // namespace rich
 
-template </* typename char */>
-struct fmt::formatter<rich::segments, char>
+template <typename Char>
+struct fmt::formatter<rich::segments<Char>, Char>
   : fmt::formatter<
-      fmt::join_view<rich::_ranges::iterator_t<rich::segments>,
-                     rich::_ranges::sentinel_t<rich::segments>, char>,
-      char> {
+      fmt::join_view<rich::_ranges::iterator_t<rich::segments<Char>>,
+                     rich::_ranges::sentinel_t<rich::segments<Char>>, Char>,
+      Char> {
   template <typename FormatContext>
-  auto format(const rich::segments& segs, FormatContext& ctx) const
+  auto format(const rich::segments<Char>& segs, FormatContext& ctx) const
     -> decltype(ctx.out()) {
     using base_type = fmt::formatter<
-      fmt::join_view<rich::_ranges::iterator_t<rich::segments>,
-                     rich::_ranges::sentinel_t<rich::segments>, char>,
-      char>;
+      fmt::join_view<rich::_ranges::iterator_t<rich::segments<Char>>,
+                     rich::_ranges::sentinel_t<rich::segments<Char>>, Char>,
+      Char>;
     return base_type::format(fmt::join(segs, ""), ctx);
   }
 };

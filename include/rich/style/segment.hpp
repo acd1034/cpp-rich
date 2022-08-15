@@ -5,15 +5,17 @@
 #include <rich/format.hpp>
 
 namespace rich {
+  template <typename Char>
   struct segment {
   private:
-    std::string_view text_{};
+    using string_view_type = std::basic_string_view<Char>;
+    string_view_type text_{};
     fmt::text_style style_{};
 
   public:
     segment() = default;
-    constexpr explicit segment(std::string_view t) : text_(t) {}
-    constexpr segment(std::string_view t, const fmt::text_style& s)
+    constexpr explicit segment(string_view_type t) : text_(t) {}
+    constexpr segment(string_view_type t, const fmt::text_style& s)
       : text_(t), style_(s) {}
 
     // observer
@@ -25,9 +27,9 @@ namespace rich {
 } // namespace rich
 
 template <typename Char>
-struct fmt::formatter<rich::segment, Char> {
+struct fmt::formatter<rich::segment<Char>, Char> {
 private:
-  fmt::formatter<std::string_view, Char> fmtr{};
+  fmt::formatter<std::basic_string_view<Char>, Char> fmtr{};
 
 public:
   template <typename ParseContext>
@@ -36,7 +38,7 @@ public:
   }
 
   template <typename FormatContext>
-  auto format(const rich::segment& seg, FormatContext& ctx) const
+  auto format(const rich::segment<Char>& seg, FormatContext& ctx) const
     -> decltype(ctx.out()) {
     bool has_style = false;
     auto out = ctx.out();
