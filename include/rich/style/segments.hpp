@@ -88,15 +88,15 @@ namespace rich {
 template </* typename char */>
 struct fmt::formatter<rich::segments, char>
   : fmt::formatter<
-      fmt::join_view<rich::_ranges::iterator_t<const rich::segments>,
-                     rich::_ranges::sentinel_t<const rich::segments>, char>,
+      fmt::join_view<rich::_ranges::iterator_t<rich::segments>,
+                     rich::_ranges::sentinel_t<rich::segments>, char>,
       char> {
   template <typename FormatContext>
   auto format(const rich::segments& segs, FormatContext& ctx) const
     -> decltype(ctx.out()) {
     using base_type = fmt::formatter<
-      fmt::join_view<rich::_ranges::iterator_t<const rich::segments>,
-                     rich::_ranges::sentinel_t<const rich::segments>, char>,
+      fmt::join_view<rich::_ranges::iterator_t<rich::segments>,
+                     rich::_ranges::sentinel_t<rich::segments>, char>,
       char>;
     return base_type::format(fmt::join(segs, ""), ctx);
   }
