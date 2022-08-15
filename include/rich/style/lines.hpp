@@ -91,9 +91,11 @@ namespace rich {
 
   public:
     lines() = default;
+
+    // NOTE: implicit conversion is allowed
     template <_ranges::range R>
     requires std::same_as<_ranges::range_value_t<R>, segment>
-    constexpr explicit lines(R&& segs, const std::size_t size_hint = 0) {
+    constexpr lines(R&& segs, const std::size_t size_hint = 0) {
       std::tie(segments_, bounds_) = split_newline(segs, size_hint);
     }
 
