@@ -155,9 +155,9 @@ TEST_CASE("style", "[style][file]") {
       std::size_t extra = 7;
       auto partial = rich::extract_partial_contents(std::string_view(contents),
                                                     e.where().line(), extra);
-      rich::panel pnl(rich::regex_range(partial, re) | highlight, fg(fmt::terminal_color::red));
-      rich::panel pnl2(pnl, fg(fmt::terminal_color::yellow));
-      // pnl2.width = 80;
+      rich::panel pnl(rich::regex_range(partial, re) | highlight);
+      rich::panel pnl2(pnl, {});
+      pnl2.boarder_spec.style = fg(fmt::terminal_color::yellow);
       fmt::print("{}:{}:{} in {}\n", e.where().file_name(), e.where().line(),
                  e.where().column(), e.where().function_name());
       fmt::print("{}\n", pnl2);
