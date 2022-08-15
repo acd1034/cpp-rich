@@ -24,8 +24,9 @@ namespace rich {
                                 const std::remove_cvref_t<T>&>
     and boolean_testable<line_formatter<std::remove_cvref_t<T>, Char>>
     and requires(line_formatter<std::remove_cvref_t<T>, Char> f,
-                 fmt_iter_for<Char> out) {
-    { f.format_to(out) } -> std::same_as<fmt_iter_for<Char>>;
+                 fmt_iter_for<Char> out,
+                 const std::size_t n) {
+    { f.format_to(out, n) } -> std::same_as<fmt::format_to_n_result<fmt_iter_for<Char>>>;
   };
   // clang-format on
 
@@ -49,7 +50,7 @@ namespace rich {
       char dlm = '\0';
       for (line_formatter<L, Char> line_fmtr(l); bool(line_fmtr);) {
         out = fmt::detail::write(out, std::exchange(dlm, '\n'));
-        out = line_fmtr.format_to(out);
+        out = line_fmtr.format_to(out).out;
       }
       return out;
     }
