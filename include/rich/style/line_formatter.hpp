@@ -25,6 +25,7 @@ namespace rich {
     and requires(line_formatter<std::remove_cvref_t<T>, Char> f,
                  fmt_iter_for<Char> out,
                  const std::size_t n) {
+    typename T::char_type;
     { f.format_to(out, n) } -> std::same_as<fmt::format_to_n_result<fmt_iter_for<Char>>>;
   };
   // clang-format on
