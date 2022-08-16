@@ -17,10 +17,10 @@ namespace rich {
     L lines{};
     std::size_t width = 80;
     format_spec<char_type> boarder_spec{
-      .fill = {},  // ignored
-      .align = {}, // ignored
-      .width = 2,
       .style = fg(fmt::terminal_color::red),
+      .fill = " ",
+      .align = align_t::left,
+      .width = 2,
     };
     std::basic_string_view<char_type> title{};
 
@@ -60,28 +60,56 @@ public:
     switch (phase_) {
     case 0: {
       ++phase_;
+      using enum align_t;
       // clang-format off
-      out = fmt::format_to(out, bs.style, "{:─<{}}", "╭", bs.width);
-      out = fmt::format_to(out, bs.style, "{:─^{}}", ptr_->title, w - bs.width * 2);
-      out = fmt::format_to(out, bs.style, "{:─>{}}", "╮", bs.width);
+      if (bs.align == left)
+        out = aligned_format_to<Char>(out, bs.style, "╭", "─", bs.align, bs.width - 1);
+      else
+        out = aligned_format_to<Char>(out, bs.style, "╭", bs.fill, bs.align, bs.width - 1);
+      out = aligned_format_to<Char>(out, bs.style, ptr_->title, "─", center, w - bs.width * 2 - ptr_->title.size());
+      if (bs.align == left)
+        out = aligned_format_to<Char>(out, bs.style, "╮", "─", right, bs.width - 1);
+      else if (bs.align == center)
+        out = aligned_format_to<Char>(out, bs.style, "╮", bs.fill, center, bs.width - 1);
+      else
+        out = aligned_format_to<Char>(out, bs.style, "╮", bs.fill, left, bs.width - 1);
       // clang-format on
       return {out, w};
     }
     case 1: {
       if (!line_fmtr_) {
         ++phase_;
-        out = fmt::format_to(out, bs.style, "{:─<{}}", "╰", bs.width);
-        out = fmt::format_to(out, bs.style, "{:─<{}}", "", w - bs.width * 2);
-        out = fmt::format_to(out, bs.style, "{:─>{}}", "╯", bs.width);
+        using enum align_t;
+        // clang-format off
+        if (bs.align == left)
+          out = aligned_format_to<Char>(out, bs.style, "╰", "─", bs.align, bs.width - 1);
+        else
+          out = aligned_format_to<Char>(out, bs.style, "╰", bs.fill, bs.align, bs.width - 1);
+        out = aligned_format_to<Char>(out, bs.style, "", "─", {}, w - bs.width * 2);
+        if (bs.align == left)
+          out = aligned_format_to<Char>(out, bs.style, "╯", "─", right, bs.width - 1);
+        else if (bs.align == center)
+          out = aligned_format_to<Char>(out, bs.style, "╯", bs.fill, center, bs.width - 1);
+        else
+          out = aligned_format_to<Char>(out, bs.style, "╯", bs.fill, left, bs.width - 1);
+        // clang-format on
         return {out, w};
       }
 
-      out = fmt::format_to(out, bs.style, "{: <{}}", "│", bs.width);
+      using enum align_t;
+      // clang-format off
+      out = aligned_format_to<Char>(out, bs.style, "│", bs.fill, bs.align, bs.width - 1);
       const auto w2 = w - bs.width * 2;
       auto result = line_fmtr_.format_to(out, w2);
       out = result.out;
-      out = fmt::format_to(out, "{: <{}}", "", w2 - result.size);
-      out = fmt::format_to(out, bs.style, "{: >{}}", "│", bs.width);
+      out = aligned_format_to<Char>(out, bs.style, "", " ", {}, w2 - result.size);
+      if (bs.align == left)
+        out = aligned_format_to<Char>(out, bs.style, "│", bs.fill, right, bs.width - 1);
+      else if (bs.align == center)
+        out = aligned_format_to<Char>(out, bs.style, "│", bs.fill, center, bs.width - 1);
+      else
+        out = aligned_format_to<Char>(out, bs.style, "│", bs.fill, left, bs.width - 1);
+      // clang-format on
       return {out, w};
     }
     default:
