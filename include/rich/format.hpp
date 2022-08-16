@@ -137,4 +137,23 @@ namespace rich {
       RICH_UNREACHABLE();
     }
   }
+
+  template <typename Char, ranges::output_iterator<const Char&> Out>
+  Out reversed_format_to(Out out, const fmt::text_style& style,
+                         std::basic_string_view<Char> sv,
+                         std::basic_string_view<Char> fill, const align_t align,
+                         const std::size_t width) {
+    switch (align) {
+    case align_t::left:
+      return padded_format_to(out, style, sv, fill, width, 0);
+    case align_t::center: {
+      const auto right = width / 2;
+      return padded_format_to(out, style, sv, fill, width - right, right);
+    }
+    case align_t::right:
+      return padded_format_to(out, style, sv, fill, 0, width);
+    default:
+      RICH_UNREACHABLE();
+    }
+  }
 } // namespace rich

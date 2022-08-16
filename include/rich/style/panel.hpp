@@ -65,9 +65,9 @@ public:
   auto format_to(Out out, const std::size_t n = line_formatter_npos)
     -> fmt::format_to_n_result<Out> {
     assert(ptr_ != nullptr);
-    const auto w = std::min(ptr_->contents_spec.width, n);
+    const auto width = std::min(ptr_->contents_spec.width, n);
     const auto& bs = ptr_->boarder_spec;
-    assert(bs.width * 2 < w and w < line_formatter_npos);
+    assert(bs.width * 2 < width and width < line_formatter_npos);
 
     switch (phase_) {
     case 0: {
@@ -78,15 +78,13 @@ public:
         out = aligned_format_to<Char>(out, bs.style, "╭", "─", bs.align, bs.width - 1);
       else
         out = aligned_format_to<Char>(out, bs.style, "╭", bs.fill, bs.align, bs.width - 1);
-      out = aligned_format_to<Char>(out, bs.style, ptr_->title, "─", center, w - bs.width * 2 - ptr_->title.size());
+      out = aligned_format_to<Char>(out, bs.style, ptr_->title, "─", center, width - bs.width * 2 - ptr_->title.size());
       if (bs.align == left)
-        out = aligned_format_to<Char>(out, bs.style, "╮", "─", right, bs.width - 1);
-      else if (bs.align == center)
-        out = aligned_format_to<Char>(out, bs.style, "╮", bs.fill, center, bs.width - 1);
+        out = reversed_format_to<Char>(out, bs.style, "╮", "─", bs.align, bs.width - 1);
       else
-        out = aligned_format_to<Char>(out, bs.style, "╮", bs.fill, left, bs.width - 1);
+        out = reversed_format_to<Char>(out, bs.style, "╮", bs.fill, bs.align, bs.width - 1);
       // clang-format on
-      return {out, w};
+      return {out, width};
     }
     case 1: {
       if (!line_fmtr_) {
@@ -97,30 +95,22 @@ public:
           out = aligned_format_to<Char>(out, bs.style, "╰", "─", bs.align, bs.width - 1);
         else
           out = aligned_format_to<Char>(out, bs.style, "╰", bs.fill, bs.align, bs.width - 1);
-        out = aligned_format_to<Char>(out, bs.style, "", "─", {}, w - bs.width * 2);
+        out = aligned_format_to<Char>(out, bs.style, "", "─", {}, width - bs.width * 2);
         if (bs.align == left)
-          out = aligned_format_to<Char>(out, bs.style, "╯", "─", right, bs.width - 1);
-        else if (bs.align == center)
-          out = aligned_format_to<Char>(out, bs.style, "╯", bs.fill, center, bs.width - 1);
+          out = reversed_format_to<Char>(out, bs.style, "╯", "─", bs.align, bs.width - 1);
         else
-          out = aligned_format_to<Char>(out, bs.style, "╯", bs.fill, left, bs.width - 1);
+          out = reversed_format_to<Char>(out, bs.style, "╯", bs.fill, bs.align, bs.width - 1);
         // clang-format on
-        return {out, w};
+        return {out, width};
       }
 
       const auto& cs = ptr_->contents_spec;
-      using enum align_t;
       // clang-format off
       out = aligned_format_to<Char>(out, bs.style, "│", bs.fill, bs.align, bs.width - 1);
-      out = line_format_to(out, cs.style, line_fmtr_, cs.fill, cs.align, w - bs.width * 2);
-      if (bs.align == left)
-        out = aligned_format_to<Char>(out, bs.style, "│", bs.fill, right, bs.width - 1);
-      else if (bs.align == center)
-        out = aligned_format_to<Char>(out, bs.style, "│", bs.fill, center, bs.width - 1);
-      else
-        out = aligned_format_to<Char>(out, bs.style, "│", bs.fill, left, bs.width - 1);
+      out = line_format_to<Char>(out, cs.style, line_fmtr_, cs.fill, cs.align, width - bs.width * 2);
+      out = reversed_format_to<Char>(out, bs.style, "│", bs.fill, bs.align, bs.width - 1);
       // clang-format on
-      return {out, w};
+      return {out, width};
     }
     default:
       RICH_UNREACHABLE();
