@@ -153,6 +153,12 @@ public:
   }
   bool operator!() const { return !bool(*this); }
 
+  std::size_t formatted_size() const {
+    return ranges::accumulate(
+      *current_, cast<std::size_t>(0), {},
+      [](const auto& seg) { return seg.text().size(); });
+  }
+
   template <ranges::output_iterator<const Char&> Out>
   auto format_to(Out out, const std::size_t n = line_formatter_npos)
     -> fmt::format_to_n_result<Out> {

@@ -26,6 +26,7 @@ namespace rich {
                  fmt_iter_for<Char> out,
                  const std::size_t n) {
     typename T::char_type;
+    { std::as_const(f).formatted_size() } -> std::same_as<std::size_t>;
     { f.format_to(out, n) } -> std::same_as<fmt::format_to_n_result<fmt_iter_for<Char>>>;
   };
   // clang-format on

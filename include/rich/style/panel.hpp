@@ -49,6 +49,11 @@ public:
   operator bool() const { return ptr_ != nullptr and phase_ != 2; }
   bool operator!() const { return !bool(*this); }
 
+  std::size_t formatted_size() const {
+    assert(ptr_ != nullptr and ptr_->width < line_formatter_npos);
+    return ptr_->width;
+  }
+
   template <ranges::output_iterator<const Char&> Out>
   auto format_to(Out out, const std::size_t n = line_formatter_npos)
     -> fmt::format_to_n_result<Out> {
