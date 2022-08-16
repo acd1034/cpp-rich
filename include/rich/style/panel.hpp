@@ -46,10 +46,12 @@ public:
   explicit line_formatter(const rich::panel<L>& l)
     : ptr_(std::addressof(l)), line_fmtr_(l.contents) {}
 
-  operator bool() const { return ptr_ != nullptr and phase_ != 2; }
-  bool operator!() const { return !bool(*this); }
+  constexpr explicit operator bool() const {
+    return ptr_ != nullptr and phase_ != 2;
+  }
+  constexpr bool operator!() const { return !bool(*this); }
 
-  std::size_t formatted_size() const {
+  constexpr std::size_t formatted_size() const {
     assert(ptr_ != nullptr and ptr_->width < line_formatter_npos);
     return ptr_->width;
   }

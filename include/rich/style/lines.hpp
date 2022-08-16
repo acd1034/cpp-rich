@@ -148,12 +148,12 @@ public:
   explicit line_formatter(const lines<Char>& l)
     : ptr_(std::addressof(l)), current_(ranges::begin(l)) {}
 
-  operator bool() const {
+  constexpr explicit operator bool() const {
     return ptr_ != nullptr and current_ != ranges::end(*ptr_);
   }
-  bool operator!() const { return !bool(*this); }
+  constexpr bool operator!() const { return !bool(*this); }
 
-  std::size_t formatted_size() const {
+  constexpr std::size_t formatted_size() const {
     return ranges::accumulate(
       *current_, cast<std::size_t>(0), {},
       [](const auto& seg) { return seg.text().size(); });

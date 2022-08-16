@@ -22,7 +22,9 @@ namespace rich {
   inline constexpr bool always_false = false;
 
   template <class B>
-  concept boolean_testable_impl = std::convertible_to<B, bool>;
+  concept boolean_testable_impl = requires(B&& b) {
+    bool(std::forward<B>(b));
+  };
 
   /// boolean_testable
   template <class B>
