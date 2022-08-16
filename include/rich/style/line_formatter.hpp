@@ -58,7 +58,7 @@ namespace rich {
   std::size_t npos_sub(std::size_t x, std::size_t y) noexcept {
     if (x == line_formatter_npos) {
       assert(y != line_formatter_npos);
-      return line_formatter_npos;
+      return x;
     }
     return sat_sub(x, y);
   }
@@ -68,8 +68,11 @@ namespace rich {
                      line_formatter<L, Char>& line_fmtr,
                      std::basic_string_view<Char> fill, const align_t align,
                      const std::size_t width) {
+    if (width == line_formatter_npos)
+      return line_fmtr.format_to(out).out;
+
     auto size = line_fmtr.formatted_size();
-    auto fillwidth = width > size ? width - size : 0;
+    auto fillwidth = sat_sub(width, size);
     if (align == align_t::left) {
       out = line_fmtr.format_to(out, width).out;
       out = aligned_format_to<Char>(out, style, "", fill, {}, fillwidth);

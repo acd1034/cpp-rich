@@ -164,10 +164,12 @@ public:
     -> fmt::format_to_n_result<Out> {
     assert(ptr_ != nullptr);
     auto line = *current_++;
-    auto segments = reserved_vector<segment<Char>>(ranges::size(line));
-    auto size = crop_line(std::back_inserter(segments), line, n);
-    // segments.shrink_to_fit();
-    return {fmt::format_to(out, "{}", fmt::join(segments, "")), size};
+    if (n == line_formatter_npos)
+      return {fmt::format_to(out, "{}", fmt::join(line, "")), n};
+
+    auto cropped = reserved_vector<segment<Char>>(ranges::size(line));
+    auto size = crop_line(std::back_inserter(cropped), line, n);
+    return {fmt::format_to(out, "{}", fmt::join(cropped, "")), size};
   }
 };
 
