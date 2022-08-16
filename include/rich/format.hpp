@@ -26,7 +26,7 @@ namespace rich {
     }
   };
 
-#define RICH_TYPED_LITERAL(Char, Literal)                                     \
+#define RICH_TYPED_LITERAL(Char, Literal)                                      \
   (rich::choose_literal<Char>::choose(Literal, L##Literal))
 
   // copy_to
@@ -52,7 +52,8 @@ namespace rich {
     return out;
   }
 
-  template <typename Char, ranges::output_iterator<const Char&> Out, class Size = std::size_t>
+  template <typename Char, ranges::output_iterator<const Char&> Out,
+            class Size = std::size_t>
   constexpr Out copy_to(Out out, std::basic_string_view<Char> sv, Size n = 1) {
     return copy_to(out, sv.data(), sv.data() + sv.size(), n);
   }
@@ -98,6 +99,8 @@ namespace rich {
                        std::basic_string_view<Char> sv,
                        std::basic_string_view<Char> fill,
                        const std::size_t left, const std::size_t right) {
+    if (sv.empty() and left == 0 and right == 0)
+      return out;
     bool has_style;
     std::tie(out, has_style) = style_format_to<Char>(out, ts);
     if (left != 0)
