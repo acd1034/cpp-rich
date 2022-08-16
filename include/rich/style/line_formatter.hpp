@@ -52,5 +52,27 @@ namespace rich {
     }
   };
 
+  template <typename Char, ranges::output_iterator<const Char&> Out, class L>
+  Out line_format_to(Out out, const fmt::text_style& style,
+                     line_formatter<L, Char>& line_fmtr,
+                     std::basic_string_view<Char> fill, const align_t align,
+                     const std::size_t width) {
+    auto size = line_fmtr.formatted_size();
+    auto fillwidth = width > size ? width - size : 0;
+    if (align == align_t::left) {
+      out = line_fmtr.format_to(out, width).out;
+      out = aligned_format_to<Char>(out, style, "", fill, {}, fillwidth);
+    } else if (align == align_t::center) {
+      auto left = fillwidth / 2;
+      out = aligned_format_to<Char>(out, style, "", fill, {}, left);
+      out = line_fmtr.format_to(out, width).out;
+      out = aligned_format_to<Char>(out, style, "", fill, {}, fillwidth - left);
+    } else {
+      out = aligned_format_to<Char>(out, style, "", fill, {}, fillwidth);
+      out = line_fmtr.format_to(out, width).out;
+    }
+    return out;
+  }
+
   inline constexpr auto line_formatter_npos = std::size_t(-1);
 } // namespace rich

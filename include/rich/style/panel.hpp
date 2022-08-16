@@ -15,6 +15,12 @@ namespace rich {
   struct panel {
     using char_type = typename L::char_type;
     L contents{};
+    format_spec<char_type> contents_spec{
+      .style = fg(fmt::terminal_color::red),
+      .fill = " ",
+      .align = align_t::left,
+      .width = 2, // ignored
+    };
     std::size_t width = 80;
     format_spec<char_type> boarder_spec{
       .style = fg(fmt::terminal_color::red),
@@ -103,13 +109,11 @@ public:
         return {out, w};
       }
 
+      const auto& cs = ptr_->contents_spec;
       using enum align_t;
       // clang-format off
       out = aligned_format_to<Char>(out, bs.style, "│", bs.fill, bs.align, bs.width - 1);
-      const auto w2 = w - bs.width * 2;
-      auto result = line_fmtr_.format_to(out, w2);
-      out = result.out;
-      out = aligned_format_to<Char>(out, {}, "", " ", {}, w2 - result.size);
+      out = line_format_to(out, cs.style, line_fmtr_, cs.fill, cs.align, w - bs.width * 2);
       if (bs.align == left)
         out = aligned_format_to<Char>(out, bs.style, "│", bs.fill, right, bs.width - 1);
       else if (bs.align == center)
