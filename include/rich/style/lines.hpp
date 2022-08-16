@@ -26,13 +26,15 @@ namespace rich {
   auto split_newline(Out1 out1, Out2 out2, R&& segs) {
     *out2++ = 0;
     std::ptrdiff_t out1_count = 0;
+    const auto npos = std::basic_string_view<
+      typename ranges::range_value_t<R>::char_type>::npos;
 
     for (const auto& seg : segs) {
       for (std::size_t current = 0; current < seg.text().size();) {
         auto next = seg.text().find('\n', current);
         *out1++ = {seg.text().substr(current, next - current), seg.style()};
         ++out1_count;
-        if (next == std::string_view::npos)
+        if (next == npos)
           break;
         *out2++ = out1_count;
         current = next + 1;
