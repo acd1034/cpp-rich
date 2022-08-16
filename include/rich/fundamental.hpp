@@ -9,7 +9,9 @@
 #include <tuple>
 #include <type_traits>
 #include <utility> // std::move, std::forward, std::swap, std::exchange
-#include <range/v3/view.hpp>
+#include <range/v3/numeric/accumulate.hpp>
+#include <range/v3/range.hpp>
+#include <range/v3/view/subrange.hpp>
 
 namespace rich {
 // RICH_UNREACHABLE
@@ -20,7 +22,9 @@ namespace rich {
   inline constexpr bool always_false = false;
 
   template <class B>
-  concept boolean_testable_impl = std::convertible_to<B, bool>;
+  concept boolean_testable_impl = requires(B&& b) {
+    bool(std::forward<B>(b));
+  };
 
   /// boolean_testable
   template <class B>

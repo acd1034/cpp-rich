@@ -26,7 +26,7 @@ namespace rich {
     }
   };
 
-#define RICH_TYPED_LITERAL(Char, Literal)                                     \
+#define RICH_TYPED_LITERAL(Char, Literal)                                      \
   (rich::choose_literal<Char>::choose(Literal, L##Literal))
 
   // copy_to
@@ -52,7 +52,8 @@ namespace rich {
     return out;
   }
 
-  template <typename Char, ranges::output_iterator<const Char&> Out, class Size = std::size_t>
+  template <typename Char, ranges::output_iterator<const Char&> Out,
+            class Size = std::size_t>
   constexpr Out copy_to(Out out, std::basic_string_view<Char> sv, Size n = 1) {
     return copy_to(out, sv.data(), sv.data() + sv.size(), n);
   }
@@ -60,24 +61,24 @@ namespace rich {
   // style_format_to
 
   template <typename Char, ranges::output_iterator<const Char&> Out>
-  auto style_format_to(Out out, const fmt::text_style& ts)
+  auto style_format_to(Out out, const fmt::text_style& style)
     -> std::pair<Out, bool> {
     bool has_style = false;
-    if (ts.has_emphasis()) {
+    if (style.has_emphasis()) {
       has_style = true;
-      auto emphasis = fmt::detail::make_emphasis<Char>(ts.get_emphasis());
+      auto emphasis = fmt::detail::make_emphasis<Char>(style.get_emphasis());
       out = fmt::detail::write(out, (const Char*)emphasis);
     }
-    if (ts.has_foreground()) {
+    if (style.has_foreground()) {
       has_style = true;
       auto foreground =
-        fmt::detail::make_foreground_color<Char>(ts.get_foreground());
+        fmt::detail::make_foreground_color<Char>(style.get_foreground());
       out = fmt::detail::write(out, (const Char*)foreground);
     }
-    if (ts.has_background()) {
+    if (style.has_background()) {
       has_style = true;
       auto background =
-        fmt::detail::make_background_color<Char>(ts.get_background());
+        fmt::detail::make_background_color<Char>(style.get_background());
       out = fmt::detail::write(out, (const Char*)background);
     }
     return {out, has_style};
@@ -94,12 +95,14 @@ namespace rich {
 
   // https://github.com/fmtlib/fmt/blob/fd41110d383b7240231718f009b21498e3984ccc/include/fmt/format.h#L1645-L1661
   template <typename Char, ranges::output_iterator<const Char&> Out>
-  Out padded_format_to(Out out, const fmt::text_style& ts,
+  Out padded_format_to(Out out, const fmt::text_style& style,
                        std::basic_string_view<Char> sv,
                        std::basic_string_view<Char> fill,
                        const std::size_t left, const std::size_t right) {
+    if (sv.empty() and left == 0 and right == 0)
+      return out;
     bool has_style;
-    std::tie(out, has_style) = style_format_to<Char>(out, ts);
+    std::tie(out, has_style) = style_format_to<Char>(out, style);
     if (left != 0)
       out = copy_to<Char>(out, fill, left);
     out = copy_to<Char>(out, sv);
@@ -117,19 +120,38 @@ namespace rich {
   };
 
   template <typename Char, ranges::output_iterator<const Char&> Out>
-  Out aligned_format_to(Out out, const fmt::text_style& ts,
+  Out aligned_format_to(Out out, const fmt::text_style& style,
                         std::basic_string_view<Char> sv,
                         std::basic_string_view<Char> fill, const align_t align,
                         const std::size_t width) {
     switch (align) {
     case align_t::left:
-      return padded_format_to(out, ts, sv, fill, 0, width);
+      return padded_format_to(out, style, sv, fill, 0, width);
     case align_t::center: {
       const auto left = width / 2;
-      return padded_format_to(out, ts, sv, fill, left, width - left);
+      return padded_format_to(out, style, sv, fill, left, width - left);
     }
     case align_t::right:
-      return padded_format_to(out, ts, sv, fill, width, 0);
+      return padded_format_to(out, style, sv, fill, width, 0);
+    default:
+      RICH_UNREACHABLE();
+    }
+  }
+
+  template <typename Char, ranges::output_iterator<const Char&> Out>
+  Out reversed_format_to(Out out, const fmt::text_style& style,
+                         std::basic_string_view<Char> sv,
+                         std::basic_string_view<Char> fill, const align_t align,
+                         const std::size_t width) {
+    switch (align) {
+    case align_t::left:
+      return padded_format_to(out, style, sv, fill, width, 0);
+    case align_t::center: {
+      const auto right = width / 2;
+      return padded_format_to(out, style, sv, fill, width - right, right);
+    }
+    case align_t::right:
+      return padded_format_to(out, style, sv, fill, 0, width);
     default:
       RICH_UNREACHABLE();
     }

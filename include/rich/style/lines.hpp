@@ -148,10 +148,16 @@ public:
   explicit line_formatter(const lines<Char>& l)
     : ptr_(std::addressof(l)), current_(ranges::begin(l)) {}
 
-  operator bool() const {
+  constexpr explicit operator bool() const {
     return ptr_ != nullptr and current_ != ranges::end(*ptr_);
   }
-  bool operator!() const { return !bool(*this); }
+  constexpr bool operator!() const { return !bool(*this); }
+
+  constexpr std::size_t formatted_size() const {
+    return ranges::accumulate(
+      *current_, cast<std::size_t>(0), {},
+      [](const auto& seg) { return seg.text().size(); });
+  }
 
   template <ranges::output_iterator<const Char&> Out>
   auto format_to(Out out, const std::size_t n = line_formatter_npos)
@@ -160,7 +166,7 @@ public:
     auto line = *current_++;
     auto segments = reserved_vector<segment<Char>>(ranges::size(line));
     auto size = crop_line(std::back_inserter(segments), line, n);
-    segments.shrink_to_fit();
+    // segments.shrink_to_fit();
     return {fmt::format_to(out, "{}", fmt::join(segments, "")), size};
   }
 };

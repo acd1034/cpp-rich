@@ -1,4 +1,5 @@
 #include <catch2/catch_test_macros.hpp>
+#include <range/v3/view/transform.hpp>
 
 #include <rich/file.hpp>
 #include <rich/regex.hpp>
