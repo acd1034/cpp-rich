@@ -1,6 +1,7 @@
 /// @file line_formatter.hpp
 #pragma once
 #include <rich/format.hpp>
+#include <rich/saturation.hpp>
 
 namespace rich {
   // https://github.com/llvm/llvm-project/blob/ba79c2a25069f09728625982c424920452fa6b83/libcxx/include/format/formatter.h#L35-L40
@@ -52,6 +53,16 @@ namespace rich {
     }
   };
 
+  inline constexpr auto line_formatter_npos = std::size_t(-1);
+
+  std::size_t npos_sub(std::size_t x, std::size_t y) noexcept {
+    if (x == line_formatter_npos) {
+      assert(y != line_formatter_npos);
+      return line_formatter_npos;
+    }
+    return sat_sub(x, y);
+  }
+
   template <typename Char, ranges::output_iterator<const Char&> Out, class L>
   Out line_format_to(Out out, const fmt::text_style& style,
                      line_formatter<L, Char>& line_fmtr,
@@ -73,6 +84,4 @@ namespace rich {
     }
     return out;
   }
-
-  inline constexpr auto line_formatter_npos = std::size_t(-1);
 } // namespace rich
