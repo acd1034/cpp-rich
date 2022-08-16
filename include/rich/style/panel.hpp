@@ -19,9 +19,8 @@ namespace rich {
       .style = fg(fmt::terminal_color::red),
       .fill = " ",
       .align = align_t::left,
-      .width = 2, // ignored
+      .width = 80,
     };
-    std::size_t width = 80;
     format_spec<char_type> boarder_spec{
       .style = fg(fmt::terminal_color::red),
       .fill = " ",
@@ -58,15 +57,15 @@ public:
   constexpr bool operator!() const { return !bool(*this); }
 
   constexpr std::size_t formatted_size() const {
-    assert(ptr_ != nullptr and ptr_->width < line_formatter_npos);
-    return ptr_->width;
+    assert(ptr_ != nullptr and ptr_->contents_spec.width < line_formatter_npos);
+    return ptr_->contents_spec.width;
   }
 
   template <ranges::output_iterator<const Char&> Out>
   auto format_to(Out out, const std::size_t n = line_formatter_npos)
     -> fmt::format_to_n_result<Out> {
     assert(ptr_ != nullptr);
-    const auto w = std::min(ptr_->width, n);
+    const auto w = std::min(ptr_->contents_spec.width, n);
     const auto& bs = ptr_->boarder_spec;
     assert(bs.width * 2 < w and w < line_formatter_npos);
 
