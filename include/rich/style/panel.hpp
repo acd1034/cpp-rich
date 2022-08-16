@@ -78,7 +78,7 @@ public:
         out = aligned_format_to<Char>(out, bs.style, "╭", "─", bs.align, bs.width - 1);
       else
         out = aligned_format_to<Char>(out, bs.style, "╭", bs.fill, bs.align, bs.width - 1);
-      out = aligned_format_to<Char>(out, bs.style, ptr_->title, "─", center, width - bs.width * 2 - ptr_->title.size());
+      out = aligned_format_to<Char>(out, bs.style, ptr_->title, "─", center, npos_sub(width, bs.width * 2 + ptr_->title.size()));
       if (bs.align == left)
         out = reversed_format_to<Char>(out, bs.style, "╮", "─", bs.align, bs.width - 1);
       else
@@ -95,7 +95,7 @@ public:
           out = aligned_format_to<Char>(out, bs.style, "╰", "─", bs.align, bs.width - 1);
         else
           out = aligned_format_to<Char>(out, bs.style, "╰", bs.fill, bs.align, bs.width - 1);
-        out = aligned_format_to<Char>(out, bs.style, "", "─", {}, width - bs.width * 2);
+        out = aligned_format_to<Char>(out, bs.style, "", "─", {}, npos_sub(width, bs.width * 2));
         if (bs.align == left)
           out = reversed_format_to<Char>(out, bs.style, "╯", "─", bs.align, bs.width - 1);
         else
@@ -107,7 +107,7 @@ public:
       const auto& cs = ptr_->contents_spec;
       // clang-format off
       out = aligned_format_to<Char>(out, bs.style, "│", bs.fill, bs.align, bs.width - 1);
-      out = line_format_to<Char>(out, cs.style, line_fmtr_, cs.fill, cs.align, width - bs.width * 2);
+      out = line_format_to<Char>(out, cs.style, line_fmtr_, cs.fill, cs.align, npos_sub(width, bs.width * 2));
       out = reversed_format_to<Char>(out, bs.style, "│", bs.fill, bs.align, bs.width - 1);
       // clang-format on
       return {out, width};
