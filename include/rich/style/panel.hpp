@@ -65,9 +65,10 @@ public:
   auto format_to(Out out, const std::size_t n = line_formatter_npos)
     -> fmt::format_to_n_result<Out> {
     assert(ptr_ != nullptr);
-    const auto width = std::min(ptr_->contents_spec.width, n);
-    assert(ptr_->boarder_spec.width * 2 < width
-           and width < line_formatter_npos);
+    const auto w = std::min(ptr_->contents_spec.width, n);
+    assert(w > ptr_->boarder_spec.width * 2);
+    // `vvv` must be empty to remove this assertion
+    assert(w < line_formatter_npos);
 
     switch (phase_) {
     case 0: {
@@ -78,10 +79,11 @@ public:
         bs.fill = std::string_view("─");
       // clang-format off
       out = spec_format_to<Char>(out, bs, "╭");
-      out = aligned_format_to<Char>(out, bs.style, ptr_->title, "─", center, npos_sub(width, bs.width * 2 + ptr_->title.size()));
+      //                                                        vvv
+      out = aligned_format_to<Char>(out, bs.style, ptr_->title, "─", center, npos_sub(w, bs.width * 2 + ptr_->title.size()));
       out = rspec_format_to<Char>(out, bs, "╮");
       // clang-format on
-      return {out, width};
+      return {out, w};
     }
     case 1: {
       if (!line_fmtr_) {
@@ -92,20 +94,21 @@ public:
           bs.fill = std::string_view("─");
         // clang-format off
         out = spec_format_to<Char>(out, bs, "╰");
-        out = aligned_format_to<Char>(out, bs.style, "", "─", {}, npos_sub(width, bs.width * 2));
+        //                                               vvv
+        out = aligned_format_to<Char>(out, bs.style, "", "─", {}, npos_sub(w, bs.width * 2));
         out = rspec_format_to<Char>(out, bs, "╯");
         // clang-format on
-        return {out, width};
+        return {out, w};
       }
 
       const auto& cs = ptr_->contents_spec;
       const auto& bs = ptr_->boarder_spec;
       // clang-format off
       out = spec_format_to<Char>(out, bs, "│");
-      out = line_format_to<Char>(out, cs.style, line_fmtr_, cs.fill, cs.align, npos_sub(width, bs.width * 2));
+      out = line_format_to<Char>(out, cs.style, line_fmtr_, cs.fill, cs.align, npos_sub(w, bs.width * 2));
       out = rspec_format_to<Char>(out, bs, "│");
       // clang-format on
-      return {out, width};
+      return {out, w};
     }
     default:
       RICH_UNREACHABLE();
