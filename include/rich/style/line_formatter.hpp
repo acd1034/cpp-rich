@@ -16,7 +16,7 @@ namespace rich {
 
   // https://github.com/llvm/llvm-project/blob/ba79c2a25069f09728625982c424920452fa6b83/libcxx/include/__format/concepts.h#L39-L47
   // clang-format off
-  template <class T, class Char = char>
+  template <class T, class Char>
   concept line_formattable =
     std::copyable<line_formatter<std::remove_cvref_t<T>, Char>>
     and std::constructible_from<line_formatter<std::remove_cvref_t<T>, Char>,
@@ -25,6 +25,7 @@ namespace rich {
     and requires(line_formatter<std::remove_cvref_t<T>, Char> f,
                  fmt_iter_for<Char> out,
                  const std::size_t n) {
+    typename T::char_type;
     { f.format_to(out, n) } -> std::same_as<fmt::format_to_n_result<fmt_iter_for<Char>>>;
   };
   // clang-format on

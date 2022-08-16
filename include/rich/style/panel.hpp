@@ -102,7 +102,7 @@ public:
       const auto w2 = w - bs.width * 2;
       auto result = line_fmtr_.format_to(out, w2);
       out = result.out;
-      out = aligned_format_to<Char>(out, bs.style, "", " ", {}, w2 - result.size);
+      out = aligned_format_to<Char>(out, {}, "", " ", {}, w2 - result.size);
       if (bs.align == left)
         out = aligned_format_to<Char>(out, bs.style, "│", bs.fill, right, bs.width - 1);
       else if (bs.align == center)
