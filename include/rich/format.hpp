@@ -9,7 +9,7 @@ namespace rich {
   // RICH_TYPED_LITERAL
   // See https://github.com/microsoft/STL/blob/17fde2cbab6e8724d81c9555237c9a623d7fb954/tests/std/tests/P0220R1_string_view/test.cpp#L260-L277
 
-  template <class CharT>
+  template <class Char>
   struct choose_literal; // not defined
 
   template <>
@@ -26,6 +26,112 @@ namespace rich {
     }
   };
 
-#define RICH_TYPED_LITERAL(CharT, Literal)                                          \
-  (rich::choose_literal<CharT>::choose(Literal, L##Literal))
+#define RICH_TYPED_LITERAL(Char, Literal)                                     \
+  (rich::choose_literal<Char>::choose(Literal, L##Literal))
+
+  // copy_to
+  // https://github.com/fmtlib/fmt/blob/fd41110d383b7240231718f009b21498e3984ccc/include/fmt/core.h#L838-L853
+
+  template <class Out, class In, class Size = std::size_t>
+  constexpr Out copy_to(Out out, In first, In last, Size n = 1) {
+    while (n--)
+      for (In in = first; in != last;)
+        *out++ = *in++;
+    return out;
+  }
+
+  template <class T, class Size = std::size_t>
+  constexpr T* copy_to(T* out, const T* first, const T* last, Size n = 1) {
+    if (std::is_constant_evaluated())
+      return copy_to<T*, const T*, Size>(out, first, last, n);
+    const auto size = cast<std::size_t>(last - first);
+    while (n--) {
+      std::memcpy(out, first, sizeof(T) * size);
+      out += size;
+    }
+    return out;
+  }
+
+  template <typename Char, ranges::output_iterator<const Char&> Out, class Size = std::size_t>
+  constexpr Out copy_to(Out out, std::basic_string_view<Char> sv, Size n = 1) {
+    return copy_to(out, sv.data(), sv.data() + sv.size(), n);
+  }
+
+  // style_format_to
+
+  template <typename Char, ranges::output_iterator<const Char&> Out>
+  auto style_format_to(Out out, const fmt::text_style& ts)
+    -> std::pair<Out, bool> {
+    bool has_style = false;
+    if (ts.has_emphasis()) {
+      has_style = true;
+      auto emphasis = fmt::detail::make_emphasis<Char>(ts.get_emphasis());
+      out = fmt::detail::write(out, (const Char*)emphasis);
+    }
+    if (ts.has_foreground()) {
+      has_style = true;
+      auto foreground =
+        fmt::detail::make_foreground_color<Char>(ts.get_foreground());
+      out = fmt::detail::write(out, (const Char*)foreground);
+    }
+    if (ts.has_background()) {
+      has_style = true;
+      auto background =
+        fmt::detail::make_background_color<Char>(ts.get_background());
+      out = fmt::detail::write(out, (const Char*)background);
+    }
+    return {out, has_style};
+  }
+
+  // reset_style
+
+  template <typename Char, ranges::output_iterator<const Char&> Out>
+  Out reset_style(Out out) {
+    return fmt::detail::write(out, RICH_TYPED_LITERAL(Char, "\x1b[0m"));
+  }
+
+  // format_to
+
+  // https://github.com/fmtlib/fmt/blob/fd41110d383b7240231718f009b21498e3984ccc/include/fmt/format.h#L1645-L1661
+  template <typename Char, ranges::output_iterator<const Char&> Out>
+  Out padded_format_to(Out out, const fmt::text_style& ts,
+                       std::basic_string_view<Char> sv,
+                       std::basic_string_view<Char> fill,
+                       const std::size_t left, const std::size_t right) {
+    bool has_style;
+    std::tie(out, has_style) = style_format_to<Char>(out, ts);
+    if (left != 0)
+      out = copy_to<Char>(out, fill, left);
+    out = copy_to<Char>(out, sv);
+    if (right != 0)
+      out = copy_to<Char>(out, fill, right);
+    if (has_style)
+      out = reset_style<Char>(out);
+    return out;
+  }
+
+  enum class align_t : std::uint8_t {
+    left,
+    center,
+    right,
+  };
+
+  template <typename Char, ranges::output_iterator<const Char&> Out>
+  Out aligned_format_to(Out out, const fmt::text_style& ts,
+                        std::basic_string_view<Char> sv,
+                        std::basic_string_view<Char> fill, const align_t align,
+                        const std::size_t width) {
+    switch (align) {
+    case align_t::left:
+      return padded_format_to(out, ts, sv, fill, 0, width);
+    case align_t::center: {
+      const auto left = width / 2;
+      return padded_format_to(out, ts, sv, fill, left, width - left);
+    }
+    case align_t::right:
+      return padded_format_to(out, ts, sv, fill, width, 0);
+    default:
+      RICH_UNREACHABLE();
+    }
+  }
 } // namespace rich

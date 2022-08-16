@@ -52,29 +52,12 @@ public:
   template <typename FormatContext>
   auto format(const rich::segment<Char>& seg, FormatContext& ctx) const
     -> decltype(ctx.out()) {
-    bool has_style = false;
     auto out = ctx.out();
-    if (seg.style().has_emphasis()) {
-      has_style = true;
-      auto emphasis =
-        fmt::detail::make_emphasis<Char>(seg.style().get_emphasis());
-      out = fmt::detail::write(out, (const Char*)emphasis);
-    }
-    if (seg.style().has_foreground()) {
-      has_style = true;
-      auto foreground =
-        fmt::detail::make_foreground_color<Char>(seg.style().get_foreground());
-      out = fmt::detail::write(out, (const Char*)foreground);
-    }
-    if (seg.style().has_background()) {
-      has_style = true;
-      auto background =
-        fmt::detail::make_background_color<Char>(seg.style().get_background());
-      out = fmt::detail::write(out, (const Char*)background);
-    }
+    bool has_style;
+    std::tie(out, has_style) = rich::style_format_to<Char>(out, seg.style());
     out = fmtr.format(seg.text(), ctx);
     if (has_style)
-      out = fmt::detail::write(out, RICH_TYPED_LITERAL(Char, "\x1b[0m"));
+      out = rich::reset_style<Char>(out);
     return out;
   }
 };
