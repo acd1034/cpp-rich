@@ -166,7 +166,7 @@ public:
     auto line = *current_++;
     auto segments = reserved_vector<segment<Char>>(ranges::size(line));
     auto size = crop_line(std::back_inserter(segments), line, n);
-    segments.shrink_to_fit();
+    // segments.shrink_to_fit();
     return {fmt::format_to(out, "{}", fmt::join(segments, "")), size};
   }
 };
