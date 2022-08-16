@@ -14,7 +14,7 @@ namespace rich {
   template <class L>
   struct panel {
     using char_type = typename L::char_type;
-    L lines{};
+    L contents{};
     std::size_t width = 80;
     format_spec<char_type> boarder_spec{
       .style = fg(fmt::terminal_color::red),
@@ -25,8 +25,8 @@ namespace rich {
     std::basic_string_view<char_type> title{};
 
     panel() = default;
-    constexpr explicit panel(const L& l, int = {}) : lines(l) {}
-    constexpr explicit panel(L&& l, int = {}) : lines(std::move(l)) {}
+    constexpr explicit panel(const L& l, int = {}) : contents(l) {}
+    constexpr explicit panel(L&& l, int = {}) : contents(std::move(l)) {}
   };
 
   template <line_range R>
@@ -44,7 +44,7 @@ private:
 
 public:
   explicit line_formatter(const rich::panel<L>& l)
-    : ptr_(std::addressof(l)), line_fmtr_(l.lines) {}
+    : ptr_(std::addressof(l)), line_fmtr_(l.contents) {}
 
   operator bool() const { return ptr_ != nullptr and phase_ != 2; }
   bool operator!() const { return !bool(*this); }
