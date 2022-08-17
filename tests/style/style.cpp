@@ -138,6 +138,11 @@ TEST_CASE("style", "[style][file]") {
         pnl.title = std::string_view("Traceback (most recent call)");
         fmt::print("{}\n{}\n", hline, pnl);
       }
+      { // enumerate
+        auto enm = rich::enumerate(lns);
+        enm.start_line = e.where().line() - 3;
+        fmt::print("{}\n{}\n", hline, enm);
+      }
     }
   }
 }

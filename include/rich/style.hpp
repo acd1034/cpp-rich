@@ -1,4 +1,5 @@
 #include <rich/style/box.hpp>
+#include <rich/style/enumerate.hpp>
 #include <rich/style/format_spec.hpp>
 #include <rich/style/line_formatter.hpp>
 #include <rich/style/lines.hpp>
