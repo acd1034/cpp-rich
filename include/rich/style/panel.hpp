@@ -5,7 +5,6 @@
 #include <rich/style/format_spec.hpp>
 #include <rich/style/line_formatter.hpp>
 #include <rich/style/lines.hpp>
-#include <rich/style/segment.hpp>
 
 namespace rich {
   // https://github.com/Textualize/rich/blob/5d3f600f43796393a2c3e4cb20d807c5cf147f44/rich/panel.py#L38-L53
