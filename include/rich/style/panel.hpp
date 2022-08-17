@@ -57,7 +57,7 @@ public:
   constexpr bool operator!() const { return !bool(*this); }
 
   constexpr std::size_t formatted_size() const {
-    assert(ptr_ != nullptr and ptr_->contents_spec.width < line_formatter_npos);
+    assert(ptr_ != nullptr);
     return ptr_->contents_spec.width;
   }
 
@@ -67,8 +67,6 @@ public:
     assert(ptr_ != nullptr);
     const auto w = std::min(ptr_->contents_spec.width, n);
     assert(w > ptr_->boarder_spec.width * 2);
-    // `vvv` must be empty to remove this assertion
-    assert(w < line_formatter_npos);
 
     switch (phase_) {
     case 0: {
@@ -79,8 +77,7 @@ public:
         bs.fill = std::string_view("─");
       // clang-format off
       out = spec_format_to<Char>(out, bs, "╭");
-      //                                                        vvv
-      out = aligned_format_to<Char>(out, bs.style, ptr_->title, "─", center, npos_sub(w, bs.width * 2 + ptr_->title.size()));
+      out = aligned_format_to<Char>(out, bs.style, ptr_->title, "─", center, npos_sub(w + 1 ? w : 0, bs.width * 2 + ptr_->title.size()));
       out = rspec_format_to<Char>(out, bs, "╮");
       // clang-format on
       return {out, w};
@@ -94,8 +91,7 @@ public:
           bs.fill = std::string_view("─");
         // clang-format off
         out = spec_format_to<Char>(out, bs, "╰");
-        //                                               vvv
-        out = aligned_format_to<Char>(out, bs.style, "", "─", {}, npos_sub(w, bs.width * 2));
+        out = aligned_format_to<Char>(out, bs.style, "", "─", {}, npos_sub(w + 1 ? w : 0, bs.width * 2));
         out = rspec_format_to<Char>(out, bs, "╯");
         // clang-format on
         return {out, w};
