@@ -123,8 +123,9 @@ TEST_CASE("style", "[style][file]") {
       fn();
     } catch (rich::exception& e) {
       auto contents = rich::get_file_contents(e.where().file_name());
+      const std::size_t extra = 3;
       auto partial = rich::extract_partial_contents(std::string_view(contents),
-                                                    e.where().line(), 7);
+                                                    e.where().line(), extra);
       auto highlighted = rich::regex_range(partial, re) | highlight;
       { // regex_range
         fmt::print("{}\n{}\n", hline, fmt::join(highlighted, ""));
@@ -140,7 +141,7 @@ TEST_CASE("style", "[style][file]") {
       }
       { // enumerate
         auto enm = rich::enumerate(lns);
-        enm.start_line = e.where().line() - 3;
+        enm.start_line = e.where().line() - extra;
         fmt::print("{}\n{}\n", hline, enm);
       }
     }
