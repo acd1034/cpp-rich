@@ -81,7 +81,7 @@ public:
         bs.fill = std::string_view((*box)[1]);
       // clang-format off
       out = spec_format_to<Char>(out, bs, (*box)[0]);
-      out = aligned_format_to<Char>(out, bs.style, ptr_->title, (*box)[1], center, npos_sub(w + 1 ? w : 0, bs.width * 2 + ptr_->title.size()));
+      out = line_format_to<Char>(out, bs.style, ptr_->title, (*box)[1], center, npos_sub(w, bs.width * 2));
       out = rspec_format_to<Char>(out, bs, (*box)[2]);
       // clang-format on
       return {out, w};
@@ -95,7 +95,7 @@ public:
           bs.fill = std::string_view((*box)[7]);
         // clang-format off
         out = spec_format_to<Char>(out, bs, (*box)[6]);
-        out = aligned_format_to<Char>(out, bs.style, "", (*box)[7], {}, npos_sub(w + 1 ? w : 0, bs.width * 2));
+        out = line_format_to<Char>(out, bs.style, "", (*box)[7], {}, npos_sub(w, bs.width * 2));
         out = rspec_format_to<Char>(out, bs, (*box)[8]);
         // clang-format on
         return {out, w};
