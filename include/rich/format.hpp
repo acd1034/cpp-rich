@@ -32,18 +32,19 @@ namespace rich {
   // copy_to
   // https://github.com/fmtlib/fmt/blob/fd41110d383b7240231718f009b21498e3984ccc/include/fmt/core.h#L838-L853
 
-  template <class Out, class In, class Size = std::size_t>
-  constexpr Out copy_to(Out out, In first, In last, Size n = 1) {
+  template <class Out, class In>
+  constexpr Out copy_to(Out out, In first, In last, std::size_t n = 1) {
     while (n--)
       for (In in = first; in != last;)
         *out++ = *in++;
     return out;
   }
 
-  template <class T, class Size = std::size_t>
-  constexpr T* copy_to(T* out, const T* first, const T* last, Size n = 1) {
+  template <class T>
+  constexpr T* copy_to(T* out, const T* first, const T* last,
+                       std::size_t n = 1) {
     if (std::is_constant_evaluated())
-      return copy_to<T*, const T*, Size>(out, first, last, n);
+      return copy_to<T*, const T*>(out, first, last, n);
     const auto size = cast<std::size_t>(last - first);
     while (n--) {
       std::memcpy(out, first, sizeof(T) * size);
@@ -52,9 +53,9 @@ namespace rich {
     return out;
   }
 
-  template <typename Char, ranges::output_iterator<const Char&> Out,
-            class Size = std::size_t>
-  constexpr Out copy_to(Out out, std::basic_string_view<Char> sv, Size n = 1) {
+  template <typename Char, ranges::output_iterator<const Char&> Out>
+  constexpr Out copy_to(Out out, std::basic_string_view<Char> sv,
+                        std::size_t n = 1) {
     return copy_to(out, sv.data(), sv.data() + sv.size(), n);
   }
 
