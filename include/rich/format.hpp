@@ -99,14 +99,15 @@ namespace rich {
                        std::basic_string_view<Char> sv,
                        std::basic_string_view<Char> fill,
                        const std::size_t left, const std::size_t right) {
-    if (sv.empty() and left == 0 and right == 0)
+    if (sv.empty() and (fill.empty() or (left == 0 and right == 0)))
       return out;
     bool has_style;
     std::tie(out, has_style) = style_format_to<Char>(out, style);
-    if (left != 0)
+    if (not fill.empty() and left > 0)
       out = copy_to<Char>(out, fill, left);
-    out = copy_to<Char>(out, sv);
-    if (right != 0)
+    if (not sv.empty())
+      out = copy_to<Char>(out, sv);
+    if (not fill.empty() and right > 0)
       out = copy_to<Char>(out, fill, right);
     if (has_style)
       out = reset_style<Char>(out);
