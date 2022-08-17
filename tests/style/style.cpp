@@ -158,7 +158,7 @@ TEST_CASE("style", "[style][file]") {
                                                     e.where().line(), extra);
       rich::panel pnl(rich::regex_range(partial, re) | highlight);
       rich::panel pnl2(pnl, {});
-      pnl2.boarder_spec.style = fg(fmt::terminal_color::yellow);
+      pnl2.border_spec.style = fg(fmt::terminal_color::yellow);
       pnl2.title = std::string_view("Traceback (most recent call)");
       fmt::print("{}:{}:{} in {}\n", e.where().file_name(), e.where().line(),
                  e.where().column(), e.where().function_name());

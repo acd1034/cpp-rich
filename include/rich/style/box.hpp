@@ -7,14 +7,17 @@
 
 namespace rich {
   template <typename Char>
-  using box_type = std::array<std::basic_string_view<Char>, 9>;
+  using box_t = std::span<const std::basic_string_view<Char>, 9>;
+}
 
+namespace rich::box {
 // S1, S4, and S7 must be exactly one character.
 // Others must be zero or one character.
 #define RICH_DEFINE_BOX(Name, S0, S1, S2, S3, S4, S5, S6, S7, S8)              \
-  template <typename Char>                                                     \
-  inline constexpr std::array Name {                                           \
-    std::basic_string_view<Char>(RICH_TYPED_LITERAL(Char, S0)),                \
+  namespace detail {                                                           \
+    template <typename Char>                                                   \
+    inline constexpr std::array Name##Instance{                                \
+      std::basic_string_view<Char>(RICH_TYPED_LITERAL(Char, S0)),              \
       std::basic_string_view<Char>(RICH_TYPED_LITERAL(Char, S1)),              \
       std::basic_string_view<Char>(RICH_TYPED_LITERAL(Char, S2)),              \
       std::basic_string_view<Char>(RICH_TYPED_LITERAL(Char, S3)),              \
@@ -23,7 +26,10 @@ namespace rich {
       std::basic_string_view<Char>(RICH_TYPED_LITERAL(Char, S6)),              \
       std::basic_string_view<Char>(RICH_TYPED_LITERAL(Char, S7)),              \
       std::basic_string_view<Char>(RICH_TYPED_LITERAL(Char, S8)),              \
-  }
+    };                                                                         \
+  }                                                                            \
+  template <typename Char>                                                     \
+  inline constexpr auto Name = std::span(detail::Name##Instance<Char>)
 
   // ╭─╮
   // │ │
@@ -40,10 +46,15 @@ namespace rich {
   // ▙▄▟
   RICH_DEFINE_BOX(HalfBlock, "▛", "▀", "▜", "▌", " ", "▐", "▙", "▄", "▟");
 
+  // _ _
+  // _ _
+  // _ _
+  RICH_DEFINE_BOX(NoBorder, "", " ", "", "", " ", "", "", " ", "");
+
   // ● ↵
   // _ ↵
   // _ ↵
   RICH_DEFINE_BOX(Editor, "●", " ", "↵", "", " ", "↵", "", " ", "↵");
 
 #undef RICH_DEFINE_BOX
-} // namespace rich
+} // namespace rich::box
