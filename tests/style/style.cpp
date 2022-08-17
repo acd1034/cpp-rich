@@ -142,6 +142,7 @@ TEST_CASE("style", "[style][file]") {
       { // enumerate
         auto enm = rich::enumerate(lns);
         enm.start_line = e.where().line() - extra;
+        enm.end_line = e.where().line() + extra;
         fmt::print("{}\n{}\n", hline, enm);
       }
     }

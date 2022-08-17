@@ -2,12 +2,13 @@
 #pragma once
 #include <array>
 #include <charconv>
+#include <cmath>
 
 #include <rich/format.hpp>
+#include <rich/saturation.hpp>
 #include <rich/style/format_spec.hpp>
 #include <rich/style/line_formatter.hpp>
 #include <rich/style/lines.hpp>
-#include <rich/saturation.hpp>
 
 namespace rich {
   // https://github.com/Textualize/rich/blob/5d3f600f43796393a2c3e4cb20d807c5cf147f44/rich/syntax.py#L262-L277
@@ -16,11 +17,12 @@ namespace rich {
     using char_type = typename L::char_type;
     L contents{};
     std::size_t start_line = 1;
+    std::size_t end_line = start_line;
     format_spec<char_type> number_spec{
       .style = fmt::emphasis::faint,
       .fill = " ",
       .align = align_t::right,
-      .width = 4,
+      .width = {}, // ignored
     };
     // format_spec<char_type> highlight_spec{
     //   .style = fg(fmt::terminal_color::red),
@@ -53,11 +55,16 @@ struct rich::line_formatter<rich::enumerate<L>, Char> {
 private:
   const rich::enumerate<L>* ptr_ = nullptr;
   std::size_t current_ = 1;
+  std::size_t num_width_ = 0;
   line_formatter<L, Char> line_fmtr_;
 
 public:
   explicit line_formatter(const rich::enumerate<L>& l)
-    : ptr_(std::addressof(l)), current_(l.start_line), line_fmtr_(l.contents) {}
+    : ptr_(std::addressof(l)), current_(l.start_line),
+      // clang-format off
+      num_width_(std::size_t(std::log10(double(std::max(l.start_line, l.end_line)))) + 1),
+      // clang-format on
+      line_fmtr_(l.contents) {}
 
   constexpr explicit operator bool() const {
     return ptr_ != nullptr and line_fmtr_;
@@ -66,7 +73,7 @@ public:
 
   constexpr std::size_t formatted_size() const {
     assert(ptr_ != nullptr);
-    return sat_add(ptr_->number_spec.width + 1, line_fmtr_.formatted_size());
+    return sat_add(num_width_ + 1, line_fmtr_.formatted_size());
   }
 
   template <ranges::output_iterator<const Char&> Out>
@@ -76,11 +83,11 @@ public:
     const auto& ns = ptr_->number_spec;
     auto sv = _to_chars(current_++);
     // clang-format off
-    out = aligned_format_to<Char>(out, ns.style, sv, ns.fill, ns.align, npos_sub(ns.width, sv.size()));
+    out = aligned_format_to<Char>(out, ns.style, sv, ns.fill, ns.align, npos_sub(num_width_, sv.size()));
     *out++ = ' ';
-    auto result = line_fmtr_.format_to(out, sat_sub(n, ns.width + 1));
+    auto result = line_fmtr_.format_to(out, sat_sub(n, num_width_ + 1));
     // clang-format on
-    return {result.out, sat_add(ns.width + 1, result.size)};
+    return {result.out, sat_add(num_width_ + 1, result.size)};
   }
 };
 
