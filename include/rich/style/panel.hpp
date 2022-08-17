@@ -1,9 +1,7 @@
 /// @file panel.hpp
 #pragma once
-#include <string_view>
-#include <vector>
-
 #include <rich/format.hpp>
+#include <rich/style/box.hpp>
 #include <rich/style/format_spec.hpp>
 #include <rich/style/line_formatter.hpp>
 #include <rich/style/lines.hpp>
@@ -15,15 +13,16 @@ namespace rich {
   struct panel {
     using char_type = typename L::char_type;
     L contents{};
+    box_t<char_type> box = box::Rounded<char_type>;
     format_spec<char_type> contents_spec{
       .style = fg(fmt::terminal_color::red),
-      .fill = " ",
+      .fill = box[4],
       .align = align_t::left,
       .width = 80,
     };
-    format_spec<char_type> boarder_spec{
+    format_spec<char_type> border_spec{
       .style = fg(fmt::terminal_color::red),
-      .fill = " ",
+      .fill = box[4],
       .align = align_t::left,
       .width = 2,
     };
@@ -66,43 +65,43 @@ public:
     -> fmt::format_to_n_result<Out> {
     assert(ptr_ != nullptr);
     const auto w = std::min(ptr_->contents_spec.width, n);
-    assert(w > ptr_->boarder_spec.width * 2);
+    assert(w > ptr_->border_spec.width * 2);
+    const auto& box = ptr_->box;
+    assert(ranges::size(box) == ranges::size(box::Rounded<Char>));
 
     switch (phase_) {
     case 0: {
       ++phase_;
-      auto bs = ptr_->boarder_spec;
-      using enum align_t;
-      if (bs.align == left)
-        bs.fill = std::string_view("─");
+      auto bs = ptr_->border_spec;
+      if (bs.align == align_t::left)
+        bs.fill = box[1];
       // clang-format off
-      out = spec_format_to<Char>(out, bs, "╭");
-      out = aligned_format_to<Char>(out, bs.style, ptr_->title, "─", center, npos_sub(w + 1 ? w : 0, bs.width * 2 + ptr_->title.size()));
-      out = rspec_format_to<Char>(out, bs, "╮");
+      out = spec_format_to<Char>(out, bs, box[0]);
+      out = line_format_to<Char>(out, bs.style, ptr_->title, box[1], align_t::center, npos_sub(w, bs.width * 2));
+      out = rspec_format_to<Char>(out, bs, box[2]);
       // clang-format on
       return {out, w};
     }
     case 1: {
       if (!line_fmtr_) {
         ++phase_;
-        auto bs = ptr_->boarder_spec;
-        using enum align_t;
-        if (bs.align == left)
-          bs.fill = std::string_view("─");
+        auto bs = ptr_->border_spec;
+        if (bs.align == align_t::left)
+          bs.fill = box[7];
         // clang-format off
-        out = spec_format_to<Char>(out, bs, "╰");
-        out = aligned_format_to<Char>(out, bs.style, "", "─", {}, npos_sub(w + 1 ? w : 0, bs.width * 2));
-        out = rspec_format_to<Char>(out, bs, "╯");
+        out = spec_format_to<Char>(out, bs, box[6]);
+        out = line_format_to<Char>(out, bs.style, "", box[7], {}, npos_sub(w, bs.width * 2));
+        out = rspec_format_to<Char>(out, bs, box[8]);
         // clang-format on
         return {out, w};
       }
 
       const auto& cs = ptr_->contents_spec;
-      const auto& bs = ptr_->boarder_spec;
+      const auto& bs = ptr_->border_spec;
       // clang-format off
-      out = spec_format_to<Char>(out, bs, "│");
+      out = spec_format_to<Char>(out, bs, box[3]);
       out = line_format_to<Char>(out, cs.style, line_fmtr_, cs.fill, cs.align, npos_sub(w, bs.width * 2));
-      out = rspec_format_to<Char>(out, bs, "│");
+      out = rspec_format_to<Char>(out, bs, box[5]);
       // clang-format on
       return {out, w};
     }

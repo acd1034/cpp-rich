@@ -4,7 +4,9 @@
 #include <rich/saturation.hpp>
 
 namespace rich {
+  // line_formatter
   // https://github.com/llvm/llvm-project/blob/ba79c2a25069f09728625982c424920452fa6b83/libcxx/include/format/formatter.h#L35-L40
+
   template <class T, class Char>
   struct line_formatter {
     line_formatter() = delete;
@@ -12,10 +14,12 @@ namespace rich {
     line_formatter& operator=(const line_formatter&) = delete;
   };
 
+  // line_formattable
+  // https://github.com/llvm/llvm-project/blob/ba79c2a25069f09728625982c424920452fa6b83/libcxx/include/__format/concepts.h#L39-L47
+
   template <class Char>
   using fmt_iter_for = Char*;
 
-  // https://github.com/llvm/llvm-project/blob/ba79c2a25069f09728625982c424920452fa6b83/libcxx/include/__format/concepts.h#L39-L47
   // clang-format off
   template <class T, class Char>
   concept line_formattable =
@@ -32,7 +36,8 @@ namespace rich {
   };
   // clang-format on
 
-  // default formatter for line-formattables
+  // line_formattable_default_formatter
+
   template <typename L, typename Char>
   requires line_formattable<L, Char>
   struct line_formattable_default_formatter {
@@ -53,6 +58,8 @@ namespace rich {
     }
   };
 
+  // line_format_to
+
   inline constexpr auto line_formatter_npos = std::size_t(-1);
 
   std::size_t npos_sub(std::size_t x, std::size_t y) noexcept {
@@ -71,20 +78,32 @@ namespace rich {
     if (width == line_formatter_npos)
       return line_fmtr.format_to(out).out;
 
-    auto size = line_fmtr.formatted_size();
-    auto fillwidth = sat_sub(width, size);
+    const auto fillwidth = sat_sub(width, line_fmtr.formatted_size());
     if (align == align_t::left) {
       out = line_fmtr.format_to(out, width).out;
-      out = aligned_format_to<Char>(out, style, "", fill, {}, fillwidth);
+      out = padded_format_to<Char>(out, style, "", fill, 0, fillwidth);
     } else if (align == align_t::center) {
-      auto left = fillwidth / 2;
-      out = aligned_format_to<Char>(out, style, "", fill, {}, left);
+      const auto left = fillwidth / 2;
+      out = padded_format_to<Char>(out, style, "", fill, 0, left);
       out = line_fmtr.format_to(out, width).out;
-      out = aligned_format_to<Char>(out, style, "", fill, {}, fillwidth - left);
+      out = padded_format_to<Char>(out, style, "", fill, 0, fillwidth - left);
     } else {
-      out = aligned_format_to<Char>(out, style, "", fill, {}, fillwidth);
+      out = padded_format_to<Char>(out, style, "", fill, 0, fillwidth);
       out = line_fmtr.format_to(out, width).out;
     }
     return out;
+  }
+
+  template <typename Char, ranges::output_iterator<const Char&> Out>
+  Out line_format_to(Out out, const fmt::text_style& style,
+                     std::basic_string_view<Char> sv,
+                     std::basic_string_view<Char> fill, const align_t align,
+                     const std::size_t width) {
+    if (width == line_formatter_npos)
+      return padded_format_to<Char>(out, style, sv, fill, 0, 0);
+
+    sv = sv.substr(0, width);
+    const auto fillwidth = width - sv.size();
+    return aligned_format_to<Char>(out, style, sv, fill, align, fillwidth);
   }
 } // namespace rich
