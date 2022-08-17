@@ -103,11 +103,11 @@ namespace rich {
       return out;
     bool has_style;
     std::tie(out, has_style) = style_format_to<Char>(out, style);
-    if (not fill.empty() and left > 0)
+    if (not fill.empty())
       out = copy_to<Char>(out, fill, left);
     if (not sv.empty())
       out = copy_to<Char>(out, sv);
-    if (not fill.empty() and right > 0)
+    if (not fill.empty())
       out = copy_to<Char>(out, fill, right);
     if (has_style)
       out = reset_style<Char>(out);
