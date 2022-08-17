@@ -1,8 +1,5 @@
 /// @file panel.hpp
 #pragma once
-#include <string_view>
-#include <vector>
-
 #include <rich/format.hpp>
 #include <rich/style/box.hpp>
 #include <rich/style/format_spec.hpp>
@@ -77,7 +74,7 @@ public:
       ++phase_;
       auto bs = ptr_->border_spec;
       if (bs.align == align_t::left)
-        bs.fill = std::string_view(box[1]);
+        bs.fill = box[1];
       // clang-format off
       out = spec_format_to<Char>(out, bs, box[0]);
       out = line_format_to<Char>(out, bs.style, ptr_->title, box[1], align_t::center, npos_sub(w, bs.width * 2));
@@ -90,7 +87,7 @@ public:
         ++phase_;
         auto bs = ptr_->border_spec;
         if (bs.align == align_t::left)
-          bs.fill = std::string_view(box[7]);
+          bs.fill = box[7];
         // clang-format off
         out = spec_format_to<Char>(out, bs, box[6]);
         out = line_format_to<Char>(out, bs.style, "", box[7], {}, npos_sub(w, bs.width * 2));
