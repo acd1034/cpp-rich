@@ -143,6 +143,7 @@ TEST_CASE("style", "[style][file]") {
         auto enm = rich::enumerate(lns);
         enm.start_line = e.where().line() - extra;
         enm.end_line = e.where().line() + extra;
+        enm.highlight_line = e.where().line();
         fmt::print("{}\n{}\n", hline, enm);
       }
     }
