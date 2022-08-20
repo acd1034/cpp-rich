@@ -92,10 +92,10 @@ public:
     if (current_++ == ptr_->highlight_line){
       const auto& c = ptr_->highlight_char;
       out = aligned_format_to<Char>(out, ptr_->highlight_style, c, hs.fill, hs.align, npos_sub(hs.width, !c.empty()));
-      out = line_format_to<Char>(out, ptr_->number_highlight_style, sv, sv.size(), ns.fill, ns.align, num_width_);
+      out = line_format_to<Char>(out, ptr_->number_highlight_style, sv, ns.fill, ns.align, num_width_);
     } else {
       out = spec_format_to<Char>(out, hs, "");
-      out = line_format_to<Char>(out, ns.style, sv, sv.size(), ns.fill, ns.align, num_width_);
+      out = line_format_to<Char>(out, ns.style, sv, ns.fill, ns.align, num_width_);
     }
     *out++ = ' ';
     auto result = line_fmtr_.format_to(out, npos_sub(n, hs.width + num_width_ + 1));
