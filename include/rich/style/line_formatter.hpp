@@ -103,7 +103,7 @@ namespace rich {
       return padded_format_to<Char>(out, style, sv, fill, 0, 0);
 
     sv = sv.substr(0, width);
-    const auto fillwidth = width - size;
+    const auto fillwidth = npos_sub(width, size);
     return aligned_format_to<Char>(out, style, sv, fill, align, fillwidth);
   }
 
@@ -116,7 +116,7 @@ namespace rich {
       return padded_format_to<Char>(out, style, sv, fill, 0, 0);
 
     sv = sv.substr(0, width);
-    const auto fillwidth = width - size;
+    const auto fillwidth = npos_sub(width, size);
     return reversed_format_to<Char>(out, style, sv, fill, align, fillwidth);
   }
 } // namespace rich
