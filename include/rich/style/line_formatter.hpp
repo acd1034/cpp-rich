@@ -96,27 +96,14 @@ namespace rich {
 
   template <typename Char, ranges::output_iterator<const Char&> Out>
   Out line_format_to(Out out, const fmt::text_style& style,
-                     std::basic_string_view<Char> sv, const std::size_t size,
+                     std::basic_string_view<Char> sv,
                      std::basic_string_view<Char> fill, const align_t align,
                      const std::size_t width) {
     if (width == line_formatter_npos)
       return padded_format_to<Char>(out, style, sv, fill, 0, 0);
 
     sv = sv.substr(0, width);
-    const auto fillwidth = width - size;
+    const auto fillwidth = width - sv.size();
     return aligned_format_to<Char>(out, style, sv, fill, align, fillwidth);
-  }
-
-  template <typename Char, ranges::output_iterator<const Char&> Out>
-  Out rline_format_to(Out out, const fmt::text_style& style,
-                      std::basic_string_view<Char> sv, const std::size_t size,
-                      std::basic_string_view<Char> fill, const align_t align,
-                      const std::size_t width) {
-    if (width == line_formatter_npos)
-      return padded_format_to<Char>(out, style, sv, fill, 0, 0);
-
-    sv = sv.substr(0, width);
-    const auto fillwidth = width - size;
-    return reversed_format_to<Char>(out, style, sv, fill, align, fillwidth);
   }
 } // namespace rich
