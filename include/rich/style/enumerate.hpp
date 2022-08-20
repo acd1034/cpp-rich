@@ -90,16 +90,17 @@ public:
     auto sv = _to_chars(current_);
     // clang-format off
     if (current_++ == ptr_->highlight_line){
-      out = aligned_format_to<Char>(out, ptr_->highlight_style, ptr_->highlight_char, hs.fill, hs.align, npos_sub(hs.width, !ptr_->highlight_char.empty()));
-      out = aligned_format_to<Char>(out, ptr_->number_highlight_style, sv, ns.fill, ns.align, npos_sub(num_width_, sv.size()));
+      const auto& c = ptr_->highlight_char;
+      out = aligned_format_to<Char>(out, ptr_->highlight_style, c, hs.fill, hs.align, npos_sub(hs.width, !c.empty()));
+      out = line_format_to<Char>(out, ptr_->number_highlight_style, sv, sv.size(), ns.fill, ns.align, num_width_);
     } else {
-      out = aligned_format_to<Char>(out, hs.style, "", hs.fill, hs.align, hs.width);
-      out = aligned_format_to<Char>(out, ns.style, sv, ns.fill, ns.align, npos_sub(num_width_, sv.size()));
+      out = spec_format_to<Char>(out, hs, "");
+      out = line_format_to<Char>(out, ns.style, sv, sv.size(), ns.fill, ns.align, num_width_);
     }
     *out++ = ' ';
     auto result = line_fmtr_.format_to(out, npos_sub(n, hs.width + num_width_ + 1));
-    out = result.out;
     // clang-format on
+    out = result.out;
     return {out, n};
   }
 };
