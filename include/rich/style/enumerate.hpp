@@ -1,8 +1,6 @@
 /// @file enumerate.hpp
 #pragma once
-#include <array>
-#include <charconv>
-#include <cmath>
+#include <cmath> // std::log10
 
 #include <rich/format.hpp>
 #include <rich/saturation.hpp>

@@ -5,6 +5,7 @@
 #include <string_view>
 
 #include <rich/exception.hpp>
+#include <rich/saturation.hpp>
 
 namespace rich {
   // https://kagasu.hatenablog.com/entry/2017/05/01/215219
@@ -39,13 +40,12 @@ namespace rich {
   std::string_view extract_partial_contents(std::string_view contents,
                                             const std::uint_least32_t line,
                                             const std::size_t extra_line) {
-    auto l = cast<std::int32_t>(line) - 1;
-    auto e = cast<std::int32_t>(extra_line);
-    auto a = std::max(l - e, cast<std::int32_t>(0));
-    auto first = find_nth(contents, '\n', cast<std::size_t>(a));
+    const auto l = cast<std::size_t>(line);
+    const auto a = sat_sub(l, extra_line + 1);
+    auto first = find_nth(contents, '\n', a);
     if (first != std::string_view::npos)
       ++first;
-    auto last = find_nth(contents, '\n', cast<std::size_t>(e) * 2, first);
+    auto last = find_nth(contents, '\n', extra_line * 2, first);
     return contents.substr(first, last - first);
   }
 } // namespace rich
