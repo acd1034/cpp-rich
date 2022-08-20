@@ -76,7 +76,7 @@ public:
         bs.fill = box[1];
       // clang-format off
       out = spec_format_to<Char>(out, bs, box[0]);
-      out = line_format_to<Char>(out, bs.style, ptr_->title, box[1], align_t::center, npos_sub(w, bs.width * 2));
+      out = line_format_to<Char>(out, bs.style, ptr_->title, ptr_->title.size(), box[1], align_t::center, npos_sub(w, bs.width * 2));
       out = rspec_format_to<Char>(out, bs, box[2]);
       // clang-format on
       return {out, w};
@@ -89,7 +89,7 @@ public:
           bs.fill = box[7];
         // clang-format off
         out = spec_format_to<Char>(out, bs, box[6]);
-        out = line_format_to<Char>(out, bs.style, "", box[7], {}, npos_sub(w, bs.width * 2));
+        out = line_format_to<Char>(out, bs.style, "", 0, box[7], {}, npos_sub(w, bs.width * 2));
         out = rspec_format_to<Char>(out, bs, box[8]);
         // clang-format on
         return {out, w};
