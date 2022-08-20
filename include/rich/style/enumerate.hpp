@@ -32,7 +32,7 @@ namespace rich {
       .style = number_spec.style,
       .fill = number_spec.fill,
       .align = align_t::left,
-      .width = 2,
+      .width = 0,
     };
 
     enumerate() = default;
@@ -81,7 +81,7 @@ public:
     const auto& hs = ptr_->highlight_spec;
     const auto current = current_++;
     // clang-format off
-    if (current_++ == ptr_->highlight_line){
+    if (current == ptr_->highlight_line){
       const auto& c = ptr_->highlight_char;
       out = aligned_format_to<Char>(out, ptr_->highlight_style, c, hs.fill, hs.align, npos_sub(hs.width, !c.empty()));
       out = line_format_to<Char>(out, ptr_->number_highlight_style, current, ns.fill, ns.align, nwidth_);

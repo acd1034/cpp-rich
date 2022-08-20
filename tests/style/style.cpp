@@ -144,6 +144,7 @@ TEST_CASE("style", "[style][file]") {
         enm.start_line = e.where().line() - extra;
         enm.end_line = e.where().line() + extra;
         enm.highlight_line = e.where().line();
+        enm.highlight_spec.width = 2;
         fmt::print("{}\n{}\n", hline, enm);
       }
     }
