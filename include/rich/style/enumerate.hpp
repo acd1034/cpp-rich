@@ -43,14 +43,6 @@ namespace rich {
   template <line_range R>
   enumerate(R&&, int = {})
     -> enumerate<lines<typename ranges::range_value_t<R>::char_type>>;
-
-  auto _to_chars(const std::size_t n) {
-    static std::array<char, 20> a{};
-    auto first = a.data();
-    auto [ptr, ec] = std::to_chars(first, first + a.size(), n);
-    assert(ec == std::errc{});
-    return std::string_view(first, ptr);
-  }
 } // namespace rich
 
 template <typename L, typename Char>
@@ -59,14 +51,14 @@ struct rich::line_formatter<rich::enumerate<L>, Char> {
 private:
   const rich::enumerate<L>* ptr_ = nullptr;
   std::size_t current_ = 1;
-  std::size_t num_width_ = 0;
+  std::size_t nwidth_ = 0;
   line_formatter<L, Char> line_fmtr_;
 
 public:
   explicit line_formatter(const rich::enumerate<L>& l)
     : ptr_(std::addressof(l)), current_(l.start_line),
       // clang-format off
-      num_width_(std::size_t(std::log10(double(std::max(l.start_line, l.end_line)))) + 1),
+      nwidth_(std::size_t(std::log10(double(std::max(l.start_line, l.end_line)))) + 1),
       // clang-format on
       line_fmtr_(l.contents) {}
 
@@ -77,8 +69,8 @@ public:
 
   constexpr std::size_t formatted_size() const {
     assert(ptr_ != nullptr);
-    const auto hl_width = ptr_->highlight_spec.width;
-    return sat_add(hl_width + num_width_ + 1, line_fmtr_.formatted_size());
+    const auto hlwidth = ptr_->highlight_spec.width;
+    return sat_add(hlwidth + nwidth_ + 1, line_fmtr_.formatted_size());
   }
 
   template <ranges::output_iterator<const Char&> Out>
@@ -87,18 +79,18 @@ public:
     assert(ptr_ != nullptr);
     const auto& ns = ptr_->number_spec;
     const auto& hs = ptr_->highlight_spec;
-    auto sv = _to_chars(current_);
+    const auto current = current_++;
     // clang-format off
     if (current_++ == ptr_->highlight_line){
       const auto& c = ptr_->highlight_char;
       out = aligned_format_to<Char>(out, ptr_->highlight_style, c, hs.fill, hs.align, npos_sub(hs.width, !c.empty()));
-      out = line_format_to<Char>(out, ptr_->number_highlight_style, sv, ns.fill, ns.align, num_width_);
+      out = line_format_to<Char>(out, ptr_->number_highlight_style, current, ns.fill, ns.align, nwidth_);
     } else {
       out = spec_format_to<Char>(out, hs, "");
-      out = line_format_to<Char>(out, ns.style, sv, ns.fill, ns.align, num_width_);
+      out = line_format_to<Char>(out, ns.style, current, ns.fill, ns.align, nwidth_);
     }
     *out++ = ' ';
-    auto result = line_fmtr_.format_to(out, npos_sub(n, hs.width + num_width_ + 1));
+    auto result = line_fmtr_.format_to(out, npos_sub(n, hs.width + nwidth_ + 1));
     // clang-format on
     out = result.out;
     return {out, n};
