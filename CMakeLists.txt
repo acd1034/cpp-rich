@@ -30,7 +30,8 @@ option(IRIS_TEST "Build and perform Iris tests" ${IRIS_STANDALONE_PROJECT})
 add_subdirectory(include)
 
 # Add external (header only) libraries
-find_package(fmt CONFIG REQUIRED)
+add_subdirectory(submodules/fmt)
+# find_package(fmt CONFIG REQUIRED)
 target_link_libraries(Iris INTERFACE fmt::fmt-header-only)
 
 if(IRIS_INSTALL)
