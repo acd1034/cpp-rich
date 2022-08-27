@@ -28,6 +28,8 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
+      with:
+        submodules: recursive
 
     - name: Prepare environment
       run: sudo apt install -y ninja-build ${{matrix.pkg_name}}
