@@ -106,4 +106,13 @@ namespace rich {
     const auto fillwidth = width - sv.size();
     return aligned_format_to<Char>(out, style, sv, fill, align, fillwidth);
   }
+
+  template <typename Char, ranges::output_iterator<const Char&> Out, class T>
+  Out line_format_to(Out out, const fmt::text_style& style, const T& t,
+                     std::basic_string_view<Char> fill, const align_t align,
+                     const std::size_t width) {
+    auto str = fmt::format("{}", t);
+    return line_format_to(out, style, std::basic_string_view<Char>(str), fill,
+                          align, width);
+  }
 } // namespace rich

@@ -12,19 +12,6 @@ namespace rich {
     std::size_t width{};
   };
 
-  template <typename Char>
-  auto invert(format_spec<Char> fs) {
-    switch (fs.align) {
-    case align_t::left:
-      fs.align = align_t::right;
-      break;
-    case align_t::right:
-      fs.align = align_t::left;
-      break;
-    }
-    return fs;
-  }
-
   // `sv` must be zero or one character.
   template <typename Char, ranges::output_iterator<const Char&> Out>
   Out spec_format_to(Out out, const format_spec<Char>& fs,

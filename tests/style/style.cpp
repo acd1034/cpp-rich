@@ -118,51 +118,35 @@ TEST_CASE("style", "[style][file]") {
       return rich::segment(pre, ranges::back(styles));
     return rich::segment(pre, ranges::index(styles, *n));
   });
-  { // regex_range
-    fmt::print("{}\n", hline);
+  {
     try {
       fn();
     } catch (rich::exception& e) {
       auto contents = rich::get_file_contents(e.where().file_name());
+      const std::size_t extra = 3;
       auto partial = rich::extract_partial_contents(std::string_view(contents),
-                                                    e.where().line(), 7);
+                                                    e.where().line(), extra);
       auto highlighted = rich::regex_range(partial, re) | highlight;
-      fmt::print("{}:{}:{} in {}\n", e.where().file_name(), e.where().line(),
-                 e.where().column(), e.where().function_name());
-      fmt::print("{}\n", fmt::join(highlighted, ""));
-    }
-  }
-  { // lines
-    fmt::print("{}\n", hline);
-    try {
-      fn();
-    } catch (rich::exception& e) {
-      auto contents = rich::get_file_contents(e.where().file_name());
-      std::size_t extra = 7;
-      auto partial = rich::extract_partial_contents(std::string_view(contents),
-                                                    e.where().line(), extra);
-      rich::lines lns(rich::regex_range(partial, re) | highlight, extra);
-      fmt::print("{}:{}:{} in {}\n", e.where().file_name(), e.where().line(),
-                 e.where().column(), e.where().function_name());
-      fmt::print("{}\n", lns);
-    }
-  }
-  { // panel
-    fmt::print("{}\n", hline);
-    try {
-      fn();
-    } catch (rich::exception& e) {
-      auto contents = rich::get_file_contents(e.where().file_name());
-      std::size_t extra = 7;
-      auto partial = rich::extract_partial_contents(std::string_view(contents),
-                                                    e.where().line(), extra);
-      rich::panel pnl(rich::regex_range(partial, re) | highlight);
-      rich::panel pnl2(pnl, {});
-      pnl2.border_spec.style = fg(fmt::terminal_color::yellow);
-      pnl2.title = std::string_view("Traceback (most recent call)");
-      fmt::print("{}:{}:{} in {}\n", e.where().file_name(), e.where().line(),
-                 e.where().column(), e.where().function_name());
-      fmt::print("{}\n", pnl2);
+      { // regex_range
+        fmt::print("{}\n{}\n", hline, fmt::join(highlighted, ""));
+      }
+      auto lns = rich::lines(highlighted);
+      { // lines
+        fmt::print("{}\n{}\n", hline, lns);
+      }
+      { // panel
+        auto pnl = rich::panel(lns);
+        pnl.title = std::string_view("Traceback (most recent call)");
+        fmt::print("{}\n{}\n", hline, pnl);
+      }
+      { // enumerate
+        auto enm = rich::enumerate(lns);
+        enm.start_line = e.where().line() - extra;
+        enm.end_line = e.where().line() + extra;
+        enm.highlight_line = e.where().line();
+        enm.highlight_spec.width = 2;
+        fmt::print("{}\n{}\n", hline, enm);
+      }
     }
   }
 }
