@@ -6,10 +6,13 @@
 #include <cstddef> // std::size_t, std::ptrdiff_t, std::nullptr_t
 #include <cstdint> // std::int32_t
 #include <initializer_list>
-#include <ranges>
 #include <tuple>
 #include <type_traits>
 #include <utility> // std::move, std::forward, std::swap, std::exchange
+
+// TODO: granularize
+#include <iterator>
+#include <ranges>
 
 namespace rich {
 // RICH_UNREACHABLE
