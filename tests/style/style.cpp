@@ -1,5 +1,5 @@
+#include <ranges> // std::views::transform
 #include <catch2/catch_test_macros.hpp>
-#include <range/v3/view/transform.hpp>
 
 #include <rich/file.hpp>
 #include <rich/regex.hpp>
@@ -109,14 +109,14 @@ TEST_CASE("style", "[style][file]") {
     fg(fmt::terminal_color::blue), // literal
     fg(fmt::color::red),
   };
-  const auto highlight = ranges::views::transform([&styles](const auto& x) {
+  const auto highlight = std::views::transform([&styles](const auto& x) {
     const auto& [pre, mo] = x;
     if (!mo)
       return rich::segment(pre);
     const auto n = rich::match_find(*mo);
-    if (!n or *n >= ranges::size(styles))
-      return rich::segment(pre, ranges::back(styles));
-    return rich::segment(pre, ranges::index(styles, *n));
+    if (!n or *n >= std::ranges::size(styles))
+      return rich::segment(pre, rich::ranges::back(styles));
+    return rich::segment(pre, rich::ranges::index(styles, *n));
   });
   {
     try {

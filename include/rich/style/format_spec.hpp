@@ -13,7 +13,7 @@ namespace rich {
   };
 
   // `sv` must be zero or one character.
-  template <typename Char, ranges::output_iterator<const Char&> Out>
+  template <typename Char, std::output_iterator<const Char&> Out>
   Out spec_format_to(Out out, const format_spec<Char>& fs,
                      std::basic_string_view<Char> sv) {
     auto width = sv.empty() ? fs.width : sat_sub(fs.width, 1);
@@ -21,7 +21,7 @@ namespace rich {
   }
 
   // `sv` must be zero or one character.
-  template <typename Char, ranges::output_iterator<const Char&> Out>
+  template <typename Char, std::output_iterator<const Char&> Out>
   Out rspec_format_to(Out out, const format_spec<Char>& fs,
                       std::basic_string_view<Char> sv) {
     auto width = sv.empty() ? fs.width : sat_sub(fs.width, 1);

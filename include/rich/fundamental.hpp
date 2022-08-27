@@ -9,9 +9,10 @@
 #include <tuple>
 #include <type_traits>
 #include <utility> // std::move, std::forward, std::swap, std::exchange
-#include <range/v3/numeric/accumulate.hpp>
-#include <range/v3/range.hpp>
-#include <range/v3/view/subrange.hpp>
+
+// TODO: granularize
+#include <iterator>
+#include <ranges>
 
 namespace rich {
 // RICH_UNREACHABLE

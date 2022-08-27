@@ -34,7 +34,7 @@ namespace rich {
 
   template <line_range R>
   panel(R&&, int = {})
-    -> panel<lines<typename ranges::range_value_t<R>::char_type>>;
+    -> panel<lines<typename std::ranges::range_value_t<R>::char_type>>;
 } // namespace rich
 
 template <typename L, typename Char>
@@ -59,14 +59,14 @@ public:
     return ptr_->contents_spec.width;
   }
 
-  template <ranges::output_iterator<const Char&> Out>
+  template <std::output_iterator<const Char&> Out>
   auto format_to(Out out, const std::size_t n = line_formatter_npos)
     -> fmt::format_to_n_result<Out> {
     assert(ptr_ != nullptr);
     const auto w = std::min(ptr_->contents_spec.width, n);
     assert(w > ptr_->border_spec.width * 2);
     const auto& box = ptr_->box;
-    assert(ranges::size(box) == ranges::size(box::Rounded<Char>));
+    assert(std::ranges::size(box) == std::ranges::size(box::Rounded<Char>));
 
     switch (phase_) {
     case 0: {

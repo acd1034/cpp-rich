@@ -70,7 +70,7 @@ namespace rich {
     return sat_sub(x, y);
   }
 
-  template <typename Char, ranges::output_iterator<const Char&> Out, class L>
+  template <typename Char, std::output_iterator<const Char&> Out, class L>
   Out line_format_to(Out out, const fmt::text_style& style,
                      line_formatter<L, Char>& line_fmtr,
                      std::basic_string_view<Char> fill, const align_t align,
@@ -94,7 +94,7 @@ namespace rich {
     return out;
   }
 
-  template <typename Char, ranges::output_iterator<const Char&> Out>
+  template <typename Char, std::output_iterator<const Char&> Out>
   Out line_format_to(Out out, const fmt::text_style& style,
                      std::basic_string_view<Char> sv,
                      std::basic_string_view<Char> fill, const align_t align,
@@ -107,7 +107,7 @@ namespace rich {
     return aligned_format_to<Char>(out, style, sv, fill, align, fillwidth);
   }
 
-  template <typename Char, ranges::output_iterator<const Char&> Out, class T>
+  template <typename Char, std::output_iterator<const Char&> Out, class T>
   Out line_format_to(Out out, const fmt::text_style& style, const T& t,
                      std::basic_string_view<Char> fill, const align_t align,
                      const std::size_t width) {

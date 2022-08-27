@@ -1,5 +1,6 @@
 /// @file format.hpp
 #pragma once
+#include <iterator> // std::output_iterator
 #include <fmt/color.h>
 
 #include <rich/fundamental.hpp>
@@ -53,7 +54,7 @@ namespace rich {
     return out;
   }
 
-  template <typename Char, ranges::output_iterator<const Char&> Out>
+  template <typename Char, std::output_iterator<const Char&> Out>
   constexpr Out copy_to(Out out, std::basic_string_view<Char> sv,
                         std::size_t n = 1) {
     return copy_to(out, sv.data(), sv.data() + sv.size(), n);
@@ -61,7 +62,7 @@ namespace rich {
 
   // style_format_to
 
-  template <typename Char, ranges::output_iterator<const Char&> Out>
+  template <typename Char, std::output_iterator<const Char&> Out>
   auto style_format_to(Out out, const fmt::text_style& style)
     -> std::pair<Out, bool> {
     bool has_style = false;
@@ -87,7 +88,7 @@ namespace rich {
 
   // reset_style
 
-  template <typename Char, ranges::output_iterator<const Char&> Out>
+  template <typename Char, std::output_iterator<const Char&> Out>
   Out reset_style(Out out) {
     return fmt::detail::write(out, RICH_TYPED_LITERAL(Char, "\x1b[0m"));
   }
@@ -95,7 +96,7 @@ namespace rich {
   // format_to
 
   // https://github.com/fmtlib/fmt/blob/fd41110d383b7240231718f009b21498e3984ccc/include/fmt/format.h#L1645-L1661
-  template <typename Char, ranges::output_iterator<const Char&> Out>
+  template <typename Char, std::output_iterator<const Char&> Out>
   Out padded_format_to(Out out, const fmt::text_style& style,
                        std::basic_string_view<Char> sv,
                        std::basic_string_view<Char> fill,
@@ -121,7 +122,7 @@ namespace rich {
     right,
   };
 
-  template <typename Char, ranges::output_iterator<const Char&> Out>
+  template <typename Char, std::output_iterator<const Char&> Out>
   Out aligned_format_to(Out out, const fmt::text_style& style,
                         std::basic_string_view<Char> sv,
                         std::basic_string_view<Char> fill, const align_t align,
@@ -140,7 +141,7 @@ namespace rich {
     }
   }
 
-  template <typename Char, ranges::output_iterator<const Char&> Out>
+  template <typename Char, std::output_iterator<const Char&> Out>
   Out reversed_format_to(Out out, const fmt::text_style& style,
                          std::basic_string_view<Char> sv,
                          std::basic_string_view<Char> fill, const align_t align,
