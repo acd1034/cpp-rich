@@ -52,6 +52,34 @@ namespace rich::ranges::detail {
     }
   };
 
+  // accumulate
+  // https://github.com/ericniebler/range-v3/blob/234164b84797f2a6ec97fdfb4d1c5dbfb927ca35/include/range/v3/numeric/accumulate.hpp#
+
+  struct accumulate_fn {
+    template<typename I, typename S, typename T, typename Op = std::plus<>,
+             typename P = std::identity>
+    requires std::sentinel_for<S, I> and std::input_iterator<I>
+      and std::indirectly_binary_invocable<Op, T*, std::projected<I, P>>
+      and std::assignable_from<T&, std::indirect_result_t<Op&, T*, std::projected<I, P>>>
+    constexpr T
+    operator()(I first, S last, T init, Op op = Op{}, P proj = P{}) const {
+      for (; first != last; ++first)
+        init = std::invoke(op, init, std::invoke(proj, *first));
+      return init;
+    }
+
+    template<typename Rng, typename T, typename Op = std::plus<>,
+             typename P = std::identity>
+    requires std::ranges::input_range<Rng>
+      and std::indirectly_binary_invocable_<Op, T*, std::projected<std::ranges::iterator_t<Rng>, P>>
+      and std::assignable_from<T&, std::indirect_result_t<Op&, T*, std::projected<std::ranges::iterator_t<Rng>, P>>>
+    constexpr T
+    operator()(Rng&& rng, T init, Op op = Op{}, P proj = P{}) const {
+      return (*this)(std::ranges::begin(rng), std::ranges::end(rng),
+                     std::move(init), std::move(op), std::move(proj));
+    }
+  };
+
   // clang-format on
 } // namespace rich::ranges::detail
 
@@ -59,4 +87,5 @@ namespace rich::ranges::inline cpo {
   inline constexpr index_fn index{};
   inline constexpr front_fn front{};
   inline constexpr back_fn back{};
+  inline constexpr accumulate_fn accumulate{};
 } // namespace rich::ranges::inline cpo
