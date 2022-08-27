@@ -21,7 +21,7 @@ namespace rich {
       .style = fmt::emphasis::faint,
       .fill = " ",
       .align = align_t::right,
-      .width = {}, // ignored
+      .width = 0,
     };
     std::size_t highlight_line = 0;
     std::basic_string_view<char_type> highlight_char = "❯";
@@ -52,13 +52,16 @@ private:
   std::size_t nwidth_ = 0;
   line_formatter<L, Char> line_fmtr_;
 
+  static constexpr std::size_t calculate_nwidth(const rich::enumerate<L>& l) {
+    std::size_t w = std::max(l.start_line, l.end_line);
+    w = static_cast<std::size_t>(std::log10(static_cast<double>(w))) + 1;
+    return std::max(w, l.number_spec.width);
+  }
+
 public:
   explicit line_formatter(const rich::enumerate<L>& l)
     : ptr_(std::addressof(l)), current_(l.start_line),
-      // clang-format off
-      nwidth_(std::size_t(std::log10(double(std::max(l.start_line, l.end_line)))) + 1),
-      // clang-format on
-      line_fmtr_(l.contents) {}
+      nwidth_(calculate_nwidth(l)), line_fmtr_(l.contents) {}
 
   constexpr explicit operator bool() const {
     return ptr_ != nullptr and line_fmtr_;
