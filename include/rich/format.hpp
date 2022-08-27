@@ -1,5 +1,6 @@
 /// @file format.hpp
 #pragma once
+#include <iterator> // std::output_iterator
 #include <fmt/color.h>
 
 #include <rich/fundamental.hpp>

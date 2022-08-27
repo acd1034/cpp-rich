@@ -1,6 +1,7 @@
 /// @file ranges.hpp
 #pragma once
 #include <functional> // std::invoke
+#include <iterator>
 #include <ranges>
 
 #include <rich/fundamental.hpp>
