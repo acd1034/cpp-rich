@@ -1,5 +1,6 @@
 /// @file ranges.hpp
 #pragma once
+#include <functional> // std::invoke
 #include <ranges>
 
 #include <rich/fundamental.hpp>
@@ -53,13 +54,19 @@ namespace rich::ranges::detail {
   };
 
   // accumulate
-  // https://github.com/ericniebler/range-v3/blob/234164b84797f2a6ec97fdfb4d1c5dbfb927ca35/include/range/v3/numeric/accumulate.hpp#
+  // https://github.com/ericniebler/range-v3/blob/234164b84797f2a6ec97fdfb4d1c5dbfb927ca35/include/range/v3/iterator/concepts.hpp#L569-L593
+  // https://github.com/ericniebler/range-v3/blob/234164b84797f2a6ec97fdfb4d1c5dbfb927ca35/include/range/v3/numeric/accumulate.hpp
+
+  template <typename Op, typename I1, typename I2>
+  concept indirectly_binary_invocable =
+    std::indirectly_readable<I1> and std::indirectly_readable<I2>
+    and std::invocable<Op&, std::iter_reference_t<I1>, std::iter_reference_t<I2>>;
 
   struct accumulate_fn {
-    template<typename I, typename S, typename T, typename Op = std::plus<>,
-             typename P = std::identity>
+    template <typename I, typename S, typename T, typename Op = std::plus<>,
+              typename P = std::identity>
     requires std::sentinel_for<S, I> and std::input_iterator<I>
-      and std::indirectly_binary_invocable<Op, T*, std::projected<I, P>>
+      and indirectly_binary_invocable<Op, T*, std::projected<I, P>>
       and std::assignable_from<T&, std::indirect_result_t<Op&, T*, std::projected<I, P>>>
     constexpr T
     operator()(I first, S last, T init, Op op = Op{}, P proj = P{}) const {
@@ -68,10 +75,10 @@ namespace rich::ranges::detail {
       return init;
     }
 
-    template<typename Rng, typename T, typename Op = std::plus<>,
-             typename P = std::identity>
+    template <typename Rng, typename T, typename Op = std::plus<>,
+              typename P = std::identity>
     requires std::ranges::input_range<Rng>
-      and std::indirectly_binary_invocable_<Op, T*, std::projected<std::ranges::iterator_t<Rng>, P>>
+      and indirectly_binary_invocable<Op, T*, std::projected<std::ranges::iterator_t<Rng>, P>>
       and std::assignable_from<T&, std::indirect_result_t<Op&, T*, std::projected<std::ranges::iterator_t<Rng>, P>>>
     constexpr T
     operator()(Rng&& rng, T init, Op op = Op{}, P proj = P{}) const {
@@ -84,8 +91,8 @@ namespace rich::ranges::detail {
 } // namespace rich::ranges::detail
 
 namespace rich::ranges::inline cpo {
-  inline constexpr index_fn index{};
-  inline constexpr front_fn front{};
-  inline constexpr back_fn back{};
-  inline constexpr accumulate_fn accumulate{};
+  inline constexpr detail::index_fn index{};
+  inline constexpr detail::front_fn front{};
+  inline constexpr detail::back_fn back{};
+  inline constexpr detail::accumulate_fn accumulate{};
 } // namespace rich::ranges::inline cpo
