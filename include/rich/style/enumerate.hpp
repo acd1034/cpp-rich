@@ -40,7 +40,7 @@ namespace rich {
 
   template <line_range R>
   enumerate(R&&, int = {})
-    -> enumerate<lines<typename ranges::range_value_t<R>::char_type>>;
+    -> enumerate<lines<typename std::ranges::range_value_t<R>::char_type>>;
 } // namespace rich
 
 template <typename L, typename Char>
@@ -75,7 +75,7 @@ public:
     return sat_add(hlwidth + nwidth_ + 1, line_fmtr_.formatted_size());
   }
 
-  template <ranges::output_iterator<const Char&> Out>
+  template <std::output_iterator<const Char&> Out>
   auto format_to(Out out, const std::size_t n = line_formatter_npos)
     -> fmt::format_to_n_result<Out> {
     assert(ptr_ != nullptr);

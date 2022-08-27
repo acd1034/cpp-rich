@@ -5,6 +5,7 @@
 
 #include <rich/exception.hpp>
 #include <rich/format.hpp>
+#include <rich/ranges.hpp> // rich::ranges::front
 #include <rich/style/segment.hpp>
 
 namespace rich {
@@ -61,11 +62,11 @@ namespace rich {
       if (instance_.empty())
         throw runtime_error("`segments` not initialized");
       // イテレータを無効化させないため、後ろを先に分割する
-      const auto offset2 = cast<std::size_t>(
-        ranges::distance(ranges::front(instance_).text().begin(), rng.end()));
+      const auto offset2 = cast<std::size_t>(std::ranges::distance(
+        rich::ranges::front(instance_).text().begin(), rng.end()));
       auto last = split(offset2);
-      const auto offset1 = cast<std::size_t>(ranges::distance(
-        ranges::front(instance_).text().begin(), rng.begin()));
+      const auto offset1 = cast<std::size_t>(std::ranges::distance(
+        rich::ranges::front(instance_).text().begin(), rng.begin()));
       auto first = split(offset1);
       for (; first != last; ++first)
         first->style() = style;
@@ -76,11 +77,11 @@ namespace rich {
       if (instance_.empty())
         throw runtime_error("`segments` not initialized");
       // イテレータを無効化させないため、後ろを先に分割する
-      const auto offset2 = cast<std::size_t>(
-        ranges::distance(ranges::front(instance_).text().begin(), rng.end()));
+      const auto offset2 = cast<std::size_t>(std::ranges::distance(
+        rich::ranges::front(instance_).text().begin(), rng.end()));
       auto last = split(offset2);
-      const auto offset1 = cast<std::size_t>(ranges::distance(
-        ranges::front(instance_).text().begin(), rng.begin()));
+      const auto offset1 = cast<std::size_t>(std::ranges::distance(
+        rich::ranges::front(instance_).text().begin(), rng.begin()));
       auto first = split(offset1);
       for (; first != last; ++first)
         // スタイルが重複したときに例外を投げる
@@ -93,15 +94,15 @@ namespace rich {
 template <typename Char>
 struct fmt::formatter<rich::segments<Char>, Char>
   : fmt::formatter<
-      fmt::join_view<ranges::iterator_t<rich::segments<Char>>,
-                     ranges::sentinel_t<rich::segments<Char>>, Char>,
+      fmt::join_view<std::ranges::iterator_t<rich::segments<Char>>,
+                     std::ranges::sentinel_t<rich::segments<Char>>, Char>,
       Char> {
   template <typename FormatContext>
   auto format(const rich::segments<Char>& segs, FormatContext& ctx) const
     -> decltype(ctx.out()) {
     using base_type = fmt::formatter<
-      fmt::join_view<ranges::iterator_t<rich::segments<Char>>,
-                     ranges::sentinel_t<rich::segments<Char>>, Char>,
+      fmt::join_view<std::ranges::iterator_t<rich::segments<Char>>,
+                     std::ranges::sentinel_t<rich::segments<Char>>, Char>,
       Char>;
     return base_type::format(fmt::join(segs, ""), ctx);
   }

@@ -6,12 +6,10 @@
 #include <cstddef> // std::size_t, std::ptrdiff_t, std::nullptr_t
 #include <cstdint> // std::int32_t
 #include <initializer_list>
+#include <ranges>
 #include <tuple>
 #include <type_traits>
 #include <utility> // std::move, std::forward, std::swap, std::exchange
-#include <range/v3/numeric/accumulate.hpp>
-#include <range/v3/range.hpp>
-#include <range/v3/view/subrange.hpp>
 
 namespace rich {
 // RICH_UNREACHABLE
