@@ -52,7 +52,6 @@ public:
   constexpr explicit operator bool() const {
     return ptr_ != nullptr and phase_ != 2;
   }
-  constexpr bool operator!() const { return !bool(*this); }
 
   constexpr std::size_t formatted_size() const {
     assert(ptr_ != nullptr);

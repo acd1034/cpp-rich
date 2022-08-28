@@ -67,7 +67,6 @@ public:
   constexpr explicit operator bool() const {
     return ptr_ != nullptr and line_fmtr_;
   }
-  constexpr bool operator!() const { return !bool(*this); }
 
   constexpr std::size_t formatted_size() const {
     assert(ptr_ != nullptr);

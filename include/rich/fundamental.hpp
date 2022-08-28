@@ -22,15 +22,10 @@ namespace rich {
   template <class>
   inline constexpr bool always_false = false;
 
+  /// contextually_convertible_to_bool
   template <class B>
-  concept boolean_testable_impl = requires(B&& b) {
+  concept contextually_convertible_to_bool = requires(B&& b) {
     bool(std::forward<B>(b));
-  };
-
-  /// boolean_testable
-  template <class B>
-  concept boolean_testable = boolean_testable_impl<B> and requires(B&& b) {
-    { !std::forward<B>(b) } -> boolean_testable_impl;
   };
 
   /// cast

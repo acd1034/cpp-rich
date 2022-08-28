@@ -26,7 +26,7 @@ namespace rich {
     std::copyable<line_formatter<std::remove_cvref_t<T>, Char>>
     and std::constructible_from<line_formatter<std::remove_cvref_t<T>, Char>,
                                 const std::remove_cvref_t<T>&>
-    and boolean_testable<line_formatter<std::remove_cvref_t<T>, Char>>
+    and contextually_convertible_to_bool<line_formatter<std::remove_cvref_t<T>, Char>>
     and requires(line_formatter<std::remove_cvref_t<T>, Char> f,
                  fmt_iter_for<Char> out,
                  const std::size_t n) {
