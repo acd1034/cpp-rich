@@ -32,7 +32,7 @@ jobs:
         submodules: recursive
 
     - name: Prepare environment
-      run: sudo apt install -y ninja-build ${{matrix.pkg_name}}
+      run: sudo apt install -y ninja-build ${{matrix.pkg_name}} libfmt-dev
 
     - name: Configure build
       working-directory: ${{runner.workspace}}
