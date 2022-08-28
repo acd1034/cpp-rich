@@ -30,8 +30,14 @@ option(IRIS_TEST "Build and perform Iris tests" ${IRIS_STANDALONE_PROJECT})
 add_subdirectory(include)
 
 # Add external (header only) libraries
-add_subdirectory(submodules/fmt)
-# find_package(fmt CONFIG REQUIRED)
+find_package(fmt CONFIG)
+if(NOT fmt_FOUND)
+  include(FetchContent)
+  FetchContent_Declare(fmt
+    GIT_REPOSITORY https://github.com/fmtlib/fmt.git
+    GIT_TAG 9.1.0)
+  FetchContent_MakeAvailable(fmt)
+endif()
 target_link_libraries(Iris INTERFACE fmt::fmt-header-only)
 
 if(IRIS_INSTALL)
@@ -40,7 +46,7 @@ if(IRIS_INSTALL)
     EXPORT IrisConfig
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    # RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
   )
   install(
@@ -53,7 +59,7 @@ if(IRIS_INSTALL)
     NAMESPACE Iris::
     FILE IrisConfig.cmake
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Iris
-    # EXPORT_LINK_INTERFACE_LIBRARIES
+    EXPORT_LINK_INTERFACE_LIBRARIES
   )
 endif()
 
