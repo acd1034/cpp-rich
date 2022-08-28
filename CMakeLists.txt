@@ -33,10 +33,10 @@ add_subdirectory(include)
 find_package(fmt CONFIG)
 if(NOT fmt_FOUND)
   include(FetchContent)
-  FetchContent_Declare(fmt
+  FetchContent_Declare(libfmt
     GIT_REPOSITORY https://github.com/fmtlib/fmt.git
     GIT_TAG 9.1.0)
-  FetchContent_MakeAvailable(fmt)
+  FetchContent_MakeAvailable(libfmt)
 endif()
 target_link_libraries(Iris INTERFACE fmt::fmt-header-only)
 
