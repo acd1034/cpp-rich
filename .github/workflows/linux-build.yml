@@ -34,9 +34,7 @@ jobs:
     - name: Prepare environment
       run: |
         sudo apt install -y ninja-build ${{matrix.pkg_name}}
-        sudo add-apt-repository universe
-        sudo apt update
-        sudo apt install libfmt-dev
+        sudo apt install libfmt8
 
     - name: Configure build
       working-directory: ${{runner.workspace}}
