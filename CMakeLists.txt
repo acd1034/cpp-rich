@@ -31,13 +31,16 @@ add_subdirectory(include)
 
 # Add external (header only) libraries
 find_package(fmt CONFIG)
-if(NOT fmt_FOUND)
+if(fmt_FOUND)
+  message(STATUS "fmt found")
+else()
   include(FetchContent)
   FetchContent_Declare(fmt
     GIT_REPOSITORY https://github.com/fmtlib/fmt.git
     GIT_TAG 9.1.0)
   FetchContent_MakeAvailable(fmt)
 endif()
+target_link_libraries(Iris INTERFACE fmt::fmt)
 target_link_libraries(Iris INTERFACE fmt::fmt-header-only)
 
 if(IRIS_INSTALL)
