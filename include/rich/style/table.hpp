@@ -131,29 +131,26 @@ template <typename Char, std::same_as<Char> Char2>
 struct rich::line_formatter<rich::table<Char>, Char2> {
 private:
   rich::table<Char> tbl_{};
+  std::ranges::iterator_t<rich::table<Char>> current_ =
+    std::ranges::begin(tbl_);
   std::uint32_t phase_ = 0;
 
 public:
   explicit line_formatter(const rich::table<Char>& l) : tbl_(l) {}
 
-  constexpr explicit operator bool() const {
-    return !std::ranges::empty(tbl_) and phase_ != 2;
-  }
+  constexpr explicit operator bool() const { return phase_ != 2; }
 
   constexpr std::size_t formatted_size() const {
-    assert(!std::ranges::empty(tbl_));
     return tbl_.contents_spec.width;
   }
 
   template <std::output_iterator<const Char&> Out>
   auto format_to(Out out, const std::size_t n = line_formatter_npos)
     -> fmt::format_to_n_result<Out> {
-    assert(!std::ranges::empty(tbl_));
     const auto w = std::min(tbl_.contents_spec.width, n);
     assert(w > tbl_.border_spec.width * 2);
     const auto& box = tbl_.box;
     assert(std::ranges::size(box) == std::ranges::size(box::Rounded2<Char>));
-    auto& ce = rich::ranges::front(tbl_);
 
     switch (phase_) {
     case 0: {
@@ -169,26 +166,37 @@ public:
       return {out, w};
     }
     case 1: {
-      if (!ce) {
-        ++phase_;
-        auto bs = tbl_.border_spec;
-        if (bs.align == align_t::left)
-          bs.fill = box[3 * 4 + 1];
+      if (*current_) {
+        const auto& cs = tbl_.contents_spec;
+        const auto& bs = tbl_.border_spec;
         // clang-format off
-        out = spec_format_to<Char>(out, bs, box[3*4]);
-        out = line_format_to<Char>(out, bs.style, "", box[3*4+1], {}, npos_sub(w, bs.width * 2));
-        out = rspec_format_to<Char>(out, bs, box[3*4+3]);
+        out = spec_format_to<Char>(out, bs, box[1*4]);
+        out = line_format_to<Char>(out, cs.style, *current_, cs.fill, cs.align, npos_sub(w, bs.width * 2));
+        out = rspec_format_to<Char>(out, bs, box[1*4+3]);
         // clang-format on
-        return {out, w};
+      } else {
+        ++current_;
+        if (current_ != std::ranges::end(tbl_)) {
+          auto bs = tbl_.border_spec;
+          if (bs.align == align_t::left)
+            bs.fill = box[2 * 4 + 1];
+          // clang-format off
+          out = spec_format_to<Char>(out, bs, box[2*4]);
+          out = line_format_to<Char>(out, bs.style, "", box[2*4+1], {}, npos_sub(w, bs.width * 2));
+          out = rspec_format_to<Char>(out, bs, box[2*4+3]);
+          // clang-format on
+        } else {
+          ++phase_;
+          auto bs = tbl_.border_spec;
+          if (bs.align == align_t::left)
+            bs.fill = box[3 * 4 + 1];
+          // clang-format off
+          out = spec_format_to<Char>(out, bs, box[3*4]);
+          out = line_format_to<Char>(out, bs.style, "", box[3*4+1], {}, npos_sub(w, bs.width * 2));
+          out = rspec_format_to<Char>(out, bs, box[3*4+3]);
+          // clang-format on
+        }
       }
-
-      const auto& cs = tbl_.contents_spec;
-      const auto& bs = tbl_.border_spec;
-      // clang-format off
-      out = spec_format_to<Char>(out, bs, box[1*4]);
-      out = line_format_to<Char>(out, cs.style, ce, cs.fill, cs.align, npos_sub(w, bs.width * 2));
-      out = rspec_format_to<Char>(out, bs, box[1*4+3]);
-      // clang-format on
       return {out, w};
     }
     default:
