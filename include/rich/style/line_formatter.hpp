@@ -4,6 +4,7 @@
 #include <rich/saturation.hpp>
 
 namespace rich {
+
   // line_formatter
   // https://github.com/llvm/llvm-project/blob/ba79c2a25069f09728625982c424920452fa6b83/libcxx/include/format/formatter.h#L35-L40
 
@@ -21,25 +22,25 @@ namespace rich {
   using fmt_iter_for = Char*;
 
   // clang-format off
-  template <class T, class Char>
-  concept line_formattable =
-    std::copyable<line_formatter<std::remove_cvref_t<T>, Char>>
-    and std::constructible_from<line_formatter<std::remove_cvref_t<T>, Char>,
-                                const std::remove_cvref_t<T>&>
-    and contextually_convertible_to_bool<line_formatter<std::remove_cvref_t<T>, Char>>
-    and requires(line_formatter<std::remove_cvref_t<T>, Char> f,
-                 fmt_iter_for<Char> out,
+  template <class T>
+  concept line_formattable_impl =
+    std::copyable<line_formatter<T, typename T::char_type>>
+    and std::constructible_from<line_formatter<T, typename T::char_type>, const T&>
+    and contextually_convertible_to_bool<line_formatter<T, typename T::char_type>>
+    and requires(line_formatter<T, typename T::char_type> f,
+                 fmt_iter_for<typename T::char_type> out,
                  const std::size_t n) {
-    typename T::char_type;
     { std::as_const(f).formatted_size() } -> std::same_as<std::size_t>;
-    { f.format_to(out, n) } -> std::same_as<fmt::format_to_n_result<fmt_iter_for<Char>>>;
+    { f.format_to(out, n) } -> std::same_as<fmt::format_to_n_result<fmt_iter_for<typename T::char_type>>>;
   };
   // clang-format on
 
+  template <class T>
+  concept line_formattable = line_formattable_impl<std::remove_cvref_t<T>>;
+
   // line_formattable_default_formatter
 
-  template <typename L, typename Char>
-  requires line_formattable<L, Char>
+  template <rich::line_formattable L, std::same_as<typename L::char_type> Char>
   struct line_formattable_default_formatter {
     template <typename ParseContext>
     constexpr auto parse(ParseContext& ctx) -> decltype(ctx.begin()) {
