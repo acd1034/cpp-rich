@@ -18,8 +18,8 @@ namespace rich {
     std::add_pointer_t<bool(std::shared_ptr<const void>)> has_value_ = nullptr;
     std::add_pointer_t<std::size_t(std::shared_ptr<const void>)>
       formatted_size_ = nullptr;
-    std::add_pointer_t<std::basic_string<Char>(std::shared_ptr<void>,
-                                               const std::size_t)>
+    std::add_pointer_t<std::pair<std::basic_string<Char>, std::size_t>(
+      std::shared_ptr<void>, const std::size_t)>
       format_ = nullptr;
 
   public:
@@ -39,9 +39,9 @@ namespace rich {
         format_([](std::shared_ptr<void> lfmtr_ptr, const std::size_t n) {
           std::basic_string<Char> ret{};
           using DF = std::remove_cvref_t<LF>;
-          std::static_pointer_cast<DF>(lfmtr_ptr)->format_to(
+          auto result = std::static_pointer_cast<DF>(lfmtr_ptr)->format_to(
             std::back_inserter(ret), n);
-          return ret;
+          return std::make_pair(std::move(ret), result.size);
         }) {}
 
     explicit operator bool() const {
@@ -55,9 +55,17 @@ namespace rich {
         std::static_pointer_cast<const void>(lfmtr_ptr_));
     }
 
-    std::basic_string<Char> format(const std::size_t n = line_formatter_npos) {
+    auto format(const std::size_t n = line_formatter_npos) {
       assert(lfmtr_ptr_);
       return (*format_)(lfmtr_ptr_, n);
+    }
+
+    template <std::output_iterator<const Char&> Out>
+    auto format_to(Out out, const std::size_t n = line_formatter_npos)
+      -> fmt::format_to_n_result<Out> {
+      const auto [str, size] = format(n);
+      out = rich::copy_to(out, std::basic_string_view<Char>(str));
+      return {out, size};
     }
   };
 
@@ -65,26 +73,22 @@ namespace rich {
   Out line_format_to(Out out, const fmt::text_style& style, cell<Char>& ce,
                      std::basic_string_view<Char> fill, const align_t align,
                      const std::size_t width) {
-    static constexpr auto copy_to = [](Out out2, cell<Char>& ce2) {
-      const auto str = ce2.format();
-      return rich::copy_to(out2, std::basic_string_view<Char>(str));
-    };
 
     if (width == line_formatter_npos)
-      return copy_to(out, ce);
+      return ce.format_to(out).out;
 
     const auto fillwidth = sat_sub(width, ce.formatted_size());
     if (align == align_t::left) {
-      out = copy_to(out, ce);
+      out = ce.format_to(out, width).out;
       out = padded_format_to<Char>(out, style, "", fill, 0, fillwidth);
     } else if (align == align_t::center) {
       const auto left = fillwidth / 2;
       out = padded_format_to<Char>(out, style, "", fill, 0, left);
-      out = copy_to(out, ce);
+      out = ce.format_to(out, width).out;
       out = padded_format_to<Char>(out, style, "", fill, 0, fillwidth - left);
     } else {
       out = padded_format_to<Char>(out, style, "", fill, 0, fillwidth);
-      out = copy_to(out, ce);
+      out = ce.format_to(out, width).out;
     }
     return out;
   }
