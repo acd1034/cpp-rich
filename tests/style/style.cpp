@@ -148,7 +148,8 @@ TEST_CASE("style", "[style][file]") {
         fmt::print("{}\n{}\n", hline, enm);
       }
       { // table
-        auto tbl = rich::table(lns);
+        auto tbl = rich::table<char>();
+        tbl.emplace_back(lns);
         tbl.title = std::string_view("Traceback (most recent call)");
         fmt::print("{}\n{}\n", hline, tbl);
       }

@@ -1,5 +1,9 @@
 /// @file table.hpp
 #pragma once
+#include <iterator> // std::back_inserter
+#include <memory>   // std::shared_ptr
+#include <vector>
+
 #include <rich/format.hpp>
 #include <rich/style/box.hpp>
 #include <rich/style/format_spec.hpp>
@@ -7,10 +11,60 @@
 #include <rich/style/lines.hpp>
 
 namespace rich {
-  template <line_formattable L>
+  template <typename Char>
+  struct cell {
+  private:
+    std::shared_ptr<void> lfmtr_ptr_ = nullptr;
+    std::add_pointer_t<bool(std::shared_ptr<const void>)> has_value_ = nullptr;
+    std::add_pointer_t<std::size_t(std::shared_ptr<const void>)>
+      formatted_size_ = nullptr;
+    std::add_pointer_t<std::basic_string<Char>(std::shared_ptr<void>,
+                                               const std::size_t)>
+      format_ = nullptr;
+
+  public:
+    template <line_formattable L,
+              class LF = line_formatter<std::remove_cvref_t<L>, Char>>
+    explicit cell(L&& l)
+      : lfmtr_ptr_(std::make_shared<LF>(std::forward<L>(l))),
+        has_value_([](std::shared_ptr<const void> lfmtr_ptr) {
+          using DF = std::remove_cvref_t<LF>;
+          return bool(*std::static_pointer_cast<const DF>(lfmtr_ptr));
+        }),
+        formatted_size_([](std::shared_ptr<const void> lfmtr_ptr) {
+          using DF = std::remove_cvref_t<LF>;
+          return std::static_pointer_cast<const DF>(lfmtr_ptr)
+            ->formatted_size();
+        }),
+        format_([](std::shared_ptr<void> lfmtr_ptr, const std::size_t n) {
+          std::basic_string<Char> ret{};
+          using DF = std::remove_cvref_t<LF>;
+          std::static_pointer_cast<DF>(lfmtr_ptr)->format_to(
+            std::back_inserter(ret), n);
+          return ret;
+        }) {}
+
+    explicit operator bool() const {
+      assert(lfmtr_ptr_);
+      return (*has_value_)(std::static_pointer_cast<const void>(lfmtr_ptr_));
+    }
+
+    std::size_t formatted_size() const {
+      assert(lfmtr_ptr_);
+      return (*formatted_size_)(
+        std::static_pointer_cast<const void>(lfmtr_ptr_));
+    }
+
+    std::basic_string<Char> format(const std::size_t n = line_formatter_npos) {
+      assert(lfmtr_ptr_);
+      return (*format_)(lfmtr_ptr_, n);
+    }
+  };
+
+  template <typename Char = char>
   struct table {
-    using char_type = typename L::char_type;
-    L contents{};
+    using char_type = Char;
+    std::vector<cell<char_type>> contents{};
     box_t<char_type> box = box::Rounded2<char_type>;
     format_spec<char_type> contents_spec{
       .style = fg(fmt::terminal_color::red),
@@ -27,25 +81,27 @@ namespace rich {
     std::basic_string_view<char_type> title{};
 
     table() = default;
-    constexpr explicit table(const L& l, int = {}) : contents(l) {}
-    constexpr explicit table(L&& l, int = {}) : contents(std::move(l)) {}
+
+    template <class... Args>
+    cell<char_type>& emplace_back(Args&&... args) {
+      return contents.emplace_back(std::forward<Args>(args)...);
+    }
   };
 
   template <line_range R>
   table(R&&, int = {})
-    -> table<lines<typename std::ranges::range_value_t<R>::char_type>>;
+    -> table<typename std::ranges::range_value_t<R>::char_type>;
 } // namespace rich
 
-template <rich::line_formattable L, std::same_as<typename L::char_type> Char>
-struct rich::line_formatter<rich::table<L>, Char> {
+template <typename Char, std::same_as<Char> Char2>
+struct rich::line_formatter<rich::table<Char>, Char2> {
 private:
-  const rich::table<L>* ptr_ = nullptr;
+  rich::table<Char>* ptr_ = nullptr;
+  cell<Char>& c = rich::ranges::front(ptr_->contents);
   std::uint32_t phase_ = 0;
-  line_formatter<L, Char> line_fmtr_;
 
 public:
-  explicit line_formatter(const rich::table<L>& l)
-    : ptr_(std::addressof(l)), line_fmtr_(l.contents) {}
+  explicit line_formatter(rich::table<Char>& l) : ptr_(std::addressof(l)) {}
 
   constexpr explicit operator bool() const {
     return ptr_ != nullptr and phase_ != 2;
@@ -63,7 +119,7 @@ public:
     const auto w = std::min(ptr_->contents_spec.width, n);
     assert(w > ptr_->border_spec.width * 2);
     const auto& box = ptr_->box;
-    // assert(std::ranges::size(box) == std::ranges::size(box::Rounded<Char>));
+    assert(std::ranges::size(box) == std::ranges::size(box::Rounded2<Char>));
 
     switch (phase_) {
     case 0: {
@@ -74,12 +130,12 @@ public:
       // clang-format off
       out = spec_format_to<Char>(out, bs, box[0]);
       out = line_format_to<Char>(out, bs.style, ptr_->title, box[1], align_t::center, npos_sub(w, bs.width * 2));
-      out = rspec_format_to<Char>(out, bs, box[2]);
+      out = rspec_format_to<Char>(out, bs, box[3]);
       // clang-format on
       return {out, w};
     }
     case 1: {
-      if (!line_fmtr_) {
+      if (!c) {
         ++phase_;
         auto bs = ptr_->border_spec;
         if (bs.align == align_t::left)
@@ -96,7 +152,8 @@ public:
       const auto& bs = ptr_->border_spec;
       // clang-format off
       out = spec_format_to<Char>(out, bs, box[1*4]);
-      out = line_format_to<Char>(out, cs.style, line_fmtr_, cs.fill, cs.align, npos_sub(w, bs.width * 2));
+      auto str = c.format(npos_sub(w, bs.width * 2));
+      out = line_format_to<Char>(out, cs.style, std::basic_string_view<Char>(str), cs.fill, cs.align, npos_sub(w, bs.width * 2));
       out = rspec_format_to<Char>(out, bs, box[1*4+3]);
       // clang-format on
       return {out, w};
@@ -107,6 +164,6 @@ public:
   }
 };
 
-template <typename L, typename Char>
-struct fmt::formatter<rich::table<L>, Char>
-  : rich::line_formattable_default_formatter<rich::table<L>, Char> {};
+template <typename Char, typename Char2>
+struct fmt::formatter<rich::table<Char>, Char2>
+  : rich::line_formattable_default_formatter<rich::table<Char>, Char2> {};
