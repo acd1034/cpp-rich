@@ -91,8 +91,11 @@ namespace rich {
 
   template <typename Char = char>
   struct table {
+  private:
+    std::vector<cell<Char>> cells_{};
+
+  public:
     using char_type = Char;
-    std::vector<cell<char_type>> contents{};
     box_t<char_type> box = box::Rounded2<char_type>;
     format_spec<char_type> contents_spec{
       .style = fg(fmt::terminal_color::red),
@@ -110,54 +113,57 @@ namespace rich {
 
     table() = default;
 
+    auto begin() { return cells_.begin(); }
+    auto begin() const { return cells_.begin(); }
+    auto end() { return cells_.end(); }
+    auto end() const { return cells_.end(); }
+    auto empty() const { return cells_.empty(); }
+    auto size() const { return cells_.size(); }
+
     template <class... Args>
-    cell<char_type>& emplace_back(Args&&... args) {
-      return contents.emplace_back(std::forward<Args>(args)...);
+    auto& emplace_back(Args&&... args) {
+      return cells_.emplace_back(std::forward<Args>(args)...);
     }
   };
-
-  template <line_range R>
-  table(R&&, int = {})
-    -> table<typename std::ranges::range_value_t<R>::char_type>;
 } // namespace rich
 
 template <typename Char, std::same_as<Char> Char2>
 struct rich::line_formatter<rich::table<Char>, Char2> {
 private:
-  rich::table<Char>* ptr_ = nullptr;
-  cell<Char>& ce = rich::ranges::front(ptr_->contents);
+  rich::table<Char> tbl_{};
   std::uint32_t phase_ = 0;
 
 public:
-  explicit line_formatter(rich::table<Char>& l) : ptr_(std::addressof(l)) {}
+  explicit line_formatter(const rich::table<Char>& l) : tbl_(l) {}
 
   constexpr explicit operator bool() const {
-    return ptr_ != nullptr and phase_ != 2;
+    return !std::ranges::empty(tbl_) and phase_ != 2;
   }
 
   constexpr std::size_t formatted_size() const {
-    assert(ptr_ != nullptr);
-    return ptr_->contents_spec.width;
+    assert(!std::ranges::empty(tbl_));
+    return tbl_.contents_spec.width;
   }
 
   template <std::output_iterator<const Char&> Out>
   auto format_to(Out out, const std::size_t n = line_formatter_npos)
     -> fmt::format_to_n_result<Out> {
-    assert(ptr_ != nullptr);
-    const auto w = std::min(ptr_->contents_spec.width, n);
-    assert(w > ptr_->border_spec.width * 2);
-    const auto& box = ptr_->box;
+    assert(!std::ranges::empty(tbl_));
+    const auto w = std::min(tbl_.contents_spec.width, n);
+    assert(w > tbl_.border_spec.width * 2);
+    const auto& box = tbl_.box;
     assert(std::ranges::size(box) == std::ranges::size(box::Rounded2<Char>));
+    auto& ce = rich::ranges::front(tbl_);
 
     switch (phase_) {
     case 0: {
       ++phase_;
-      auto bs = ptr_->border_spec;
+      auto bs = tbl_.border_spec;
       if (bs.align == align_t::left)
         bs.fill = box[1];
       // clang-format off
       out = spec_format_to<Char>(out, bs, box[0]);
-      out = line_format_to<Char>(out, bs.style, ptr_->title, box[1], align_t::center, npos_sub(w, bs.width * 2));
+      out = line_format_to<Char>(out, bs.style, tbl_.title, box[1], align_t::center, npos_sub(w, bs.width * 2));
       out = rspec_format_to<Char>(out, bs, box[3]);
       // clang-format on
       return {out, w};
@@ -165,7 +171,7 @@ public:
     case 1: {
       if (!ce) {
         ++phase_;
-        auto bs = ptr_->border_spec;
+        auto bs = tbl_.border_spec;
         if (bs.align == align_t::left)
           bs.fill = box[3 * 4 + 1];
         // clang-format off
@@ -176,8 +182,8 @@ public:
         return {out, w};
       }
 
-      const auto& cs = ptr_->contents_spec;
-      const auto& bs = ptr_->border_spec;
+      const auto& cs = tbl_.contents_spec;
+      const auto& bs = tbl_.border_spec;
       // clang-format off
       out = spec_format_to<Char>(out, bs, box[1*4]);
       out = line_format_to<Char>(out, cs.style, ce, cs.fill, cs.align, npos_sub(w, bs.width * 2));
