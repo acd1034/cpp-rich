@@ -61,6 +61,34 @@ namespace rich {
     }
   };
 
+  template <typename Char, std::output_iterator<const Char&> Out>
+  Out line_format_to(Out out, const fmt::text_style& style, cell<Char>& ce,
+                     std::basic_string_view<Char> fill, const align_t align,
+                     const std::size_t width) {
+    static constexpr auto copy_to = [](Out out2, cell<Char>& ce2) {
+      const auto str = ce2.format();
+      return rich::copy_to(out2, std::basic_string_view<Char>(str));
+    };
+
+    if (width == line_formatter_npos)
+      return copy_to(out, ce);
+
+    const auto fillwidth = sat_sub(width, ce.formatted_size());
+    if (align == align_t::left) {
+      out = copy_to(out, ce);
+      out = padded_format_to<Char>(out, style, "", fill, 0, fillwidth);
+    } else if (align == align_t::center) {
+      const auto left = fillwidth / 2;
+      out = padded_format_to<Char>(out, style, "", fill, 0, left);
+      out = copy_to(out, ce);
+      out = padded_format_to<Char>(out, style, "", fill, 0, fillwidth - left);
+    } else {
+      out = padded_format_to<Char>(out, style, "", fill, 0, fillwidth);
+      out = copy_to(out, ce);
+    }
+    return out;
+  }
+
   template <typename Char = char>
   struct table {
     using char_type = Char;
@@ -97,7 +125,7 @@ template <typename Char, std::same_as<Char> Char2>
 struct rich::line_formatter<rich::table<Char>, Char2> {
 private:
   rich::table<Char>* ptr_ = nullptr;
-  cell<Char>& c = rich::ranges::front(ptr_->contents);
+  cell<Char>& ce = rich::ranges::front(ptr_->contents);
   std::uint32_t phase_ = 0;
 
 public:
@@ -135,7 +163,7 @@ public:
       return {out, w};
     }
     case 1: {
-      if (!c) {
+      if (!ce) {
         ++phase_;
         auto bs = ptr_->border_spec;
         if (bs.align == align_t::left)
@@ -152,8 +180,7 @@ public:
       const auto& bs = ptr_->border_spec;
       // clang-format off
       out = spec_format_to<Char>(out, bs, box[1*4]);
-      auto str = c.format(npos_sub(w, bs.width * 2));
-      out = line_format_to<Char>(out, cs.style, std::basic_string_view<Char>(str), cs.fill, cs.align, npos_sub(w, bs.width * 2));
+      out = line_format_to<Char>(out, cs.style, ce, cs.fill, cs.align, npos_sub(w, bs.width * 2));
       out = rspec_format_to<Char>(out, bs, box[1*4+3]);
       // clang-format on
       return {out, w};
