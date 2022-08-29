@@ -8,7 +8,7 @@
 
 namespace rich {
   // https://github.com/Textualize/rich/blob/5d3f600f43796393a2c3e4cb20d807c5cf147f44/rich/panel.py#L38-L53
-  template <class L>
+  template <line_formattable L>
   struct panel {
     using char_type = typename L::char_type;
     L contents{};
@@ -37,8 +37,7 @@ namespace rich {
     -> panel<lines<typename std::ranges::range_value_t<R>::char_type>>;
 } // namespace rich
 
-template <typename L, typename Char>
-requires rich::line_formattable<L, Char>
+template <rich::line_formattable L, std::same_as<typename L::char_type> Char>
 struct rich::line_formatter<rich::panel<L>, Char> {
 private:
   const rich::panel<L>* ptr_ = nullptr;
