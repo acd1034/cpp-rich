@@ -58,7 +58,9 @@ namespace rich::ranges::detail {
 
   template <class I, class T, class Op = std::plus<>, class P = std::identity>
   concept accumulate_constraint =
-    std::invocable<P&, std::iter_reference_t<I>>
+    std::move_constructible<Op>
+    and std::move_constructible<P>
+    and std::invocable<P&, std::iter_reference_t<I>>
     and std::invocable<Op&, T, std::invoke_result_t<P&, std::iter_reference_t<I>>>
     and std::assignable_from<T&, std::invoke_result_t<Op&, T, std::invoke_result_t<P&, std::iter_reference_t<I>>>>;
 
@@ -70,13 +72,14 @@ namespace rich::ranges::detail {
     constexpr T
     operator()(I first, S last, T init, Op op = Op{}, P proj = P{}) const {
       for (; first != last; ++first)
-        init = std::invoke(op, init, std::invoke(proj, *first));
+        init = std::invoke(op, std::move(init), std::invoke(proj, *first));
       return init;
     }
 
     template <class R, class T, class Op = std::plus<>,
               class P = std::identity>
     requires std::ranges::input_range<R>
+      and std::move_constructible<T>
       and accumulate_constraint<std::ranges::iterator_t<R>, T, Op, P>
     constexpr T
     operator()(R&& r, T init, Op op = Op{}, P proj = P{}) const {
