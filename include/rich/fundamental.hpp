@@ -1,6 +1,7 @@
 /// @file fundamental.hpp
 #pragma once
 #include <cassert>
+#include <cmath> // std::log10, std::llround
 #include <compare>
 #include <concepts>
 #include <cstddef> // std::size_t, std::ptrdiff_t, std::nullptr_t
@@ -33,5 +34,11 @@ namespace rich {
   constexpr To icast(From from) noexcept(noexcept(static_cast<To>(from))) {
     assert(std::in_range<To>(from));
     return static_cast<To>(from);
+  }
+
+  /// ilog10
+  template <std::integral T>
+  T ilog10(T t) {
+    return icast<T>(std::llround(std::log10(static_cast<double>(t))));
   }
 } // namespace rich
