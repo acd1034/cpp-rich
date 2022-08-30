@@ -46,7 +46,7 @@ namespace rich {
                        std::size_t n = 1) {
     if (std::is_constant_evaluated())
       return copy_to<T*, const T*>(out, first, last, n);
-    const auto size = cast<std::size_t>(last - first);
+    const auto size = icast<std::size_t>(last - first);
     while (n--) {
       std::memcpy(out, first, sizeof(T) * size);
       out += size;

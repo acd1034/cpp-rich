@@ -41,7 +41,7 @@ namespace rich {
           return std::make_pair(it, offset - current);
         current = next;
       }
-      return std::make_pair(end, cast<std::size_t>(0));
+      return std::make_pair(end, icast<std::size_t>(0));
     }
 
     // NOTE: returned iterator is not const_iterator
@@ -62,10 +62,10 @@ namespace rich {
       if (instance_.empty())
         throw runtime_error("`segments` not initialized");
       // イテレータを無効化させないため、後ろを先に分割する
-      const auto offset2 = cast<std::size_t>(std::ranges::distance(
+      const auto offset2 = icast<std::size_t>(std::ranges::distance(
         rich::ranges::front(instance_).text().begin(), rng.end()));
       auto last = split(offset2);
-      const auto offset1 = cast<std::size_t>(std::ranges::distance(
+      const auto offset1 = icast<std::size_t>(std::ranges::distance(
         rich::ranges::front(instance_).text().begin(), rng.begin()));
       auto first = split(offset1);
       for (; first != last; ++first)
@@ -77,10 +77,10 @@ namespace rich {
       if (instance_.empty())
         throw runtime_error("`segments` not initialized");
       // イテレータを無効化させないため、後ろを先に分割する
-      const auto offset2 = cast<std::size_t>(std::ranges::distance(
+      const auto offset2 = icast<std::size_t>(std::ranges::distance(
         rich::ranges::front(instance_).text().begin(), rng.end()));
       auto last = split(offset2);
-      const auto offset1 = cast<std::size_t>(std::ranges::distance(
+      const auto offset1 = icast<std::size_t>(std::ranges::distance(
         rich::ranges::front(instance_).text().begin(), rng.begin()));
       auto first = split(offset1);
       for (; first != last; ++first)

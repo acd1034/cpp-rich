@@ -40,7 +40,7 @@ namespace rich {
   std::string_view extract_partial_contents(std::string_view contents,
                                             const std::uint_least32_t line,
                                             const std::size_t extra_line) {
-    const auto l = cast<std::size_t>(line);
+    const auto l = icast<std::size_t>(line);
     const auto a = sat_sub(l, extra_line + 1);
     auto first = find_nth(contents, '\n', a);
     if (first != std::string_view::npos)
