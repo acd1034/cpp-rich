@@ -55,6 +55,7 @@ public:
     auto out = ctx.out();
     bool has_style;
     std::tie(out, has_style) = rich::style_format_to<Char>(out, seg.style());
+    ctx.advance_to(out);
     out = fmtr.format(seg.text(), ctx);
     if (has_style)
       out = rich::reset_style<Char>(out);
