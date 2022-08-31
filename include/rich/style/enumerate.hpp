@@ -1,7 +1,5 @@
 /// @file enumerate.hpp
 #pragma once
-#include <cmath> // std::log10, std::round
-
 #include <rich/format.hpp>
 #include <rich/math.hpp>
 #include <rich/style/format_spec.hpp>
