@@ -36,27 +36,27 @@ jobs:
       working-directory: ${{runner.workspace}}
       run: |
         git clone https://github.com/fmtlib/fmt.git
-        mkdir fmtbuild
-        cmake -Sfmt -Bfmtbuild -DFMT_TEST=OFF -GNinja
-        ninja -Cfmtbuild
+        cd fmt
+        mkdir build
+        cmake -Bbuild -DFMT_TEST=OFF -GNinja
+        ninja -Cbuild
 
     - name: Configure build
       working-directory: ${{runner.workspace}}
       env:
         CXX: ${{matrix.compiler}}
         CXXFLAGS: ${{matrix.cxxflags}}
-        CMAKE_MODULE_PATH: ${{runner.workspace}}/fmtbuild
       # Note: $GITHUB_WORKSPACE is distinct from ${{runner.workspace}}.
       #       This is important
       run: |
         pwd
         ls
-        echo CMAKE_MODULE_PATH: $CMAKE_MODULE_PATH
-        ls fmtbuild
+        ls fmt/build
         cmake -Bbuild -H$GITHUB_WORKSPACE \
               -DCMAKE_BUILD_TYPE=${{matrix.build_type}} \
               -DCMAKE_CXX_STANDARD=${{matrix.std}} \
               -DCMAKE_CXX_EXTENSIONS=OFF \
+              -Dfmt_DIR=${{runner.workspace}}/fmt/build \
               -GNinja
 
     - name: Build tests + lib
