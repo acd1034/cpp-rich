@@ -33,8 +33,10 @@ jobs:
       run: sudo apt install -y ninja-build ${{matrix.pkg_name}}
 
     - name: Prepare fmtlib
+      working-directory: ${{runner.workspace}}
       run: |
         pwd
+        ls
         git clone https://github.com/fmtlib/fmt.git
         cd fmt
         mkdir build
