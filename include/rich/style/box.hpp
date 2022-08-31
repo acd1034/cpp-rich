@@ -8,7 +8,37 @@
 namespace rich {
   template <typename Char>
   using box_t = std::span<const std::basic_string_view<Char>>;
-}
+
+  // clang-format off
+
+  // ┌─── left
+  // │┌── mid
+  // ││┌─ col
+  // │││┌ right
+  // ↓↓↓↓
+  // ┌─┬┐ top
+  // │ ││ mid
+  // ├─┼┤ row
+  // └─┴┘ bottom
+  template <typename Char> auto top_left (box_t<Char> b) { return b[0]; }
+  template <typename Char> auto top_mid  (box_t<Char> b) { return b[1]; }
+  template <typename Char> auto top_col  (box_t<Char> b) { return b[2]; }
+  template <typename Char> auto top_right(box_t<Char> b) { return b[3]; }
+  template <typename Char> auto mid_left (box_t<Char> b) { return b[4]; }
+  template <typename Char> auto mid_mid  (box_t<Char> b) { return b[5]; }
+  template <typename Char> auto mid_col  (box_t<Char> b) { return b[6]; }
+  template <typename Char> auto mid_right(box_t<Char> b) { return b[7]; }
+  template <typename Char> auto row_left (box_t<Char> b) { return b[8]; }
+  template <typename Char> auto row_mid  (box_t<Char> b) { return b[9]; }
+  template <typename Char> auto row_col  (box_t<Char> b) { return b[10]; }
+  template <typename Char> auto row_right(box_t<Char> b) { return b[11]; }
+  template <typename Char> auto bottom_left (box_t<Char> b) { return b[12]; }
+  template <typename Char> auto bottom_mid  (box_t<Char> b) { return b[13]; }
+  template <typename Char> auto bottom_col  (box_t<Char> b) { return b[14]; }
+  template <typename Char> auto bottom_right(box_t<Char> b) { return b[15]; }
+
+  // clang-format on
+} // namespace rich
 
 namespace rich::box {
 // S1, S4, and S7 must be exactly one character.
@@ -89,4 +119,6 @@ namespace rich::box {
   // ├─┼┤
   // ╰─┴╯
   RICH_DEFINE_BOX(Rounded2, "╭", "─", "┬", "╮", "│", " ", "│", "│", "├", "─", "┼", "┤", "╰", "─", "┴", "╯");
+
+#undef RICH_DEFINE_BOX
 } // namespace rich::box
