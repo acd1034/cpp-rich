@@ -4,14 +4,14 @@ name: Linux build
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   build:
     name: ${{matrix.pkg_name}}, C++${{matrix.std}}, ${{matrix.build_type}} build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     timeout-minutes: 30
     strategy:
       matrix:
@@ -27,32 +27,41 @@ jobs:
           #   compiler: clang++-13
 
     steps:
-    - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
 
-    - name: Prepare environment
-      run: sudo apt install -y ninja-build ${{matrix.pkg_name}}
+      - name: Prepare environment
+        run: sudo apt install -y ninja-build ${{matrix.pkg_name}}
 
-    - name: Configure build
-      working-directory: ${{runner.workspace}}
-      env:
-        CXX: ${{matrix.compiler}}
-        CXXFLAGS: ${{matrix.cxxflags}}
-      # Note: $GITHUB_WORKSPACE is distinct from ${{runner.workspace}}.
-      #       This is important
-      run: |
-        cmake -Bbuild -H$GITHUB_WORKSPACE \
-              -DCMAKE_BUILD_TYPE=${{matrix.build_type}} \
-              -DCMAKE_CXX_STANDARD=${{matrix.std}} \
-              -DCMAKE_CXX_EXTENSIONS=OFF \
-              -G Ninja
+      - name: Prepare fmtlib
+        working-directory: ${{runner.workspace}}
+        run: |
+          git clone https://github.com/fmtlib/fmt.git -b 9.1.0
+          cd fmt
+          cmake -Bbuild -DFMT_TEST=OFF -GNinja
+          ninja -Cbuild
 
-    - name: Build tests + lib
-      working-directory: ${{runner.workspace}}/build
-      run: ninja
+      - name: Configure build
+        working-directory: ${{runner.workspace}}
+        env:
+          CXX: ${{matrix.compiler}}
+          CXXFLAGS: ${{matrix.cxxflags}}
+        # Note: $GITHUB_WORKSPACE is distinct from ${{runner.workspace}}.
+        #       This is important
+        run: |
+          cmake -Bbuild -H$GITHUB_WORKSPACE \
+                -DCMAKE_BUILD_TYPE=${{matrix.build_type}} \
+                -DCMAKE_CXX_STANDARD=${{matrix.std}} \
+                -DCMAKE_CXX_EXTENSIONS=OFF \
+                -Dfmt_DIR=${{runner.workspace}}/fmt/build \
+                -GNinja
 
-    - name: Run tests
-      env:
+      - name: Build tests + lib
+        working-directory: ${{runner.workspace}}/build
+        run: ninja
+
+      - name: Run tests
+        working-directory: ${{runner.workspace}}/build
+        env:
           CTEST_OUTPUT_ON_FAILURE: 1
-      working-directory: ${{runner.workspace}}/build
-      # Hardcode 2 cores we know are there
-      run: ctest -C ${{matrix.build_type}} -j 2
+        # Hardcode 2 cores we know are there
+        run: ctest -C ${{matrix.build_type}} -j 2
