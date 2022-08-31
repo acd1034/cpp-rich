@@ -5,9 +5,9 @@ name: Generate Documents
 # request events but only for the master branch
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
@@ -19,20 +19,20 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-    # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-    - uses: actions/checkout@v2
-      with:
-        submodules: recursive
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
 
-    - name: Build by Doxygen
-      uses: mattnotmitt/doxygen-action@v1.9.2
-      with:
-          doxyfile-path: 'Doxyfile'
-          working-directory: '.'
+      - name: Build by Doxygen
+        uses: mattnotmitt/doxygen-action@v1.9.2
+        with:
+          doxyfile-path: "Doxyfile"
+          working-directory: "."
 
-    - name: Deploy
-      uses: JamesIves/github-pages-deploy-action@releases/v3
-      with:
+      - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@releases/v3
+        with:
           ACCESS_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           BRANCH: gh-pages # The branch the action should deploy to
           FOLDER: html # The folder the action should deploy. Specified by HTML_OUTPUT in Doxyfile
