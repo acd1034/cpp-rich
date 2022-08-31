@@ -1,7 +1,7 @@
 /// @file line_formatter.hpp
 #pragma once
 #include <rich/format.hpp>
-#include <rich/saturation.hpp>
+#include <rich/math.hpp>
 
 namespace rich {
 

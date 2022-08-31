@@ -1,7 +1,7 @@
 /// @file format_spec.hpp
 #pragma once
 #include <rich/format.hpp>
-#include <rich/saturation.hpp>
+#include <rich/math.hpp>
 
 namespace rich {
   template <typename Char>

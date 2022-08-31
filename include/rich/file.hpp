@@ -5,7 +5,7 @@
 #include <string_view>
 
 #include <rich/exception.hpp>
-#include <rich/saturation.hpp>
+#include <rich/math.hpp>
 
 namespace rich {
   // https://kagasu.hatenablog.com/entry/2017/05/01/215219

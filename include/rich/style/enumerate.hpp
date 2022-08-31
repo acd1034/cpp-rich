@@ -3,7 +3,7 @@
 #include <cmath> // std::log10, std::round
 
 #include <rich/format.hpp>
-#include <rich/saturation.hpp>
+#include <rich/math.hpp>
 #include <rich/style/format_spec.hpp>
 #include <rich/style/line_formatter.hpp>
 #include <rich/style/lines.hpp>

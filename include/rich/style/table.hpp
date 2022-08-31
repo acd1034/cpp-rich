@@ -5,6 +5,7 @@
 #include <vector>
 
 #include <rich/format.hpp>
+#include <rich/math.hpp>
 #include <rich/style/box.hpp>
 #include <rich/style/format_spec.hpp>
 #include <rich/style/line_formatter.hpp>
