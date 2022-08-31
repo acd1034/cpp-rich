@@ -43,7 +43,7 @@ jobs:
         cmake -Bbuild -DFMT_TEST=OFF -GNinja
         ninja -Cbuild
         export CMAKE_MODULE_PATH=fmt/build:$CMAKE_MODULE_PATH
-        echo $CMAKE_MODULE_PATH
+        echo `CMAKE_MODULE_PATH: $CMAKE_MODULE_PATH`
 
 
     - name: Configure build
@@ -55,6 +55,9 @@ jobs:
       #       This is important
       run: |
         pwd
+        ls
+        echo $GITHUB_WORKSPACE
+        echo $CMAKE_MODULE_PATH
         cmake -Bbuild -H$GITHUB_WORKSPACE \
               -DCMAKE_BUILD_TYPE=${{matrix.build_type}} \
               -DCMAKE_CXX_STANDARD=${{matrix.std}} \
