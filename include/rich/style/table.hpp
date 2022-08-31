@@ -101,7 +101,7 @@ namespace rich {
 
   public:
     using char_type = Char;
-    box_t<char_type> box = box::Rounded2<char_type>;
+    box_t<char_type> box = box::Rounded<char_type>;
     format_spec<char_type> contents_spec{
       .style = fg(fmt::terminal_color::red),
       .fill = mid_mid(box),
@@ -155,10 +155,11 @@ public:
     const auto w = std::min(tbl_.contents_spec.width, n);
     assert(w > tbl_.border_spec.width * 2);
     const auto& box = tbl_.box;
-    assert(std::ranges::size(box) == std::ranges::size(box::Rounded2<Char>));
+    assert(std::ranges::size(box) == std::ranges::size(box::Rounded<Char>));
 
     switch (phase_) {
     case 0: {
+      // ╭─┬╮
       ++phase_;
       auto bs = tbl_.border_spec;
       if (bs.align == align_t::left)
@@ -172,6 +173,7 @@ public:
     }
     case 1: {
       if (*current_) {
+        // │ ││
         const auto& cs = tbl_.contents_spec;
         const auto& bs = tbl_.border_spec;
         // clang-format off
@@ -182,6 +184,7 @@ public:
       } else {
         ++current_;
         if (current_ != std::ranges::end(tbl_)) {
+          // ├─┼┤
           auto bs = tbl_.border_spec;
           if (bs.align == align_t::left)
             bs.fill = row_mid(box);
@@ -191,6 +194,7 @@ public:
           out = rspec_format_to<Char>(out, bs, row_right(box));
           // clang-format on
         } else {
+          // ╰─┴╯
           ++phase_;
           auto bs = tbl_.border_spec;
           if (bs.align == align_t::left)
