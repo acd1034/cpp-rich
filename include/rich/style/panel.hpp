@@ -12,7 +12,7 @@ namespace rich {
   struct panel {
     using char_type = typename L::char_type;
     L contents{};
-    box_t<char_type> box = box::Round<char_type>;
+    box_t<char_type> box = box::Rounded<char_type>;
     format_spec<char_type> contents_spec{
       .style = fg(fmt::terminal_color::red),
       .fill = mid_mid(box),
