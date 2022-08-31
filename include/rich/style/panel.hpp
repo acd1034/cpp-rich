@@ -26,6 +26,7 @@ namespace rich {
       .width = 2,
     };
     std::basic_string_view<char_type> title{};
+    bool nomatter = false;
 
     panel() = default;
     constexpr explicit panel(const L& l, int = {}) : contents(l) {}
@@ -41,12 +42,13 @@ template <rich::line_formattable L, std::same_as<typename L::char_type> Char>
 struct rich::line_formatter<rich::panel<L>, Char> {
 private:
   const rich::panel<L>* ptr_ = nullptr;
-  std::uint32_t phase_ = 0;
   line_formatter<L, Char> line_fmtr_;
+  std::uint32_t phase_ = 0;
 
 public:
   explicit line_formatter(const rich::panel<L>& l)
-    : ptr_(std::addressof(l)), line_fmtr_(l.contents) {}
+    : ptr_(std::addressof(l)), line_fmtr_(l.contents),
+      phase_(l.nomatter ? (line_fmtr_ ? 1 : 2) : 0) {}
 
   constexpr explicit operator bool() const {
     return ptr_ != nullptr and phase_ != 2;
@@ -90,6 +92,8 @@ public:
         out = line_format_to<Char>(out, cs.style, line_fmtr_, cs.fill, cs.align, npos_sub(w, bs.width * 2));
         out = rspec_format_to<Char>(out, bs, mid_right(box));
         // clang-format on
+        if (ptr_->nomatter and !line_fmtr_)
+          ++phase_;
       } else {
         // ╰─╯ bottom
         ++phase_;
