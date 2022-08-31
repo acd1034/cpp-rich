@@ -11,7 +11,7 @@ on:
 jobs:
   build:
     name: ${{matrix.pkg_name}}, C++${{matrix.std}}, ${{matrix.build_type}} build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     timeout-minutes: 30
     strategy:
       matrix:
@@ -32,6 +32,18 @@ jobs:
     - name: Prepare environment
       run: sudo apt install -y ninja-build ${{matrix.pkg_name}}
 
+    - name: Prepare fmtlib
+      run: |
+        pwd
+        git clone https://github.com/fmtlib/fmt.git
+        cd fmt
+        mkdir build
+        cmake -Bbuild -DFMT_TEST=OFF -GNinja
+        ninja -Cbuild
+        export CMAKE_MODULE_PATH=fmt/build:$CMAKE_MODULE_PATH
+        echo $CMAKE_MODULE_PATH
+
+
     - name: Configure build
       working-directory: ${{runner.workspace}}
       env:
@@ -40,6 +52,7 @@ jobs:
       # Note: $GITHUB_WORKSPACE is distinct from ${{runner.workspace}}.
       #       This is important
       run: |
+        pwd
         cmake -Bbuild -H$GITHUB_WORKSPACE \
               -DCMAKE_BUILD_TYPE=${{matrix.build_type}} \
               -DCMAKE_CXX_STANDARD=${{matrix.std}} \
