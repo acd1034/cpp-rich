@@ -101,16 +101,16 @@ namespace rich {
 
   public:
     using char_type = Char;
-    box_t<char_type> box = box::Rounded2<char_type>;
+    box_t<char_type> box = box::Rounded<char_type>;
     format_spec<char_type> contents_spec{
       .style = fg(fmt::terminal_color::red),
-      .fill = box[1 * 4 + 1],
+      .fill = mid_mid(box),
       .align = align_t::left,
       .width = 80,
     };
     format_spec<char_type> border_spec{
       .style = fg(fmt::terminal_color::red),
-      .fill = box[1 * 4 + 1],
+      .fill = mid_mid(box),
       .align = align_t::left,
       .width = 2,
     };
@@ -155,50 +155,54 @@ public:
     const auto w = std::min(tbl_.contents_spec.width, n);
     assert(w > tbl_.border_spec.width * 2);
     const auto& box = tbl_.box;
-    assert(std::ranges::size(box) == std::ranges::size(box::Rounded2<Char>));
+    assert(std::ranges::size(box) == std::ranges::size(box::Rounded<Char>));
 
     switch (phase_) {
     case 0: {
+      // ╭─┬╮ top
       ++phase_;
       auto bs = tbl_.border_spec;
       if (bs.align == align_t::left)
-        bs.fill = box[1];
+        bs.fill = top_mid(box);
       // clang-format off
-      out = spec_format_to<Char>(out, bs, box[0]);
-      out = line_format_to<Char>(out, bs.style, tbl_.title, box[1], align_t::center, npos_sub(w, bs.width * 2));
-      out = rspec_format_to<Char>(out, bs, box[3]);
+      out = spec_format_to<Char>(out, bs, top_left(box));
+      out = line_format_to<Char>(out, bs.style, tbl_.title, top_mid(box), align_t::center, npos_sub(w, bs.width * 2));
+      out = rspec_format_to<Char>(out, bs, top_right(box));
       // clang-format on
       return {out, w};
     }
     case 1: {
       if (*current_) {
+        // │ ││ mid
         const auto& cs = tbl_.contents_spec;
         const auto& bs = tbl_.border_spec;
         // clang-format off
-        out = spec_format_to<Char>(out, bs, box[1*4]);
+        out = spec_format_to<Char>(out, bs, mid_left(box));
         out = line_format_to<Char>(out, cs.style, *current_, cs.fill, cs.align, npos_sub(w, bs.width * 2));
-        out = rspec_format_to<Char>(out, bs, box[1*4+3]);
+        out = rspec_format_to<Char>(out, bs, mid_right(box));
         // clang-format on
       } else {
         ++current_;
         if (current_ != std::ranges::end(tbl_)) {
+          // ├─┼┤ row
           auto bs = tbl_.border_spec;
           if (bs.align == align_t::left)
-            bs.fill = box[2 * 4 + 1];
+            bs.fill = row_mid(box);
           // clang-format off
-          out = spec_format_to<Char>(out, bs, box[2*4]);
-          out = line_format_to<Char>(out, bs.style, "", box[2*4+1], {}, npos_sub(w, bs.width * 2));
-          out = rspec_format_to<Char>(out, bs, box[2*4+3]);
+          out = spec_format_to<Char>(out, bs, row_left(box));
+          out = line_format_to<Char>(out, bs.style, "", row_mid(box), {}, npos_sub(w, bs.width * 2));
+          out = rspec_format_to<Char>(out, bs, row_right(box));
           // clang-format on
         } else {
+          // ╰─┴╯ bottom
           ++phase_;
           auto bs = tbl_.border_spec;
           if (bs.align == align_t::left)
-            bs.fill = box[3 * 4 + 1];
+            bs.fill = bottom_mid(box);
           // clang-format off
-          out = spec_format_to<Char>(out, bs, box[3*4]);
-          out = line_format_to<Char>(out, bs.style, "", box[3*4+1], {}, npos_sub(w, bs.width * 2));
-          out = rspec_format_to<Char>(out, bs, box[3*4+3]);
+          out = spec_format_to<Char>(out, bs, bottom_left(box));
+          out = line_format_to<Char>(out, bs.style, "", bottom_mid(box), {}, npos_sub(w, bs.width * 2));
+          out = rspec_format_to<Char>(out, bs, bottom_right(box));
           // clang-format on
         }
       }
