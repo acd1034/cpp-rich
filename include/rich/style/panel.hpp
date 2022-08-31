@@ -12,7 +12,7 @@ namespace rich {
   struct panel {
     using char_type = typename L::char_type;
     L contents{};
-    box_t<char_type> box = box::Editor<char_type>;
+    box_t<char_type> box = box::Round<char_type>;
     format_spec<char_type> contents_spec{
       .style = fg(fmt::terminal_color::red),
       .fill = mid_mid(box),
@@ -68,7 +68,7 @@ public:
 
     switch (phase_) {
     case 0: {
-      // ╭─╮
+      // ╭─╮ top
       ++phase_;
       auto bs = ptr_->border_spec;
       if (bs.align == align_t::left)
@@ -82,7 +82,7 @@ public:
     }
     case 1: {
       if (line_fmtr_) {
-        // │ │
+        // │ │ mid
         const auto& cs = ptr_->contents_spec;
         const auto& bs = ptr_->border_spec;
         // clang-format off
@@ -91,7 +91,7 @@ public:
         out = rspec_format_to<Char>(out, bs, mid_right(box));
         // clang-format on
       } else {
-        // ╰─╯
+        // ╰─╯ bottom
         ++phase_;
         auto bs = ptr_->border_spec;
         if (bs.align == align_t::left)

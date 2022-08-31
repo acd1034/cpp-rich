@@ -159,7 +159,7 @@ public:
 
     switch (phase_) {
     case 0: {
-      // ╭─┬╮
+      // ╭─┬╮ top
       ++phase_;
       auto bs = tbl_.border_spec;
       if (bs.align == align_t::left)
@@ -173,7 +173,7 @@ public:
     }
     case 1: {
       if (*current_) {
-        // │ ││
+        // │ ││ mid
         const auto& cs = tbl_.contents_spec;
         const auto& bs = tbl_.border_spec;
         // clang-format off
@@ -184,7 +184,7 @@ public:
       } else {
         ++current_;
         if (current_ != std::ranges::end(tbl_)) {
-          // ├─┼┤
+          // ├─┼┤ row
           auto bs = tbl_.border_spec;
           if (bs.align == align_t::left)
             bs.fill = row_mid(box);
@@ -194,7 +194,7 @@ public:
           out = rspec_format_to<Char>(out, bs, row_right(box));
           // clang-format on
         } else {
-          // ╰─┴╯
+          // ╰─┴╯ bottom
           ++phase_;
           auto bs = tbl_.border_spec;
           if (bs.align == align_t::left)
