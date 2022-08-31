@@ -1,7 +1,7 @@
 /// @file line_formatter.hpp
 #pragma once
 #include <rich/format.hpp>
-#include <rich/saturation.hpp>
+#include <rich/math.hpp>
 
 namespace rich {
 
@@ -112,7 +112,7 @@ namespace rich {
   Out line_format_to(Out out, const fmt::text_style& style, const T& t,
                      std::basic_string_view<Char> fill, const align_t align,
                      const std::size_t width) {
-    auto str = fmt::format("{}", t);
+    const auto str = fmt::format("{}", t);
     return line_format_to(out, style, std::basic_string_view<Char>(str), fill,
                           align, width);
   }

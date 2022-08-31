@@ -157,7 +157,7 @@ public:
 
   constexpr std::size_t formatted_size() const {
     return rich::ranges::accumulate(
-      *current_, cast<std::size_t>(0), {},
+      *current_, icast<std::size_t>(0), {},
       [](const auto& seg) { return seg.text().size(); });
   }
 

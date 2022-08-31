@@ -3,7 +3,7 @@
 #include <cmath> // std::log10, std::round
 
 #include <rich/format.hpp>
-#include <rich/saturation.hpp>
+#include <rich/math.hpp>
 #include <rich/style/format_spec.hpp>
 #include <rich/style/line_formatter.hpp>
 #include <rich/style/lines.hpp>
@@ -53,8 +53,7 @@ private:
 
   static constexpr std::size_t calculate_nwidth(const rich::enumerate<L>& l) {
     std::size_t w = std::max(l.start_line, l.end_line);
-    w = static_cast<std::size_t>(std::round(std::log10(static_cast<double>(w))))
-        + 1;
+    w = ilog10(w) + 1;
     return std::max(w, l.number_spec.width);
   }
 
