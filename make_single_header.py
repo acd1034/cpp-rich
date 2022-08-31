@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-# https://github.com/kokkos/mdspan/blob/2450c1aab5093fab344cdf344c8d7118e87e8a30/make_single_header.py
+# Usage: python3 make_single_header.py include/rich/style.hpp > rich.hpp
+# Reference: https://github.com/kokkos/mdspan/blob/2450c1aab5093fab344cdf344c8d7118e87e8a30/make_single_header.py
 import re
 import sys
 from os.path import dirname, join as path_join, abspath, exists
