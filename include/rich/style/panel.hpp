@@ -12,16 +12,16 @@ namespace rich {
   struct panel {
     using char_type = typename L::char_type;
     L contents{};
-    box_t<char_type> box = box::Rounded<char_type>;
+    box_t<char_type> box = box::Editor<char_type>;
     format_spec<char_type> contents_spec{
       .style = fg(fmt::terminal_color::red),
-      .fill = box[4],
+      .fill = mid_mid(box),
       .align = align_t::left,
       .width = 80,
     };
     format_spec<char_type> border_spec{
       .style = fg(fmt::terminal_color::red),
-      .fill = box[4],
+      .fill = mid_mid(box),
       .align = align_t::left,
       .width = 2,
     };
@@ -68,38 +68,40 @@ public:
 
     switch (phase_) {
     case 0: {
+      // ╭─╮
       ++phase_;
       auto bs = ptr_->border_spec;
       if (bs.align == align_t::left)
-        bs.fill = box[1];
+        bs.fill = top_mid(box);
       // clang-format off
-      out = spec_format_to<Char>(out, bs, box[0]);
-      out = line_format_to<Char>(out, bs.style, ptr_->title, box[1], align_t::center, npos_sub(w, bs.width * 2));
-      out = rspec_format_to<Char>(out, bs, box[2]);
+      out = spec_format_to<Char>(out, bs, top_left(box));
+      out = line_format_to<Char>(out, bs.style, ptr_->title, top_mid(box), align_t::center, npos_sub(w, bs.width * 2));
+      out = rspec_format_to<Char>(out, bs, top_right(box));
       // clang-format on
       return {out, w};
     }
     case 1: {
-      if (!line_fmtr_) {
+      if (line_fmtr_) {
+        // │ │
+        const auto& cs = ptr_->contents_spec;
+        const auto& bs = ptr_->border_spec;
+        // clang-format off
+        out = spec_format_to<Char>(out, bs, mid_left(box));
+        out = line_format_to<Char>(out, cs.style, line_fmtr_, cs.fill, cs.align, npos_sub(w, bs.width * 2));
+        out = rspec_format_to<Char>(out, bs, mid_right(box));
+        // clang-format on
+      } else {
+        // ╰─╯
         ++phase_;
         auto bs = ptr_->border_spec;
         if (bs.align == align_t::left)
-          bs.fill = box[7];
+          bs.fill = bottom_mid(box);
         // clang-format off
-        out = spec_format_to<Char>(out, bs, box[6]);
-        out = line_format_to<Char>(out, bs.style, "", box[7], {}, npos_sub(w, bs.width * 2));
-        out = rspec_format_to<Char>(out, bs, box[8]);
+        out = spec_format_to<Char>(out, bs, bottom_left(box));
+        out = line_format_to<Char>(out, bs.style, "", bottom_mid(box), {}, npos_sub(w, bs.width * 2));
+        out = rspec_format_to<Char>(out, bs, bottom_right(box));
         // clang-format on
-        return {out, w};
       }
-
-      const auto& cs = ptr_->contents_spec;
-      const auto& bs = ptr_->border_spec;
-      // clang-format off
-      out = spec_format_to<Char>(out, bs, box[3]);
-      out = line_format_to<Char>(out, cs.style, line_fmtr_, cs.fill, cs.align, npos_sub(w, bs.width * 2));
-      out = rspec_format_to<Char>(out, bs, box[5]);
-      // clang-format on
       return {out, w};
     }
     default:
