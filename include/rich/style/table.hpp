@@ -115,6 +115,7 @@ namespace rich {
       .width = 2,
     };
     std::basic_string_view<char_type> title{};
+    bool nomatter = false;
 
     table() = default;
 
@@ -136,12 +137,22 @@ template <typename Char, std::same_as<Char> Char2>
 struct rich::line_formatter<rich::table<Char>, Char2> {
 private:
   rich::table<Char> tbl_{};
+  std::uint32_t phase_ = 0;
   std::ranges::iterator_t<rich::table<Char>> current_ =
     std::ranges::begin(tbl_);
-  std::uint32_t phase_ = 0;
 
 public:
-  explicit line_formatter(const rich::table<Char>& l) : tbl_(l) {}
+  explicit line_formatter(const rich::table<Char>& l) : tbl_(l) {
+    if (tbl_.nomatter) {
+      for (const auto& cell : tbl_) {
+        if (cell) {
+          phase_ = 1;
+          return;
+        }
+      }
+      phase_ = 2;
+    }
+  }
 
   constexpr explicit operator bool() const { return phase_ != 2; }
 
@@ -181,6 +192,9 @@ public:
         out = line_format_to<Char>(out, cs.style, *current_, cs.fill, cs.align, npos_sub(w, bs.width * 2));
         out = rspec_format_to<Char>(out, bs, mid_right(box));
         // clang-format on
+        if (tbl_.nomatter and !*current_
+            and std::ranges::next(current_) == std::ranges::end(tbl_))
+          ++phase_;
       } else {
         ++current_;
         if (current_ != std::ranges::end(tbl_)) {
