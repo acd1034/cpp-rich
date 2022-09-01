@@ -123,7 +123,7 @@ public:
         out = line_format_to<Char>(out, cs.style, *current_, cs.fill, cs.align, npos_sub(w, bs.width * 2));
         out = rspec_format_to<Char>(out, bs, mid_right(box));
         // clang-format on
-        if (ptr_->nomatter and !*current_
+        if (ptr_->nomatter and not *current_
             and std::ranges::next(current_) == std::ranges::end(lfmtrs_))
           ++phase_;
       } else {

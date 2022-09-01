@@ -92,7 +92,7 @@ public:
         out = line_format_to<Char>(out, cs.style, line_fmtr_, cs.fill, cs.align, npos_sub(w, bs.width * 2));
         out = rspec_format_to<Char>(out, bs, mid_right(box));
         // clang-format on
-        if (ptr_->nomatter and !line_fmtr_)
+        if (ptr_->nomatter and not line_fmtr_)
           ++phase_;
       } else {
         // ╰─╯ bottom
