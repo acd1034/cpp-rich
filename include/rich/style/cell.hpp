@@ -20,6 +20,8 @@ namespace rich {
       format_ = nullptr;
 
   public:
+    cell() = default;
+
     template <line_formattable L, class D = std::remove_cvref_t<L>,
               class LF = line_formatter<D, Char>>
     explicit cell(L&& l)
@@ -89,3 +91,30 @@ namespace rich {
     return out;
   }
 } // namespace rich
+
+template <typename Char>
+struct rich::line_formatter<rich::cell<Char>, Char> {
+private:
+  cell<Char> cell_{};
+
+public:
+  line_formatter() = default;
+
+  explicit line_formatter(const cell<Char>& l) : cell_(l) {}
+
+  constexpr explicit operator bool() const { return bool(cell_); }
+
+  constexpr std::size_t formatted_size() const {
+    return cell_.formatted_size();
+  }
+
+  template <std::output_iterator<const Char&> Out>
+  auto format_to(Out out, const std::size_t n = line_formatter_npos)
+    -> fmt::format_to_n_result<Out> {
+    return cell_.format_to(out, n);
+  }
+};
+
+template <typename Char>
+struct fmt::formatter<rich::cell<Char>, Char>
+  : rich::line_formattable_default_formatter<rich::cell<Char>, Char> {};
