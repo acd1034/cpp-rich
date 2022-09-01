@@ -142,17 +142,18 @@ private:
     std::ranges::begin(tbl_);
 
 public:
-  explicit line_formatter(const rich::table<Char>& l) : tbl_(l) {
-    if (tbl_.nomatter) {
-      for (const auto& cell : tbl_) {
-        if (cell) {
-          phase_ = 1;
-          return;
+  explicit line_formatter(const rich::table<Char>& l)
+    : tbl_(l), phase_([&l]() -> std::uint32_t {
+        if (l.nomatter) {
+          for (const auto& cell : l) {
+            if (cell) {
+              return 1;
+            }
+          }
+          return 2;
         }
-      }
-      phase_ = 2;
-    }
-  }
+        return 0;
+      }()) {}
 
   constexpr explicit operator bool() const { return phase_ != 2; }
 
