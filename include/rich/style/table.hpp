@@ -81,15 +81,19 @@ public:
       lfmtr = line_formatter_type(*it++);
   }
 
-  constexpr explicit operator bool() const { return phase_ != 2; }
+  constexpr explicit operator bool() const {
+    return ptr_ != nullptr and phase_ != 2;
+  }
 
   constexpr std::size_t formatted_size() const {
+    assert(ptr_ != nullptr);
     return ptr_->contents_spec.width;
   }
 
   template <std::output_iterator<const Char&> Out>
   auto format_to(Out out, const std::size_t n = line_formatter_npos)
     -> fmt::format_to_n_result<Out> {
+    assert(ptr_ != nullptr);
     const auto w = std::min(ptr_->contents_spec.width, n);
     assert(w > ptr_->border_spec.width * 2);
     const auto& box = ptr_->box;

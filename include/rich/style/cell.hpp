@@ -66,30 +66,6 @@ namespace rich {
       return {out, size};
     }
   };
-
-  template <typename Char, std::output_iterator<const Char&> Out>
-  Out line_format_to(Out out, const fmt::text_style& style, cell<Char>& ce,
-                     std::basic_string_view<Char> fill, const align_t align,
-                     const std::size_t width) {
-
-    if (width == line_formatter_npos)
-      return ce.format_to(out).out;
-
-    const auto fillwidth = sat_sub(width, ce.formatted_size());
-    if (align == align_t::left) {
-      out = ce.format_to(out, width).out;
-      out = padded_format_to<Char>(out, style, "", fill, 0, fillwidth);
-    } else if (align == align_t::center) {
-      const auto left = fillwidth / 2;
-      out = padded_format_to<Char>(out, style, "", fill, 0, left);
-      out = ce.format_to(out, width).out;
-      out = padded_format_to<Char>(out, style, "", fill, 0, fillwidth - left);
-    } else {
-      out = padded_format_to<Char>(out, style, "", fill, 0, fillwidth);
-      out = ce.format_to(out, width).out;
-    }
-    return out;
-  }
 } // namespace rich
 
 template <typename Char>
