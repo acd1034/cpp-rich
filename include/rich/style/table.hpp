@@ -1,7 +1,7 @@
 /// @file table.hpp
 #pragma once
+#include <any>
 #include <iterator> // std::back_inserter
-#include <memory>   // std::shared_ptr
 #include <vector>
 
 #include <rich/format.hpp>
@@ -15,49 +15,46 @@ namespace rich {
   template <typename Char>
   struct cell {
   private:
-    std::shared_ptr<void> lfmtr_ptr_ = nullptr;
-    std::add_pointer_t<bool(std::shared_ptr<const void>)> has_value_ = nullptr;
-    std::add_pointer_t<std::size_t(std::shared_ptr<const void>)>
-      formatted_size_ = nullptr;
+    std::any lfmtr_ptr_ = nullptr;
+    std::add_pointer_t<bool(const std::any&)> has_value_ = nullptr;
+    std::add_pointer_t<std::size_t(const std::any&)> formatted_size_ = nullptr;
     std::add_pointer_t<std::pair<std::basic_string<Char>, std::size_t>(
-      std::shared_ptr<void>, const std::size_t)>
+      std::any&, const std::size_t)>
       format_ = nullptr;
 
   public:
     template <line_formattable L,
               class LF = line_formatter<std::remove_cvref_t<L>, Char>>
     explicit cell(L&& l)
-      : lfmtr_ptr_(std::make_shared<LF>(std::forward<L>(l))),
-        has_value_([](std::shared_ptr<const void> lfmtr_ptr) {
+      : lfmtr_ptr_(std::make_any<LF>(std::forward<L>(l))),
+        has_value_([](const std::any& lfmtr_ptr) {
           using DF = std::remove_cvref_t<LF>;
-          return bool(*std::static_pointer_cast<const DF>(lfmtr_ptr));
+          return bool(std::any_cast<const DF&>(lfmtr_ptr));
         }),
-        formatted_size_([](std::shared_ptr<const void> lfmtr_ptr) {
+        formatted_size_([](const std::any& lfmtr_ptr) {
           using DF = std::remove_cvref_t<LF>;
-          return std::static_pointer_cast<const DF>(lfmtr_ptr)
-            ->formatted_size();
+          return std::any_cast<const DF&>(lfmtr_ptr).formatted_size();
         }),
-        format_([](std::shared_ptr<void> lfmtr_ptr, const std::size_t n) {
-          std::basic_string<Char> ret{};
+        format_([](std::any& lfmtr_ptr, const std::size_t n) {
+          std::basic_string<Char> str{};
           using DF = std::remove_cvref_t<LF>;
-          auto result = std::static_pointer_cast<DF>(lfmtr_ptr)->format_to(
-            std::back_inserter(ret), n);
-          return std::make_pair(std::move(ret), result.size);
+          auto result =
+            std::any_cast<DF&>(lfmtr_ptr).format_to(std::back_inserter(str), n);
+          return std::make_pair(std::move(str), result.size);
         }) {}
 
     explicit operator bool() const {
-      assert(lfmtr_ptr_);
-      return (*has_value_)(std::static_pointer_cast<const void>(lfmtr_ptr_));
+      assert(lfmtr_ptr_.has_value());
+      return (*has_value_)(lfmtr_ptr_);
     }
 
     std::size_t formatted_size() const {
-      assert(lfmtr_ptr_);
-      return (*formatted_size_)(
-        std::static_pointer_cast<const void>(lfmtr_ptr_));
+      assert(lfmtr_ptr_.has_value());
+      return (*formatted_size_)(lfmtr_ptr_);
     }
 
     auto format(const std::size_t n = line_formatter_npos) {
-      assert(lfmtr_ptr_);
+      assert(lfmtr_ptr_.has_value());
       return (*format_)(lfmtr_ptr_, n);
     }
 
