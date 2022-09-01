@@ -2,6 +2,7 @@
 #pragma once
 #include <any>
 #include <iterator> // std::back_inserter
+#include <memory>   // std::shared_ptr
 #include <vector>
 
 #include <rich/format.hpp>
@@ -15,7 +16,8 @@ namespace rich {
   template <typename Char>
   struct cell {
   private:
-    std::any lfmtr_ptr_ = nullptr;
+    std::shared_ptr<void> ptr_ = nullptr;
+    std::any lfmtr_ptr_{};
     std::add_pointer_t<bool(const std::any&)> has_value_ = nullptr;
     std::add_pointer_t<std::size_t(const std::any&)> formatted_size_ = nullptr;
     std::add_pointer_t<std::pair<std::basic_string<Char>, std::size_t>(
@@ -23,10 +25,11 @@ namespace rich {
       format_ = nullptr;
 
   public:
-    template <line_formattable L,
-              class LF = line_formatter<std::remove_cvref_t<L>, Char>>
+    template <line_formattable L, class D = std::remove_cvref_t<L>,
+              class LF = line_formatter<D, Char>>
     explicit cell(L&& l)
-      : lfmtr_ptr_(std::make_any<LF>(std::forward<L>(l))),
+      : ptr_(std::make_shared<D>(std::forward<L>(l))),
+        lfmtr_ptr_(std::make_any<LF>(*std::static_pointer_cast<D>(ptr_))),
         has_value_([](const std::any& lfmtr_ptr) {
           using DF = std::remove_cvref_t<LF>;
           return bool(std::any_cast<const DF&>(lfmtr_ptr));
