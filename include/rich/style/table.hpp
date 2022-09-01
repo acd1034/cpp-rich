@@ -53,15 +53,18 @@ namespace rich {
 template <typename Char, std::same_as<Char> Char2>
 struct rich::line_formatter<rich::table<Char>, Char2> {
 private:
+  using line_formatter_type = rich::line_formatter<cell<Char>, Char>;
   rich::table<Char> tbl_{};
+  std::vector<line_formatter_type> lfmtrs_{};
   std::uint32_t phase_ = 0;
-  std::ranges::iterator_t<rich::table<Char>> current_ =
-    std::ranges::begin(tbl_);
+  std::ranges::iterator_t<std::vector<line_formatter_type>> current_ =
+    std::ranges::begin(lfmtrs_);
 
 public:
   explicit line_formatter(const rich::table<Char>& l)
-    : tbl_(l), phase_([&l]() -> std::uint32_t {
+    : tbl_(l), lfmtrs_(std::ranges::size(l)), phase_([&l]() -> std::uint32_t {
         if (l.nomatter) {
+          // NOTE: algorithmはincludeしない方針
           for (const auto& cell : l) {
             if (cell) {
               return 1;
@@ -70,7 +73,12 @@ public:
           return 2;
         }
         return 0;
-      }()) {}
+      }()) {
+    // NOTE: algorithmはincludeしない方針
+    auto it = std::ranges::begin(l);
+    for (auto& lfmtr : lfmtrs_)
+      lfmtr = line_formatter_type(*it++);
+  }
 
   constexpr explicit operator bool() const { return phase_ != 2; }
 
@@ -111,11 +119,11 @@ public:
         out = rspec_format_to<Char>(out, bs, mid_right(box));
         // clang-format on
         if (tbl_.nomatter and !*current_
-            and std::ranges::next(current_) == std::ranges::end(tbl_))
+            and std::ranges::next(current_) == std::ranges::end(lfmtrs_))
           ++phase_;
       } else {
         ++current_;
-        if (current_ != std::ranges::end(tbl_)) {
+        if (current_ != std::ranges::end(lfmtrs_)) {
           // ├─┼┤ row
           auto bs = tbl_.border_spec;
           if (bs.align == align_t::left)
