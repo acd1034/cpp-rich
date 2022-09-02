@@ -29,7 +29,7 @@ namespace rich {
 
     template <line_formattable L, class D = std::remove_cvref_t<L>,
               class LF = line_formatter<D, Char>>
-    explicit cell(L&& l)
+    cell(L&& l)
       : ptr_(std::make_shared<D>(std::forward<L>(l))),
         lfmtr_(std::make_any<LF>(*std::static_pointer_cast<D>(ptr_))),
         handler_([](std::any* lfmtr, bool* b, std::size_t* size,

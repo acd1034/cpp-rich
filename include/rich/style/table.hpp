@@ -13,11 +13,13 @@
 namespace rich {
   template <typename Char = char>
   struct table {
+    using value_type = cell<Char>;
+    using char_type = Char;
+
   private:
     std::vector<cell<Char>> cells_{};
 
   public:
-    using char_type = Char;
     box_t<char_type> box = box::Rounded<char_type>;
     format_spec<char_type> contents_spec{
       .style = fg(fmt::terminal_color::red),
@@ -36,12 +38,16 @@ namespace rich {
 
     table() = default;
 
-    auto begin() { return cells_.begin(); }
     auto begin() const { return cells_.begin(); }
-    auto end() { return cells_.end(); }
     auto end() const { return cells_.end(); }
     auto empty() const { return cells_.empty(); }
     auto size() const { return cells_.size(); }
+
+    void reserve(const std::size_t n) { cells_.reserve(n); }
+
+    void push_back(const value_type& ce) { cells_.push_back(ce); }
+
+    void push_back(value_type&& ce) { cells_.push_back(std::move(ce)); }
 
     template <class... Args>
     auto& emplace_back(Args&&... args) {
