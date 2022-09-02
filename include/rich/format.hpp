@@ -69,19 +69,19 @@ namespace rich {
     if (style.has_emphasis()) {
       has_style = true;
       auto emphasis = fmt::detail::make_emphasis<Char>(style.get_emphasis());
-      out = fmt::detail::write(out, (const Char*)emphasis);
+      out = copy_to<Char>(out, (const Char*)emphasis);
     }
     if (style.has_foreground()) {
       has_style = true;
       auto foreground =
         fmt::detail::make_foreground_color<Char>(style.get_foreground());
-      out = fmt::detail::write(out, (const Char*)foreground);
+      out = copy_to<Char>(out, (const Char*)foreground);
     }
     if (style.has_background()) {
       has_style = true;
       auto background =
         fmt::detail::make_background_color<Char>(style.get_background());
-      out = fmt::detail::write(out, (const Char*)background);
+      out = copy_to<Char>(out, (const Char*)background);
     }
     return {out, has_style};
   }
@@ -90,7 +90,7 @@ namespace rich {
 
   template <typename Char, std::output_iterator<const Char&> Out>
   Out reset_style(Out out) {
-    return fmt::detail::write(out, RICH_TYPED_LITERAL(Char, "\x1b[0m"));
+    return copy_to<Char>(out, RICH_TYPED_LITERAL(Char, "\x1b[0m"));
   }
 
   // format_to

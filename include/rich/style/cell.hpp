@@ -73,7 +73,7 @@ namespace rich {
     auto format_to(Out out, const std::size_t n = line_formatter_npos)
       -> fmt::format_to_n_result<Out> {
       const auto [str, size] = format(n);
-      out = rich::copy_to(out, std::basic_string_view<Char>(str));
+      out = copy_to(out, std::basic_string_view<Char>(str));
       return {out, size};
     }
   };
