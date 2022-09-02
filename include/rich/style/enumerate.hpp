@@ -80,7 +80,7 @@ public:
     // clang-format off
     if (current == ptr_->highlight_line){
       const auto& c = ptr_->highlight_char;
-      out = aligned_format_to<Char>(out, ptr_->highlight_style, c, hs.fill, hs.align, npos_sub(hs.width, !c.empty()));
+      out = aligned_format_to<Char>(out, ptr_->highlight_style, c, hs.fill, hs.align, npos_sub(hs.width, not c.empty()));
       out = line_format_to<Char>(out, ptr_->number_highlight_style, current, ns.fill, ns.align, nwidth_);
     } else {
       out = spec_format_to<Char>(out, hs, "");
