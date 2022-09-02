@@ -12,12 +12,17 @@ namespace rich {
   struct cell {
   private:
     std::shared_ptr<void> ptr_ = nullptr;
-    std::any lfmtr_ptr_{};
-    std::add_pointer_t<bool(const std::any&)> has_value_ = nullptr;
-    std::add_pointer_t<std::size_t(const std::any&)> formatted_size_ = nullptr;
-    std::add_pointer_t<std::pair<std::basic_string<Char>, std::size_t>(
-      std::any&, const std::size_t)>
-      format_ = nullptr;
+    std::any lfmtr_{};
+    using handler_t = void(std::any*, bool*, std::size_t*, const std::size_t*,
+                           std::basic_string<Char>*, std::size_t*);
+    handler_t* handler_ = nullptr;
+
+    void call(bool* b, std::size_t* size = nullptr,
+              const std::size_t* in = nullptr,
+              std::basic_string<Char>* str = nullptr,
+              std::size_t* out = nullptr) const {
+      handler_(&const_cast<std::any&>(lfmtr_), b, size, in, str, out);
+    }
 
   public:
     cell() = default;
@@ -26,36 +31,43 @@ namespace rich {
               class LF = line_formatter<D, Char>>
     explicit cell(L&& l)
       : ptr_(std::make_shared<D>(std::forward<L>(l))),
-        lfmtr_ptr_(std::make_any<LF>(*std::static_pointer_cast<D>(ptr_))),
-        has_value_([](const std::any& lfmtr_ptr) {
+        lfmtr_(std::make_any<LF>(*std::static_pointer_cast<D>(ptr_))),
+        handler_([](std::any* lfmtr, bool* b, std::size_t* size,
+                    const std::size_t* in, std::basic_string<Char>* str,
+                    std::size_t* out) {
           using DF = std::remove_cvref_t<LF>;
-          return bool(std::any_cast<const DF&>(lfmtr_ptr));
-        }),
-        formatted_size_([](const std::any& lfmtr_ptr) {
-          using DF = std::remove_cvref_t<LF>;
-          return std::any_cast<const DF&>(lfmtr_ptr).formatted_size();
-        }),
-        format_([](std::any& lfmtr_ptr, const std::size_t n) {
-          std::basic_string<Char> str{};
-          using DF = std::remove_cvref_t<LF>;
-          auto result =
-            std::any_cast<DF&>(lfmtr_ptr).format_to(std::back_inserter(str), n);
-          return std::make_pair(std::move(str), result.size);
+          if (b != nullptr) {
+            *b = bool(*std::any_cast<const DF>(lfmtr));
+          } else if (size != nullptr) {
+            *size = std::any_cast<const DF>(lfmtr)->formatted_size();
+          } else {
+            assert(in != nullptr and str != nullptr and out != nullptr);
+            auto result = std::any_cast<DF>(lfmtr)->format_to(
+              std::back_inserter(*str), *in);
+            *out = result.size;
+          }
         }) {}
 
     explicit operator bool() const {
-      assert(lfmtr_ptr_.has_value());
-      return (*has_value_)(lfmtr_ptr_);
+      assert(lfmtr_.has_value());
+      bool b;
+      call(&b);
+      return b;
     }
 
     std::size_t formatted_size() const {
-      assert(lfmtr_ptr_.has_value());
-      return (*formatted_size_)(lfmtr_ptr_);
+      assert(lfmtr_.has_value());
+      std::size_t size;
+      call(nullptr, &size);
+      return size;
     }
 
-    auto format(const std::size_t n = line_formatter_npos) {
-      assert(lfmtr_ptr_.has_value());
-      return (*format_)(lfmtr_ptr_, n);
+    auto format(const std::size_t in = line_formatter_npos) {
+      assert(lfmtr_.has_value());
+      std::basic_string<Char> str{};
+      std::size_t out;
+      call(nullptr, nullptr, &in, &str, &out);
+      return std::make_pair(std::move(str), std::move(out));
     }
 
     template <std::output_iterator<const Char&> Out>
