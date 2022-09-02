@@ -35,14 +35,13 @@ namespace rich {
         handler_([](std::any* lfmtr, bool* b, std::size_t* size,
                     const std::size_t* in, std::basic_string<Char>* str,
                     std::size_t* out) {
-          using DF = std::remove_cvref_t<LF>;
           if (b != nullptr) {
-            *b = bool(*std::any_cast<const DF>(lfmtr));
+            *b = bool(*std::any_cast<const LF>(lfmtr));
           } else if (size != nullptr) {
-            *size = std::any_cast<const DF>(lfmtr)->formatted_size();
+            *size = std::any_cast<const LF>(lfmtr)->formatted_size();
           } else {
             assert(in != nullptr and str != nullptr and out != nullptr);
-            auto result = std::any_cast<DF>(lfmtr)->format_to(
+            auto result = std::any_cast<LF>(lfmtr)->format_to(
               std::back_inserter(*str), *in);
             *out = result.size;
           }
