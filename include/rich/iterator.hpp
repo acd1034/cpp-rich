@@ -23,7 +23,8 @@ namespace rich {
 
     template <std::output_iterator<T> Out>
     constexpr explicit erased_output(Out o)
-      : out_(std::make_shared<Out>(o)), handler_([](base_ptr_t& out, T& t) {
+      : out_(std::make_shared<Out>(std::move(o))),
+        handler_([](base_ptr_t& out, T& t) {
           *(*std::static_pointer_cast<Out>(out))++ = std::move(t);
         }) {}
 
