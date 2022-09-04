@@ -28,6 +28,7 @@ namespace rich {
   public:
     cell() = default;
 
+    // NOTE: implicit conversion is allowed
     template <line_formattable L, class D = std::remove_cvref_t<L>,
               class LF = line_formatter<D, Char>>
     cell(L&& l)
