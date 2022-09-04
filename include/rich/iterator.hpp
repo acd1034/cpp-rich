@@ -9,9 +9,10 @@ namespace rich {
   template <class T>
   struct erased_output {
   private:
+    using U = std::remove_reference_t<T>;
     using base_ptr_t = std::shared_ptr<void>;
     base_ptr_t out_;
-    using handler_t = void(base_ptr_t&, T&);
+    using handler_t = void(base_ptr_t&, U&);
     handler_t* handler_ = nullptr;
 
   public:
@@ -24,18 +25,18 @@ namespace rich {
     template <std::output_iterator<T> Out>
     constexpr explicit erased_output(Out o)
       : out_(std::make_shared<Out>(std::move(o))),
-        handler_([](base_ptr_t& out, T& t) {
+        handler_([](base_ptr_t& out, U& t) {
           *(*std::static_pointer_cast<Out>(out))++ = std::move(t);
         }) {}
 
     constexpr erased_output&
-    operator=(const T& t) requires std::copy_constructible<T> {
-      T tmp{t};
+    operator=(const U& t) requires std::copy_constructible<U> {
+      U tmp{t};
       handler_(out_, tmp);
       return *this;
     }
 
-    constexpr erased_output& operator=(T&& t) {
+    constexpr erased_output& operator=(U&& t) {
       handler_(out_, t);
       return *this;
     }
