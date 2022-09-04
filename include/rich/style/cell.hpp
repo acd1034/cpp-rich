@@ -5,6 +5,7 @@
 #include <memory>   // std::shared_ptr
 
 #include <rich/format.hpp>
+#include <rich/iterator.hpp> // erased_output
 #include <rich/style/line_formatter.hpp>
 
 namespace rich {
@@ -14,12 +15,12 @@ namespace rich {
     std::shared_ptr<void> ptr_ = nullptr;
     std::any lfmtr_{};
     using handler_t = void(std::any*, bool*, std::size_t*, const std::size_t*,
-                           std::basic_string<Char>*, std::size_t*);
+                           erased_output<Char>*, std::size_t*);
     handler_t* handler_ = nullptr;
 
     void call(bool* b, std::size_t* size = nullptr,
               const std::size_t* in = nullptr,
-              std::basic_string<Char>* str = nullptr,
+              erased_output<Char>* str = nullptr,
               std::size_t* out = nullptr) const {
       handler_(&const_cast<std::any&>(lfmtr_), b, size, in, str, out);
     }
@@ -33,16 +34,16 @@ namespace rich {
       : ptr_(std::make_shared<D>(std::forward<L>(l))),
         lfmtr_(std::make_any<LF>(*std::static_pointer_cast<D>(ptr_))),
         handler_([](std::any* lfmtr, bool* b, std::size_t* size,
-                    const std::size_t* in, std::basic_string<Char>* str,
+                    const std::size_t* in, erased_output<Char>* erased,
                     std::size_t* out) {
           if (b != nullptr) {
             *b = bool(*std::any_cast<const LF>(lfmtr));
           } else if (size != nullptr) {
             *size = std::any_cast<const LF>(lfmtr)->formatted_size();
           } else {
-            assert(in != nullptr and str != nullptr and out != nullptr);
-            auto result = std::any_cast<LF>(lfmtr)->format_to(
-              std::back_inserter(*str), *in);
+            assert(in != nullptr and erased != nullptr and out != nullptr);
+            auto result = std::any_cast<LF>(lfmtr)->format_to(*erased, *in);
+            *erased = result.out;
             *out = result.size;
           }
         }) {}
@@ -61,19 +62,13 @@ namespace rich {
       return size;
     }
 
-    auto format(const std::size_t in = line_formatter_npos) {
-      assert(lfmtr_.has_value());
-      std::basic_string<Char> str{};
-      std::size_t out;
-      call(nullptr, nullptr, &in, &str, &out);
-      return std::make_pair(std::move(str), std::move(out));
-    }
-
     template <std::output_iterator<const Char&> Out>
     auto format_to(Out out, const std::size_t n = line_formatter_npos)
       -> fmt::format_to_n_result<Out> {
-      const auto [str, size] = format(n);
-      out = copy_to(out, std::basic_string_view<Char>(str));
+      erased_output<Char> erased(out);
+      std::size_t size;
+      call(nullptr, nullptr, &n, &erased, &size);
+      out = rich::out<Out>(erased);
       return {out, size};
     }
   };
