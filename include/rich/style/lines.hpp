@@ -14,13 +14,6 @@ namespace rich {
   concept line_range =
     std::ranges::range<R> and is_segment_v<std::ranges::range_value_t<R>>;
 
-  template <class T>
-  auto reserved_vector(const std::size_t n) {
-    std::vector<T> ret;
-    ret.reserve(n);
-    return ret;
-  }
-
   template <class Out1, std::output_iterator<std::ptrdiff_t> Out2, line_range R>
   requires std::output_iterator<Out1, std::ranges::range_value_t<R>>
   auto split_newline(Out1 out1, Out2 out2, R&& segs) {
@@ -101,7 +94,7 @@ namespace rich {
     // NOTE: implicit conversion is allowed
     template <line_range R>
     constexpr lines(R&& segs, const std::size_t size_hint = 0)
-      : bounds_(reserved_vector<std::ptrdiff_t>(size_hint + 1)) {
+      : bounds_(make_reserved<std::vector<std::ptrdiff_t>>(size_hint + 1)) {
       if constexpr (std::ranges::sized_range<R>)
         segments_.reserve(std::ranges::size(segs) + size_hint);
       else
@@ -169,7 +162,8 @@ public:
     if (n == line_formatter_npos)
       return {fmt::format_to(out, "{}", fmt::join(line, "")), n};
 
-    auto cropped = reserved_vector<segment<Char>>(std::ranges::size(line));
+    auto cropped =
+      make_reserved<std::vector<segment<Char>>>(std::ranges::size(line));
     auto size = crop_line(std::back_inserter(cropped), line, n);
     return {fmt::format_to(out, "{}", fmt::join(cropped, "")), size};
   }

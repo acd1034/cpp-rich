@@ -35,4 +35,17 @@ namespace rich {
     assert(std::in_range<To>(from));
     return static_cast<To>(from);
   }
+
+  /// make_reserved
+  template <class Cont>
+  // clang-format off
+  requires(not std::is_reference_v<Cont> and requires(Cont & c, std::size_t n) {
+    c.reserve(n);
+  })
+  // clang-format on
+  Cont make_reserved(const std::size_t n) {
+    Cont c;
+    c.reserve(n);
+    return c;
+  }
 } // namespace rich
