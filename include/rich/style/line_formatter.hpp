@@ -31,7 +31,7 @@ namespace rich {
                  fmt_iter_for<typename T::char_type> out,
                  const std::size_t n) {
     { std::as_const(f).formatted_size() } -> std::same_as<std::size_t>;
-    { f.format_to(out, n) } -> std::same_as<fmt::format_to_n_result<fmt_iter_for<typename T::char_type>>>;
+    { f.format_to(out, n) } -> std::same_as<fmt_iter_for<typename T::char_type>>;
   };
   // clang-format on
 
@@ -53,7 +53,7 @@ namespace rich {
       char dlm = '\0';
       for (line_formatter<L, Char> line_fmtr(l); bool(line_fmtr);) {
         out = fmt::detail::write(out, std::exchange(dlm, '\n'));
-        out = line_fmtr.format_to(out).out;
+        out = line_fmtr.format_to(out);
       }
       return out;
     }
@@ -77,20 +77,20 @@ namespace rich {
                      std::basic_string_view<Char> fill, const align_t align,
                      const std::size_t width) {
     if (width == line_formatter_npos)
-      return line_fmtr.format_to(out).out;
+      return line_fmtr.format_to(out);
 
     const auto fillwidth = sat_sub(width, line_fmtr.formatted_size());
     if (align == align_t::left) {
-      out = line_fmtr.format_to(out, width).out;
+      out = line_fmtr.format_to(out, width);
       out = padded_format_to<Char>(out, style, "", fill, 0, fillwidth);
     } else if (align == align_t::center) {
       const auto left = fillwidth / 2;
       out = padded_format_to<Char>(out, style, "", fill, 0, left);
-      out = line_fmtr.format_to(out, width).out;
+      out = line_fmtr.format_to(out, width);
       out = padded_format_to<Char>(out, style, "", fill, 0, fillwidth - left);
     } else {
       out = padded_format_to<Char>(out, style, "", fill, 0, fillwidth);
-      out = line_fmtr.format_to(out, width).out;
+      out = line_fmtr.format_to(out, width);
     }
     return out;
   }

@@ -71,8 +71,7 @@ public:
   }
 
   template <std::output_iterator<const Char&> Out>
-  auto format_to(Out out, const std::size_t n = line_formatter_npos)
-    -> fmt::format_to_n_result<Out> {
+  Out format_to(Out out, const std::size_t n = line_formatter_npos) {
     assert(ptr_ != nullptr);
     const auto& ns = ptr_->number_spec;
     const auto& hs = ptr_->highlight_spec;
@@ -87,10 +86,9 @@ public:
       out = line_format_to<Char>(out, ns.style, current, ns.fill, ns.align, nwidth_);
     }
     *out++ = ' ';
-    auto result = line_fmtr_.format_to(out, npos_sub(n, hs.width + nwidth_ + 1));
+    out = line_fmtr_.format_to(out, npos_sub(n, hs.width + nwidth_ + 1));
     // clang-format on
-    out = result.out;
-    return {out, n};
+    return out;
   }
 };
 

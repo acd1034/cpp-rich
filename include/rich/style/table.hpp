@@ -97,8 +97,7 @@ public:
   }
 
   template <std::output_iterator<const Char&> Out>
-  auto format_to(Out out, const std::size_t n = line_formatter_npos)
-    -> fmt::format_to_n_result<Out> {
+  Out format_to(Out out, const std::size_t n = line_formatter_npos) {
     assert(ptr_ != nullptr);
     const auto w = std::min(ptr_->contents_spec.width, n);
     assert(w > ptr_->border_spec.width * 2);
@@ -117,7 +116,7 @@ public:
       out = line_format_to<Char>(out, bs.style, ptr_->title, top_mid(box), align_t::center, npos_sub(w, bs.width * 2));
       out = rspec_format_to<Char>(out, bs, top_right(box));
       // clang-format on
-      return {out, w};
+      return out;
     }
     case 1: {
       if (*current_) {
@@ -157,7 +156,7 @@ public:
           // clang-format on
         }
       }
-      return {out, w};
+      return out;
     }
     default:
       RICH_UNREACHABLE();
