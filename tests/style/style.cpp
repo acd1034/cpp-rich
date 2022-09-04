@@ -9,6 +9,8 @@ inline constexpr std::string_view
   hline("\n===================================================================="
         "===========");
 
+static_assert(std::output_iterator<rich::erased_output<char>, const char&>);
+
 TEST_CASE("style", "[style][segment]") {
   std::string_view orig("01234567890123456789");
   auto ts = fmt::emphasis::faint;
