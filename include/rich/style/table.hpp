@@ -17,7 +17,7 @@ namespace rich {
     using char_type = Char;
 
   private:
-    std::vector<cell<Char>> cells_{};
+    std::vector<value_type> cells_{};
 
   public:
     box_t<char_type> box = box::Rounded<char_type>;
