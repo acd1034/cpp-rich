@@ -64,8 +64,10 @@ public:
     assert(ptr_ != nullptr);
     const auto& box = ptr_->box;
     assert(std::ranges::size(box) == std::ranges::size(box::Rounded<Char>));
+
+    // calculate contents_width
     const auto width = std::min(ptr_->contents_spec.width, n);
-    const auto contents_width = npos_sub(width, bs.width * 2);
+    const auto contents_width = npos_sub(width, ptr_->border_spec.width * 2);
 
     switch (phase_) {
     case 0: {

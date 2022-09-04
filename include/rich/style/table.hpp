@@ -99,10 +99,12 @@ public:
   template <std::output_iterator<const Char&> Out>
   Out format_to(Out out, const std::size_t n = line_formatter_npos) {
     assert(ptr_ != nullptr);
-    const auto w = std::min(ptr_->contents_spec.width, n);
-    assert(w > ptr_->border_spec.width * 2);
     const auto& box = ptr_->box;
     assert(std::ranges::size(box) == std::ranges::size(box::Rounded<Char>));
+
+    // calculate contents_width
+    const auto width = std::min(ptr_->contents_spec.width, n);
+    const auto contents_width = npos_sub(width, ptr_->border_spec.width * 2);
 
     switch (phase_) {
     case 0: {
@@ -113,7 +115,7 @@ public:
         bs.fill = top_mid(box);
       // clang-format off
       out = spec_format_to<Char>(out, bs, top_left(box));
-      out = line_format_to<Char>(out, bs.style, ptr_->title, top_mid(box), align_t::center, npos_sub(w, bs.width * 2));
+      out = line_format_to<Char>(out, bs.style, ptr_->title, top_mid(box), align_t::center, contents_width);
       out = rspec_format_to<Char>(out, bs, top_right(box));
       // clang-format on
       return out;
@@ -125,7 +127,7 @@ public:
         const auto& bs = ptr_->border_spec;
         // clang-format off
         out = spec_format_to<Char>(out, bs, mid_left(box));
-        out = line_format_to<Char>(out, cs.style, *current_, cs.fill, cs.align, npos_sub(w, bs.width * 2));
+        out = line_format_to<Char>(out, cs.style, *current_, cs.fill, cs.align, contents_width);
         out = rspec_format_to<Char>(out, bs, mid_right(box));
         // clang-format on
         if (ptr_->nomatter and not *current_
@@ -140,7 +142,7 @@ public:
             bs.fill = row_mid(box);
           // clang-format off
           out = spec_format_to<Char>(out, bs, row_left(box));
-          out = line_format_to<Char>(out, bs.style, "", row_mid(box), {}, npos_sub(w, bs.width * 2));
+          out = line_format_to<Char>(out, bs.style, "", row_mid(box), {}, contents_width);
           out = rspec_format_to<Char>(out, bs, row_right(box));
           // clang-format on
         } else {
@@ -151,7 +153,7 @@ public:
             bs.fill = bottom_mid(box);
           // clang-format off
           out = spec_format_to<Char>(out, bs, bottom_left(box));
-          out = line_format_to<Char>(out, bs.style, "", bottom_mid(box), {}, npos_sub(w, bs.width * 2));
+          out = line_format_to<Char>(out, bs.style, "", bottom_mid(box), {}, contents_width);
           out = rspec_format_to<Char>(out, bs, bottom_right(box));
           // clang-format on
         }
