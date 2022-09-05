@@ -4,6 +4,7 @@
 #include <fmt/color.h>
 
 #include <rich/fundamental.hpp>
+#include <rich/ranges.hpp>
 
 namespace rich {
 
@@ -31,39 +32,19 @@ namespace rich {
   (rich::choose_literal<Char>::choose(Literal, L##Literal))
 
   // copy_to
-  // https://github.com/fmtlib/fmt/blob/fd41110d383b7240231718f009b21498e3984ccc/include/fmt/core.h#L838-L853
-
-  template <class Out, class In>
-  constexpr Out copy_to(Out out, In first, In last, std::size_t n = 1) {
-    while (n--)
-      for (In in = first; in != last;)
-        *out++ = *in++;
-    return out;
-  }
-
-  template <class T>
-  constexpr T* copy_to(T* out, const T* first, const T* last,
-                       std::size_t n = 1) {
-    if (std::is_constant_evaluated())
-      return copy_to<T*, const T*>(out, first, last, n);
-    const auto size = icast<std::size_t>(last - first);
-    while (n--) {
-      std::memcpy(out, first, sizeof(T) * size);
-      out += size;
-    }
-    return out;
-  }
 
   template <typename Char, std::output_iterator<const Char&> Out>
   constexpr Out copy_to(Out out, std::basic_string_view<Char> sv,
                         std::size_t n = 1) {
-    return copy_to(out, sv.data(), sv.data() + sv.size(), n);
+    while (n--)
+      out = rich::ranges::copy(sv.data(), sv.data() + sv.size(), out).second;
+    return out;
   }
 
-  // style_format_to
+  // set_style
 
   template <typename Char, std::output_iterator<const Char&> Out>
-  auto style_format_to(Out out, const fmt::text_style& style)
+  auto set_style(Out out, const fmt::text_style& style)
     -> std::pair<Out, bool> {
     bool has_style = false;
     if (style.has_emphasis()) {
@@ -103,8 +84,8 @@ namespace rich {
                        const std::size_t left, const std::size_t right) {
     if (sv.empty() and (fill.empty() or (left == 0 and right == 0)))
       return out;
-    bool has_style;
-    std::tie(out, has_style) = style_format_to<Char>(out, style);
+    auto [out2, has_style] = set_style<Char>(out, style);
+    out = out2;
     if (not fill.empty())
       out = copy_to<Char>(out, fill, left);
     if (not sv.empty())
@@ -122,23 +103,29 @@ namespace rich {
     right,
   };
 
+  constexpr std::pair<std::size_t, std::size_t>
+  padding_size(const align_t align, const std::size_t width) {
+    switch (align) {
+    case align_t::left:
+      return {0, width};
+    case align_t::center: {
+      const auto left = width / 2;
+      return {left, width - left};
+    }
+    case align_t::right:
+      return {width, 0};
+    default:
+      RICH_UNREACHABLE();
+    }
+  }
+
   template <typename Char, std::output_iterator<const Char&> Out>
   Out aligned_format_to(Out out, const fmt::text_style& style,
                         std::basic_string_view<Char> sv,
                         std::basic_string_view<Char> fill, const align_t align,
                         const std::size_t width) {
-    switch (align) {
-    case align_t::left:
-      return padded_format_to(out, style, sv, fill, 0, width);
-    case align_t::center: {
-      const auto left = width / 2;
-      return padded_format_to(out, style, sv, fill, left, width - left);
-    }
-    case align_t::right:
-      return padded_format_to(out, style, sv, fill, width, 0);
-    default:
-      RICH_UNREACHABLE();
-    }
+    const auto [left, right] = padding_size(align, width);
+    return padded_format_to(out, style, sv, fill, left, right);
   }
 
   template <typename Char, std::output_iterator<const Char&> Out>
@@ -146,17 +133,7 @@ namespace rich {
                          std::basic_string_view<Char> sv,
                          std::basic_string_view<Char> fill, const align_t align,
                          const std::size_t width) {
-    switch (align) {
-    case align_t::left:
-      return padded_format_to(out, style, sv, fill, width, 0);
-    case align_t::center: {
-      const auto right = width / 2;
-      return padded_format_to(out, style, sv, fill, width - right, right);
-    }
-    case align_t::right:
-      return padded_format_to(out, style, sv, fill, 0, width);
-    default:
-      RICH_UNREACHABLE();
-    }
+    const auto [left, right] = padding_size(align, width);
+    return padded_format_to(out, style, sv, fill, right, left);
   }
 } // namespace rich

@@ -80,18 +80,10 @@ namespace rich {
       return line_fmtr.format_to(out);
 
     const auto fillwidth = sat_sub(width, line_fmtr.formatted_size());
-    if (align == align_t::left) {
-      out = line_fmtr.format_to(out, width);
-      out = padded_format_to<Char>(out, style, "", fill, 0, fillwidth);
-    } else if (align == align_t::center) {
-      const auto left = fillwidth / 2;
-      out = padded_format_to<Char>(out, style, "", fill, 0, left);
-      out = line_fmtr.format_to(out, width);
-      out = padded_format_to<Char>(out, style, "", fill, 0, fillwidth - left);
-    } else {
-      out = padded_format_to<Char>(out, style, "", fill, 0, fillwidth);
-      out = line_fmtr.format_to(out, width);
-    }
+    const auto [left, right] = padding_size(align, fillwidth);
+    out = padded_format_to<Char>(out, style, "", fill, 0, left);
+    out = line_fmtr.format_to(out, width);
+    out = padded_format_to<Char>(out, style, "", fill, 0, right);
     return out;
   }
 

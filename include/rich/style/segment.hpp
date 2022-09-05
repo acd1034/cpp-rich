@@ -53,9 +53,8 @@ public:
   auto format(const rich::segment<Char>& seg, FormatContext& ctx) const
     -> decltype(ctx.out()) {
     auto out = ctx.out();
-    bool has_style;
-    std::tie(out, has_style) = rich::style_format_to<Char>(out, seg.style());
-    ctx.advance_to(out);
+    const auto [out2, has_style] = rich::set_style<Char>(out, seg.style());
+    ctx.advance_to(out2);
     out = fmtr.format(seg.text(), ctx);
     if (has_style)
       out = rich::reset_style<Char>(out);
