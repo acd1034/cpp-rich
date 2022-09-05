@@ -122,23 +122,29 @@ namespace rich {
     right,
   };
 
+  constexpr std::pair<std::size_t, std::size_t>
+  padding_size(const align_t align, const std::size_t width) {
+    switch (align) {
+    case align_t::left:
+      return {0, width};
+    case align_t::center: {
+      const auto left = width / 2;
+      return {left, width - left};
+    }
+    case align_t::right:
+      return {width, 0};
+    default:
+      RICH_UNREACHABLE();
+    }
+  }
+
   template <typename Char, std::output_iterator<const Char&> Out>
   Out aligned_format_to(Out out, const fmt::text_style& style,
                         std::basic_string_view<Char> sv,
                         std::basic_string_view<Char> fill, const align_t align,
                         const std::size_t width) {
-    switch (align) {
-    case align_t::left:
-      return padded_format_to(out, style, sv, fill, 0, width);
-    case align_t::center: {
-      const auto left = width / 2;
-      return padded_format_to(out, style, sv, fill, left, width - left);
-    }
-    case align_t::right:
-      return padded_format_to(out, style, sv, fill, width, 0);
-    default:
-      RICH_UNREACHABLE();
-    }
+    const auto [left, right] = padding_size(align, width);
+    return padded_format_to(out, style, sv, fill, left, right);
   }
 
   template <typename Char, std::output_iterator<const Char&> Out>
@@ -146,17 +152,7 @@ namespace rich {
                          std::basic_string_view<Char> sv,
                          std::basic_string_view<Char> fill, const align_t align,
                          const std::size_t width) {
-    switch (align) {
-    case align_t::left:
-      return padded_format_to(out, style, sv, fill, width, 0);
-    case align_t::center: {
-      const auto right = width / 2;
-      return padded_format_to(out, style, sv, fill, width - right, right);
-    }
-    case align_t::right:
-      return padded_format_to(out, style, sv, fill, 0, width);
-    default:
-      RICH_UNREACHABLE();
-    }
+    const auto [left, right] = padding_size(align, width);
+    return padded_format_to(out, style, sv, fill, right, left);
   }
 } // namespace rich
