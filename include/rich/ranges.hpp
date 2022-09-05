@@ -52,15 +52,17 @@ namespace rich::ranges::detail {
     }
   };
 
-  // accumulate
+  // indirectly_binary_invocable
   // https://github.com/ericniebler/range-v3/blob/234164b84797f2a6ec97fdfb4d1c5dbfb927ca35/include/range/v3/iterator/concepts.hpp#L569-L593
-  // https://github.com/ericniebler/range-v3/blob/234164b84797f2a6ec97fdfb4d1c5dbfb927ca35/include/range/v3/numeric/accumulate.hpp
 
-  template <class Op, class I1, class I2>
-  concept indirectly_binary_invocable =
-    std::indirectly_readable<I1> and std::indirectly_readable<I2>
-    and std::copy_constructible<Op>
-    and std::invocable<Op&, std::iter_reference_t<I1>, std::iter_reference_t<I2>>;
+    template <class Op, class I1, class I2>
+    concept indirectly_binary_invocable =
+      std::indirectly_readable<I1> and std::indirectly_readable<I2>
+      and std::copy_constructible<Op>
+      and std::invocable<Op&, std::iter_reference_t<I1>, std::iter_reference_t<I2>>;
+
+  // accumulate
+  // https://github.com/ericniebler/range-v3/blob/234164b84797f2a6ec97fdfb4d1c5dbfb927ca35/include/range/v3/numeric/accumulate.hpp
 
   struct accumulate_fn {
     template <class I, class S, class T, class Op = std::plus<>,
