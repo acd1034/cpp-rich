@@ -15,14 +15,13 @@ namespace rich {
     std::shared_ptr<void> ptr_ = nullptr;
     std::any lfmtr_{};
     using handler_t = void(std::any*, bool*, std::size_t*, const std::size_t*,
-                           erased_output<Char>*, std::size_t*);
+                           erased_output<Char>*);
     handler_t* handler_ = nullptr;
 
     void call(bool* b, std::size_t* size = nullptr,
               const std::size_t* in = nullptr,
-              erased_output<Char>* str = nullptr,
-              std::size_t* out = nullptr) const {
-      handler_(&const_cast<std::any&>(lfmtr_), b, size, in, str, out);
+              erased_output<Char>* str = nullptr) const {
+      handler_(&const_cast<std::any&>(lfmtr_), b, size, in, str);
     }
 
   public:
@@ -35,17 +34,14 @@ namespace rich {
       : ptr_(std::make_shared<D>(std::forward<L>(l))),
         lfmtr_(std::make_any<LF>(*std::static_pointer_cast<D>(ptr_))),
         handler_([](std::any* lfmtr, bool* b, std::size_t* size,
-                    const std::size_t* in, erased_output<Char>* erased,
-                    std::size_t* out) {
+                    const std::size_t* in, erased_output<Char>* erased) {
           if (b != nullptr) {
             *b = bool(*std::any_cast<const LF>(lfmtr));
           } else if (size != nullptr) {
             *size = std::any_cast<const LF>(lfmtr)->formatted_size();
           } else {
-            assert(in != nullptr and erased != nullptr and out != nullptr);
-            auto result = std::any_cast<LF>(lfmtr)->format_to(*erased, *in);
-            *erased = result.out;
-            *out = result.size;
+            assert(in != nullptr and erased != nullptr);
+            *erased = std::any_cast<LF>(lfmtr)->format_to(*erased, *in);
           }
         }) {}
 
@@ -64,13 +60,11 @@ namespace rich {
     }
 
     template <std::output_iterator<const Char&> Out>
-    auto format_to(Out out, const std::size_t n = line_formatter_npos)
-      -> fmt::format_to_n_result<Out> {
+    Out format_to(Out out, const std::size_t n = line_formatter_npos) {
       erased_output<Char> erased(out);
-      std::size_t size;
-      call(nullptr, nullptr, &n, &erased, &size);
+      call(nullptr, nullptr, &n, &erased);
       out = rich::out<Out>(erased);
-      return {out, size};
+      return out;
     }
   };
 } // namespace rich
@@ -92,8 +86,7 @@ public:
   }
 
   template <std::output_iterator<const Char&> Out>
-  auto format_to(Out out, const std::size_t n = line_formatter_npos)
-    -> fmt::format_to_n_result<Out> {
+  Out format_to(Out out, const std::size_t n = line_formatter_npos) {
     return cell_.format_to(out, n);
   }
 };

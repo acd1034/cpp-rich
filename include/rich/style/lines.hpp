@@ -155,17 +155,16 @@ public:
   }
 
   template <std::output_iterator<const Char&> Out>
-  auto format_to(Out out, const std::size_t n = line_formatter_npos)
-    -> fmt::format_to_n_result<Out> {
+  Out format_to(Out out, const std::size_t n = line_formatter_npos) {
     assert(ptr_ != nullptr);
     auto line = *current_++;
     if (n == line_formatter_npos)
-      return {fmt::format_to(out, "{}", fmt::join(line, "")), n};
+      return fmt::format_to(out, "{}", fmt::join(line, ""));
 
     auto cropped =
       make_reserved<std::vector<segment<Char>>>(std::ranges::size(line));
-    auto size = crop_line(std::back_inserter(cropped), line, n);
-    return {fmt::format_to(out, "{}", fmt::join(cropped, "")), size};
+    crop_line(std::back_inserter(cropped), line, n);
+    return fmt::format_to(out, "{}", fmt::join(cropped, ""));
   }
 };
 

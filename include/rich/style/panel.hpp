@@ -60,13 +60,14 @@ public:
   }
 
   template <std::output_iterator<const Char&> Out>
-  auto format_to(Out out, const std::size_t n = line_formatter_npos)
-    -> fmt::format_to_n_result<Out> {
+  Out format_to(Out out, const std::size_t n = line_formatter_npos) {
     assert(ptr_ != nullptr);
-    const auto w = std::min(ptr_->contents_spec.width, n);
-    assert(w > ptr_->border_spec.width * 2);
     const auto& box = ptr_->box;
     assert(std::ranges::size(box) == std::ranges::size(box::Rounded<Char>));
+
+    // calculate contents_width
+    const auto width = std::min(ptr_->contents_spec.width, n);
+    const auto contents_width = npos_sub(width, ptr_->border_spec.width * 2);
 
     switch (phase_) {
     case 0: {
@@ -77,10 +78,10 @@ public:
         bs.fill = top_mid(box);
       // clang-format off
       out = spec_format_to<Char>(out, bs, top_left(box));
-      out = line_format_to<Char>(out, bs.style, ptr_->title, top_mid(box), align_t::center, npos_sub(w, bs.width * 2));
+      out = line_format_to<Char>(out, bs.style, ptr_->title, top_mid(box), align_t::center, contents_width);
       out = rspec_format_to<Char>(out, bs, top_right(box));
       // clang-format on
-      return {out, w};
+      return out;
     }
     case 1: {
       if (line_fmtr_) {
@@ -89,7 +90,7 @@ public:
         const auto& bs = ptr_->border_spec;
         // clang-format off
         out = spec_format_to<Char>(out, bs, mid_left(box));
-        out = line_format_to<Char>(out, cs.style, line_fmtr_, cs.fill, cs.align, npos_sub(w, bs.width * 2));
+        out = line_format_to<Char>(out, cs.style, line_fmtr_, cs.fill, cs.align, contents_width);
         out = rspec_format_to<Char>(out, bs, mid_right(box));
         // clang-format on
         if (ptr_->nomatter and not line_fmtr_)
@@ -102,11 +103,11 @@ public:
           bs.fill = bottom_mid(box);
         // clang-format off
         out = spec_format_to<Char>(out, bs, bottom_left(box));
-        out = line_format_to<Char>(out, bs.style, "", bottom_mid(box), {}, npos_sub(w, bs.width * 2));
+        out = line_format_to<Char>(out, bs.style, "", bottom_mid(box), {}, contents_width);
         out = rspec_format_to<Char>(out, bs, bottom_right(box));
         // clang-format on
       }
-      return {out, w};
+      return out;
     }
     default:
       RICH_UNREACHABLE();
