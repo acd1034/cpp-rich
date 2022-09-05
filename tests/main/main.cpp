@@ -31,6 +31,81 @@ TEST_CASE("main", "[main][exception]") {
   }
 }
 
+TEST_CASE("main", "[main][find_nth]") {
+  {
+    //                     0123456
+    std::string_view sv = "a--a--";
+    constexpr auto npos = std::string_view::npos;
+    CHECK(rich::find_nth(sv, 'a', 0, 0) == 0);
+    CHECK(rich::find_nth(sv, 'a', 0, 1) == 1);
+    CHECK(rich::find_nth(sv, 'a', 0, 2) == 2);
+    CHECK(rich::find_nth(sv, 'a', 0, 3) == 3);
+    CHECK(rich::find_nth(sv, 'a', 0, 4) == 4);
+    CHECK(rich::find_nth(sv, 'a', 0, 5) == 5);
+    CHECK(rich::find_nth(sv, 'a', 0, 6) == npos);
+
+    CHECK(rich::find_nth(sv, 'a', 1, 0) == 0);
+    CHECK(rich::find_nth(sv, 'a', 1, 1) == 3);
+    CHECK(rich::find_nth(sv, 'a', 1, 2) == 3);
+    CHECK(rich::find_nth(sv, 'a', 1, 3) == 3);
+    CHECK(rich::find_nth(sv, 'a', 1, 4) == npos);
+    CHECK(rich::find_nth(sv, 'a', 1, 5) == npos);
+    CHECK(rich::find_nth(sv, 'a', 1, 6) == npos);
+
+    CHECK(rich::find_nth(sv, 'a', 2, 0) == 3);
+    CHECK(rich::find_nth(sv, 'a', 2, 1) == npos);
+    CHECK(rich::find_nth(sv, 'a', 2, 2) == npos);
+    CHECK(rich::find_nth(sv, 'a', 2, 3) == npos);
+    CHECK(rich::find_nth(sv, 'a', 2, 4) == npos);
+    CHECK(rich::find_nth(sv, 'a', 2, 5) == npos);
+    CHECK(rich::find_nth(sv, 'a', 2, 6) == npos);
+
+    CHECK(rich::find_nth(sv, 'a', 3, 0) == npos);
+    CHECK(rich::find_nth(sv, 'a', 3, 1) == npos);
+    CHECK(rich::find_nth(sv, 'a', 3, 2) == npos);
+    CHECK(rich::find_nth(sv, 'a', 3, 3) == npos);
+    CHECK(rich::find_nth(sv, 'a', 3, 4) == npos);
+    CHECK(rich::find_nth(sv, 'a', 3, 5) == npos);
+    CHECK(rich::find_nth(sv, 'a', 3, 6) == npos);
+  }
+  {
+    //                     0123456
+    std::string_view sv = "--a--a";
+    constexpr auto npos = std::string_view::npos;
+    CHECK(rich::find_nth(sv, 'a', 0, 0) == 0);
+    CHECK(rich::find_nth(sv, 'a', 0, 1) == 1);
+    CHECK(rich::find_nth(sv, 'a', 0, 2) == 2);
+    CHECK(rich::find_nth(sv, 'a', 0, 3) == 3);
+    CHECK(rich::find_nth(sv, 'a', 0, 4) == 4);
+    CHECK(rich::find_nth(sv, 'a', 0, 5) == 5);
+    CHECK(rich::find_nth(sv, 'a', 0, 6) == npos);
+
+    CHECK(rich::find_nth(sv, 'a', 1, 0) == 2);
+    CHECK(rich::find_nth(sv, 'a', 1, 1) == 2);
+    CHECK(rich::find_nth(sv, 'a', 1, 2) == 2);
+    CHECK(rich::find_nth(sv, 'a', 1, 3) == 5);
+    CHECK(rich::find_nth(sv, 'a', 1, 4) == 5);
+    CHECK(rich::find_nth(sv, 'a', 1, 5) == 5);
+    CHECK(rich::find_nth(sv, 'a', 1, 6) == npos);
+
+    CHECK(rich::find_nth(sv, 'a', 2, 0) == 5);
+    CHECK(rich::find_nth(sv, 'a', 2, 1) == 5);
+    CHECK(rich::find_nth(sv, 'a', 2, 2) == 5);
+    CHECK(rich::find_nth(sv, 'a', 2, 3) == npos);
+    CHECK(rich::find_nth(sv, 'a', 2, 4) == npos);
+    CHECK(rich::find_nth(sv, 'a', 2, 5) == npos);
+    CHECK(rich::find_nth(sv, 'a', 2, 6) == npos);
+
+    CHECK(rich::find_nth(sv, 'a', 3, 0) == npos);
+    CHECK(rich::find_nth(sv, 'a', 3, 1) == npos);
+    CHECK(rich::find_nth(sv, 'a', 3, 2) == npos);
+    CHECK(rich::find_nth(sv, 'a', 3, 3) == npos);
+    CHECK(rich::find_nth(sv, 'a', 3, 4) == npos);
+    CHECK(rich::find_nth(sv, 'a', 3, 5) == npos);
+    CHECK(rich::find_nth(sv, 'a', 3, 6) == npos);
+  }
+}
+
 TEST_CASE("main", "[main][file]") {
   {
     std::cout << hline << std::endl;
