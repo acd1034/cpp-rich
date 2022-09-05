@@ -60,10 +60,10 @@ namespace rich {
     return copy_to(out, sv.data(), sv.data() + sv.size(), n);
   }
 
-  // style_format_to
+  // set_style
 
   template <typename Char, std::output_iterator<const Char&> Out>
-  auto style_format_to(Out out, const fmt::text_style& style)
+  auto set_style(Out out, const fmt::text_style& style)
     -> std::pair<Out, bool> {
     bool has_style = false;
     if (style.has_emphasis()) {
@@ -103,8 +103,8 @@ namespace rich {
                        const std::size_t left, const std::size_t right) {
     if (sv.empty() and (fill.empty() or (left == 0 and right == 0)))
       return out;
-    bool has_style;
-    std::tie(out, has_style) = style_format_to<Char>(out, style);
+    auto [out2, has_style] = set_style<Char>(out, style);
+    out = out2;
     if (not fill.empty())
       out = copy_to<Char>(out, fill, left);
     if (not sv.empty())
