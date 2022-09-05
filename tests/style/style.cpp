@@ -5,9 +5,9 @@
 #include <rich/regex.hpp>
 #include <rich/style.hpp>
 
-inline constexpr std::string_view
-  hline("\n===================================================================="
-        "===========");
+inline constexpr std::string_view hline =
+  "============================================================================"
+  "===";
 
 static_assert(std::output_iterator<rich::erased_output<char>, const char&>);
 

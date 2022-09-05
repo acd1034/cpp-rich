@@ -5,9 +5,9 @@
 #include <rich/file.hpp>
 #include <rich/regex.hpp>
 
-inline constexpr std::string_view
-  hline("\n===================================================================="
-        "===========");
+inline constexpr std::string_view hline =
+  "============================================================================"
+  "===";
 
 void fn() { throw rich::runtime_error("Rich exception thrown!"); }
 
