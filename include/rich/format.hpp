@@ -4,6 +4,7 @@
 #include <fmt/color.h>
 
 #include <rich/fundamental.hpp>
+#include <rich/ranges.hpp>
 
 namespace rich {
 
@@ -31,33 +32,13 @@ namespace rich {
   (rich::choose_literal<Char>::choose(Literal, L##Literal))
 
   // copy_to
-  // https://github.com/fmtlib/fmt/blob/fd41110d383b7240231718f009b21498e3984ccc/include/fmt/core.h#L838-L853
-
-  template <class Out, class In>
-  constexpr Out copy_to(Out out, In first, In last, std::size_t n = 1) {
-    while (n--)
-      for (In in = first; in != last;)
-        *out++ = *in++;
-    return out;
-  }
-
-  template <class T>
-  constexpr T* copy_to(T* out, const T* first, const T* last,
-                       std::size_t n = 1) {
-    if (std::is_constant_evaluated())
-      return copy_to<T*, const T*>(out, first, last, n);
-    const auto size = icast<std::size_t>(last - first);
-    while (n--) {
-      std::memcpy(out, first, sizeof(T) * size);
-      out += size;
-    }
-    return out;
-  }
 
   template <typename Char, std::output_iterator<const Char&> Out>
   constexpr Out copy_to(Out out, std::basic_string_view<Char> sv,
                         std::size_t n = 1) {
-    return copy_to(out, sv.data(), sv.data() + sv.size(), n);
+    while (n--)
+      out = rich::ranges::copy(sv.data(), sv.data() + sv.size(), out).second;
+    return out;
   }
 
   // set_style
