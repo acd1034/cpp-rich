@@ -16,7 +16,7 @@ namespace rich {
 
   template <class Out1, std::output_iterator<std::ptrdiff_t> Out2, line_range R>
   requires std::output_iterator<Out1, std::ranges::range_value_t<R>>
-  auto split_newline(Out1 out1, Out2 out2, R&& segs) {
+    std::ptrdiff_t split_newline(Out1 out1, Out2 out2, R&& segs) {
     *out2++ = 0;
     std::ptrdiff_t out1_count = 0;
     const auto npos = std::basic_string_view<
@@ -118,11 +118,11 @@ namespace rich {
     -> lines<typename std::ranges::range_value_t<R>::char_type>;
 
   template <class Out, line_range R>
-  requires std::output_iterator<Out, std::ranges::range_value_t<R>>
-  auto crop_line(Out out, R&& line, const std::size_t n) {
+  requires std::output_iterator<Out, std::ranges::range_value_t<R>> std::size_t
+  crop_line(Out out, R&& line, const std::size_t n) {
     std::size_t current = 0;
     for (const auto& seg : line) {
-      auto next = current + seg.text().size();
+      std::size_t next = current + seg.text().size();
       if (next > n) {
         *out++ = {seg.text().substr(0, n - current), seg.style()};
         return n;

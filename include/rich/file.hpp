@@ -26,12 +26,11 @@ namespace rich {
   constexpr std::size_t find_nth(std::basic_string_view<Char, Traits> sv,
                                  const Char c, std::size_t n,
                                  std::size_t pos = 0) noexcept {
-    constexpr auto npos = std::basic_string_view<Char, Traits>::npos;
     if (n == 0)
-      return pos < sv.size() ? pos : npos;
+      return pos;
     while (--n > 0) {
       pos = sv.find(c, pos);
-      if (pos == npos)
+      if (pos == std::basic_string_view<Char, Traits>::npos)
         return pos;
       ++pos;
     }
@@ -46,7 +45,7 @@ namespace rich {
     auto first = find_nth(contents, '\n', a);
     if (first != std::string_view::npos)
       ++first;
-    auto last = find_nth(contents, '\n', extra_line * 2, first);
+    auto last = find_nth(contents, '\n', extra_line * 2 + 1, first);
     return contents.substr(first, last - first);
   }
 } // namespace rich

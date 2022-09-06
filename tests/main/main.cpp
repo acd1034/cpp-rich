@@ -42,7 +42,7 @@ TEST_CASE("main", "[main][find_nth]") {
     CHECK(rich::find_nth(sv, 'a', 0, 3) == 3);
     CHECK(rich::find_nth(sv, 'a', 0, 4) == 4);
     CHECK(rich::find_nth(sv, 'a', 0, 5) == 5);
-    CHECK(rich::find_nth(sv, 'a', 0, 6) == npos);
+    CHECK(rich::find_nth(sv, 'a', 0, 6) == 6);
 
     CHECK(rich::find_nth(sv, 'a', 1, 0) == 0);
     CHECK(rich::find_nth(sv, 'a', 1, 1) == 3);
@@ -78,7 +78,7 @@ TEST_CASE("main", "[main][find_nth]") {
     CHECK(rich::find_nth(sv, 'a', 0, 3) == 3);
     CHECK(rich::find_nth(sv, 'a', 0, 4) == 4);
     CHECK(rich::find_nth(sv, 'a', 0, 5) == 5);
-    CHECK(rich::find_nth(sv, 'a', 0, 6) == npos);
+    CHECK(rich::find_nth(sv, 'a', 0, 6) == 6);
 
     CHECK(rich::find_nth(sv, 'a', 1, 0) == 2);
     CHECK(rich::find_nth(sv, 'a', 1, 1) == 2);
