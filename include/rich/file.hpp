@@ -43,7 +43,7 @@ namespace rich {
     const auto l = icast<std::size_t>(line);
     const auto a = sat_sub(l, extra_line + 1);
     auto first = find_nth(contents, '\n', a);
-    if (first != std::string_view::npos)
+    if (first != 0 and first != std::string_view::npos)
       ++first;
     auto last = find_nth(contents, '\n', extra_line * 2 + 1, first);
     return contents.substr(first, last - first);
