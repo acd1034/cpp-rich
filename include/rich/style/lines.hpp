@@ -106,6 +106,17 @@ namespace rich {
       bounds_.shrink_to_fit();
     }
 
+    constexpr lines(std::initializer_list<segment<Char>> segs,
+                    const std::size_t size_hint = 0)
+      : bounds_(make_reserved<std::vector<std::ptrdiff_t>>(size_hint + 1)) {
+      segments_.reserve(segs.size() + size_hint);
+
+      split_newline(std::back_inserter(segments_), std::back_inserter(bounds_),
+                    segs);
+      segments_.shrink_to_fit();
+      bounds_.shrink_to_fit();
+    }
+
     // observer
     iterator begin() const { return {*this, 0}; }
     iterator end() const { return {*this, std::ssize(bounds_) - 1}; }

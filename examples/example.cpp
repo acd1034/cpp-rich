@@ -37,9 +37,8 @@ int main() {
     auto str = fmt::format("{}:{}:{} in {}",
                            e.where().file_name(), e.where().line(),
                            e.where().column(), e.where().function_name());
+    rich::lines<char> lns2{{std::string_view(str), {}}};
     // clang-format on
-    rich::lines lns2(
-      std::vector<rich::segment<char>>{{std::string_view(str), {}}});
 
     { // Editor
       auto pnl = rich::panel(lns);

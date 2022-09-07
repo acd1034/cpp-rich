@@ -161,4 +161,12 @@ TEST_CASE("style", "[style][file]") {
   }
 }
 
+TEST_CASE("style", "[style]") {
+  { // conversion initializer_list → lines → panel
+    auto sv = std::string_view("Hello world!");
+    auto pnl = rich::panel(rich::lines<char>{{sv, {}}});
+    pnl.title = std::string_view("Traceback (most recent call)");
+    fmt::print("{}\n{}\n", hline, pnl);
+  }
+}
 // TEST_CASE("style", "[style][squared]") {}
