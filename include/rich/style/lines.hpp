@@ -38,7 +38,7 @@ namespace rich {
     return out1_count;
   }
 
-  template <typename Char>
+  template <typename Char = char>
   struct lines {
   private:
     std::vector<segment<Char>> segments_{};
