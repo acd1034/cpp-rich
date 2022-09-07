@@ -38,7 +38,7 @@ namespace rich {
     return out1_count;
   }
 
-  template <typename Char>
+  template <typename Char = char>
   struct lines {
   private:
     std::vector<segment<Char>> segments_{};
@@ -99,6 +99,17 @@ namespace rich {
         segments_.reserve(std::ranges::size(segs) + size_hint);
       else
         segments_.reserve(size_hint + 1);
+
+      split_newline(std::back_inserter(segments_), std::back_inserter(bounds_),
+                    segs);
+      segments_.shrink_to_fit();
+      bounds_.shrink_to_fit();
+    }
+
+    constexpr lines(std::initializer_list<segment<Char>> segs,
+                    const std::size_t size_hint = 0)
+      : bounds_(make_reserved<std::vector<std::ptrdiff_t>>(size_hint + 1)) {
+      segments_.reserve(segs.size() + size_hint);
 
       split_newline(std::back_inserter(segments_), std::back_inserter(bounds_),
                     segs);
