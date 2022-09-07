@@ -157,6 +157,11 @@ TEST_CASE("style", "[style][file]") {
         tbl.title = std::string_view("Traceback (most recent call)");
         fmt::print("{}\n{}\n", hline, tbl);
       }
+      { // table tuple-like ctor
+        auto tbl = rich::table(lns, lns);
+        tbl.title = std::string_view("Traceback (most recent call)");
+        fmt::print("{}\n{}\n", hline, tbl);
+      }
     }
   }
 }

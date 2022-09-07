@@ -37,6 +37,16 @@ namespace rich {
     bool nomatter = false;
 
     table() = default;
+    template <line_formattable T, line_formattable... U>
+    // clang-format off
+    requires (std::same_as<typename std::remove_cvref_t<T>::char_type, typename std::remove_cvref_t<U>::char_type> and ...)
+      // clang-format on
+      explicit table(T&& t, U&&... u)
+      : cells_(make_reserved<std::vector<value_type>>(1 + sizeof...(U))) {
+      push_back(std::forward<T>(t));
+      using swallow = std::initializer_list<int>;
+      (void)swallow{(void(push_back(std::forward<U>(u))), 0)...};
+    }
 
     auto begin() const { return cells_.begin(); }
     auto end() const { return cells_.end(); }
@@ -54,6 +64,11 @@ namespace rich {
       return cells_.emplace_back(std::forward<Args>(args)...);
     }
   };
+
+  template <line_formattable T, line_formattable... U>
+  requires(std::same_as<typename T::char_type, typename U::char_type>and...)
+    table(T, U...)
+  ->table<typename T::char_type>;
 } // namespace rich
 
 template <typename Char, std::same_as<Char> Char2>
