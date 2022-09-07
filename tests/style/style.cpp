@@ -170,8 +170,30 @@ TEST_CASE("style", "[style]") {
   { // conversion initializer_list → lines → panel
     auto sv = std::string_view("Hello world!");
     auto pnl = rich::panel(rich::lines<char>{{sv, {}}});
-    pnl.title = std::string_view("Traceback (most recent call)");
     fmt::print("{}\n{}\n", hline, pnl);
+  }
+  { // ctor of table
+    auto sv = std::string_view("Hello world!");
+    auto lns = rich::lines<char>{{sv, {}}};
+    fmt::print("{}\n", hline);
+    {
+      auto tbl = rich::table(lns);
+      fmt::print("{}\n", tbl);
+    }
+    {
+      auto tbl = rich::table(lns, {});
+      fmt::print("{}\n", tbl);
+    }
+    {
+      auto tbl = rich::table(lns, lns);
+      // auto tbl2 = rich::table(tbl); // SIGSEGV - Segmentation violation signal
+      // fmt::print("{}\n", tbl);
+    }
+    {
+      auto tbl = rich::table(lns, lns);
+      // auto tbl2 = rich::table(tbl, {}); // SIGSEGV - Segmentation violation signal
+      // fmt::print("{}\n", tbl);
+    }
   }
 }
 // TEST_CASE("style", "[style][squared]") {}
