@@ -88,24 +88,18 @@ int main() {
       fmt::print("{:=^80}\n{}\n", "enum in panel", pnl);
     }
     { // table of lines and enum
-      rich::table<char> tbl;
-      tbl.emplace_back(lns2);
-      tbl.emplace_back(numbered_code);
+      rich::table tbl(lns2, numbered_code);
       tbl.title = std::string_view("Traceback (most recent call)");
       fmt::print("{:=^80}\n{}\n", "table of lines and enum", tbl);
     }
     { // RoundedNoSep table
-      rich::table<char> tbl;
-      tbl.emplace_back(lns2);
-      tbl.emplace_back(numbered_code);
+      rich::table tbl(lns2, numbered_code);
       tbl.box = rich::box::RoundedNoSep<char>;
       tbl.title = std::string_view("Traceback (most recent call)");
       fmt::print("{:=^80}\n{}\n", "RoundedNoSep table", tbl);
     }
     { // NoBorder table
-      rich::table<char> tbl;
-      tbl.emplace_back(lns2);
-      tbl.emplace_back(numbered_code);
+      rich::table tbl(lns2, numbered_code);
       tbl.box = rich::box::NoBorder<char>;
       tbl.border_spec.width = 0;
       tbl.title = std::string_view("Traceback (most recent call)");
