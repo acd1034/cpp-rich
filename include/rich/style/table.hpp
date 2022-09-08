@@ -39,7 +39,12 @@ namespace rich {
     table() = default;
 
     template <line_formattable T>
+    requires (not std::same_as<std::remove_cvref_t<T>, table>)
     explicit table(T&& t, int = {}) : cells_{std::forward<T>(t)} {}
+
+    /* template <line_formattable T>
+    requires std::same_as<std::remove_cvref_t<T>, table>
+    explicit table(T&& t, int) : cells_{std::forward<T>(t)} {} */
 
     template <line_formattable T, line_formattable... U>
     // clang-format off

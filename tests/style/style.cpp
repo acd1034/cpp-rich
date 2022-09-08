@@ -186,14 +186,20 @@ TEST_CASE("style", "[style]") {
     }
     {
       auto tbl = rich::table(lns, lns);
-      // auto tbl2 = rich::table(tbl); // SIGSEGV - Segmentation violation signal
-      // fmt::print("{}\n", tbl);
+      auto tbl2 = rich::table(tbl);
+      fmt::print("{}\n", tbl2);
     }
-    {
+    /* {
       auto tbl = rich::table(lns, lns);
-      // auto tbl2 = rich::table(tbl, {}); // SIGSEGV - Segmentation violation signal
-      // fmt::print("{}\n", tbl);
-    }
+      auto tbl2 = rich::table(tbl, {});
+      fmt::print("{}\n", tbl2); // bus error
+    } */
+    /* {
+      auto tbl = rich::table(lns, lns);
+      auto tbl2 = rich::table<char>();
+      tbl2.push_back(tbl); // SIGSEGV - Segmentation violation signal
+      fmt::print("{}\n", tbl2);
+    } */
   }
 }
 // TEST_CASE("style", "[style][squared]") {}

@@ -30,6 +30,7 @@ namespace rich {
     // NOTE: implicit conversion is allowed
     template <line_formattable L, class D = std::remove_cvref_t<L>,
               class LF = line_formatter<D, Char>>
+    requires (not std::same_as<std::remove_cvref_t<L>, cell>)
     cell(L&& l)
       : ptr_(std::make_shared<D>(std::forward<L>(l))),
         lfmtr_(std::make_any<LF>(*std::static_pointer_cast<D>(ptr_))),
