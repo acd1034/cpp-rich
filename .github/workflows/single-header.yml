@@ -1,0 +1,23 @@
+# Reference: https://github.com/kokkos/mdspan/blob/760060059fb746018a9849234e02dc9bf003861b/.github/workflows/single-header.yml
+name: Build Single Header
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v2
+      - run: sudo apt-get install python3
+      - run: ./make_single_header.py ./include/rich/rich.hpp > /tmp/rich.hpp
+      - uses: actions/checkout@v2
+        with:
+          ref: single-header
+      - run: mv /tmp/rich.hpp rich.hpp
+      - uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          branch: single-header
+          commit_message: Update single header build
