@@ -1,8 +1,5 @@
 #define FMT_HEADER_ONLY
-#include <ranges>
-#include <rich/file.hpp>
-#include <rich/regex.hpp>
-#include <rich/style.hpp>
+#include <rich/rich.hpp>
 
 int divide(int num, int div) {
   if (div == 0)
