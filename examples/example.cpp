@@ -8,23 +8,6 @@
 void fn() { throw rich::runtime_error("Rich exception thrown!"); }
 
 int main() {
-  const std::regex re(R"((//.*?\n)|\b(auto|const|int|void|throw)\b|(".*?"))");
-  const std::vector<fmt::text_style> styles{
-    fmt::emphasis::faint,          // comment
-    fg(fmt::terminal_color::red),  // keyword
-    fg(fmt::terminal_color::blue), // literal
-    fg(fmt::color::red),
-  };
-  const auto highlight = std::views::transform([&styles](const auto& x) {
-    const auto& [pre, mo] = x;
-    if (!mo)
-      return rich::segment(pre);
-    const auto n = rich::match_find(*mo);
-    if (!n or *n >= std::ranges::size(styles))
-      return rich::segment(pre, rich::ranges::back(styles));
-    return rich::segment(pre, rich::ranges::index(styles, *n));
-  });
-
   try {
     fn();
   } catch (rich::exception& e) {
@@ -32,7 +15,7 @@ int main() {
     const std::size_t extra = 3;
     auto partial = rich::extract_partial_contents(std::string_view(contents),
                                                   e.where().line(), extra);
-    auto lns = rich::lines(rich::regex_range(partial, re) | highlight);
+    auto lns = rich::lines(rich::syntax_highlight(partial));
     // clang-format off
     auto str = fmt::format("{}:{}:{} in {}",
                            e.where().file_name(), e.where().line(),
