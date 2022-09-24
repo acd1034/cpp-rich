@@ -1,4 +1,4 @@
-# `cpp-rich`
+# `cpp-rich`: Text formatting with decoration
 
 [![Linux build status](https://github.com/acd1034/cpp-rich/actions/workflows/linux-build.yml/badge.svg)](https://github.com/acd1034/cpp-rich/actions/workflows/linux-build.yml)
 [![Github issues](https://img.shields.io/github/issues/acd1034/cpp-rich)](https://github.com/acd1034/cpp-rich/issues)
