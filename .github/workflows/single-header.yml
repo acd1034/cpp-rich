@@ -4,6 +4,7 @@ name: Build Single Header
 on:
   push:
     branches: [main]
+    paths: ["**.hpp"]
 
 jobs:
   deploy:
