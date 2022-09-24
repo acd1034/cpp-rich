@@ -12,7 +12,7 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - run: sudo apt-get install python3
-      - run: ./make_single_header.py ./include/rich/rich.hpp > /tmp/rich.hpp
+      - run: python3 ./make_single_header.py ./include/rich/rich.hpp > /tmp/rich.hpp
       - uses: actions/checkout@v2
         with:
           ref: single-header
