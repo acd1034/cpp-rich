@@ -4,11 +4,15 @@
 #include <rich/regex.hpp>
 #include <rich/style.hpp>
 
-void fn() { throw rich::runtime_error("Runtime error occurred!"); }
+int divide(int num, int div) {
+  if (div == 0)
+    throw rich::runtime_error("Division by zero");
+  return num / div;
+}
 
 int main() {
   try {
-    fn();
+    divide(1, 0);
   } catch (rich::exception& e) {
     // location
     auto str = fmt::format("{}:{}:{} in {}",

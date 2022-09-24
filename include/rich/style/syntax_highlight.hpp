@@ -13,7 +13,8 @@ namespace rich::theme {
   inline constexpr auto Default =
     _make_array<fmt::text_style>(fmt::emphasis::faint,          // comment
                                  fg(fmt::terminal_color::red),  // keyword
-                                 fg(fmt::terminal_color::blue), // literal
+                                 fg(fmt::terminal_color::blue), // numeric literal
+                                 fg(fmt::terminal_color::blue), // string literal
                                  fg(fmt::color::red)            // invalid
     );
 } // namespace rich::theme
@@ -44,7 +45,7 @@ namespace rich {
   auto syntax_highlight(std::string_view sv,
                         theme_t theme = theme_t(theme::Default)) {
     static const std::regex re(
-      R"((//.*?\n)|\b(auto|const|int|void|throw|try|catch)\b|(".*?"))");
+      R"((//.*?\n)|\b(auto|const|int|void|if|else|throw|try|catch|return)\b|(\b\d+\b)|(".*?"))");
     assert(theme.size() >= icast<std::size_t>(re.mark_count()));
     return rich::regex_range(sv, re)
            | std::views::transform(syntax_highlighter(theme));
