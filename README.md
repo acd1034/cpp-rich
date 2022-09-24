@@ -60,6 +60,8 @@ int main() {
 }
 ```
 
+<img alt="cpp-rich-light" src="https://user-images.githubusercontent.com/48613285/192085521-87090ce8-d7fc-4085-bf11-d350d4c99f4d.png">
+
 ## Library Dependencies
 
 This library uses [fmt](https://github.com/fmtlib/fmt) for formatting texts.
