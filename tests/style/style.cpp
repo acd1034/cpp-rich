@@ -104,22 +104,6 @@ TEST_CASE("style", "[style][segment]") {
 void fn() { throw rich::runtime_error("Rich exception thrown!"); }
 
 TEST_CASE("style", "[style][file]") {
-  const std::regex re(R"((//.*?\n)|\b(auto|throw|void)\b|(".*?"))");
-  const std::vector<fmt::text_style> styles{
-    fmt::emphasis::faint,          // comment
-    fg(fmt::terminal_color::red),  // keyword
-    fg(fmt::terminal_color::blue), // literal
-    fg(fmt::color::red),
-  };
-  const auto highlight = std::views::transform([&styles](const auto& x) {
-    const auto& [pre, mo] = x;
-    if (!mo)
-      return rich::segment(pre);
-    const auto n = rich::match_find(*mo);
-    if (!n or *n >= std::ranges::size(styles))
-      return rich::segment(pre, rich::ranges::back(styles));
-    return rich::segment(pre, rich::ranges::index(styles, *n));
-  });
   {
     try {
       fn();
@@ -128,7 +112,7 @@ TEST_CASE("style", "[style][file]") {
       const std::size_t extra = 3;
       auto partial = rich::extract_partial_contents(std::string_view(contents),
                                                     e.where().line(), extra);
-      auto highlighted = rich::regex_range(partial, re) | highlight;
+      auto highlighted = rich::syntax_highlight(partial);
       { // regex_range
         fmt::print("{}\n{}\n", hline, fmt::join(highlighted, ""));
       }
