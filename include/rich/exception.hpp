@@ -28,12 +28,8 @@ namespace rich {
     exception& operator=(const exception&) noexcept = default;
 
     ~exception() noexcept override = default;
-    const char* what() const noexcept override {
-      return msg_.c_str();
-    }
-    std::source_location where() const noexcept {
-      return loc_;
-    }
+    const char* what() const noexcept override { return msg_.c_str(); }
+    std::source_location where() const noexcept { return loc_; }
   };
 
   // 雑に使える例外
