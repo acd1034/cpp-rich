@@ -5,6 +5,7 @@ on:
   push:
     branches: [main]
     paths: ["**.hpp"]
+  workflow_dispatch:
 
 jobs:
   deploy:
